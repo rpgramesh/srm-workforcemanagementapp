@@ -8,6 +8,9 @@ import {
   getWeeklyRoster,
 } from "@/features/data/actions/dashboard-actions";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default async function AdminSchedulePage() {
   const [summary, roster] = await Promise.all([
     getRosterSummaryCards(),

@@ -10,6 +10,9 @@ import {
   getShiftSwaps,
 } from "@/features/data/actions/dashboard-actions";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default async function AdminDashboardPage() {
   const [metrics, liveMembers, todaysRoster, swaps] = await Promise.all([
     getDashboardMetricGrid(),

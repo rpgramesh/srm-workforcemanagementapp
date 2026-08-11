@@ -9,6 +9,9 @@ import {
 } from "@/features/data/actions/dashboard-actions";
 import { userRepository } from "@/features/users/repositories/supabase-user-repository";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 export default async function ClockInPage() {
   const users = await userRepository.list({ onlyActive: true, limit: 20 });
   const defaultUser =
