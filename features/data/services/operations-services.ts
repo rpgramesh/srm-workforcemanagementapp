@@ -91,7 +91,7 @@ export class DashboardService {
     }, 0);
 
     const budget = period?.budgetAmount ?? 20000;
-    const progress = percent(laborCost, budget, 0);
+    const _progress = percent(laborCost, budget, 0);
 
     return [
       {
@@ -110,15 +110,15 @@ export class DashboardService {
         hint: (await this.ops.listDepartments()).slice(0, 3).map((d) => d.shortLabel).join(", ") + "...",
         accent: "sky",
       },
-      {
-        id: "labor_vs_budget",
-        label: "Labor Cost vs Budget",
-        value: `${progress}%`,
-        suffix: "utilized",
-        hint: `Remaining buffer: ${Math.max(0, 100 - progress)}%`,
-        accent: "rose",
-        progressPercent: progress,
-      },
+      // {
+      //   id: "labor_vs_budget",
+      //   label: "Labor Cost vs Budget",
+      //   value: `${progress}%`,
+      //   suffix: "utilized",
+      //   hint: `Remaining buffer: ${Math.max(0, 100 - progress)}%`,
+      //   accent: "rose",
+      //   progressPercent: progress,
+      // },
     ];
   }
 

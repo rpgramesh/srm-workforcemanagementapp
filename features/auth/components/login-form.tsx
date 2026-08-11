@@ -10,9 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { adminLogin } from "@/features/auth/actions/login-action";
 import { loginSchema, type LoginFormValues } from "@/features/auth/schemas/login-schema";
-import {
-  formatAustralianMobile,
-} from "@/features/auth/services/au-mobile";
+import { formatAustralianMobile } from "@/features/auth/services/au-mobile";
 import { cn } from "@/lib/utils";
 
 const keypadDigits = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
@@ -40,10 +38,7 @@ export function LoginForm() {
     mode: "onChange",
     reValidateMode: "onChange",
     shouldUnregister: false,
-    defaultValues: {
-      mobile: "",
-      pin: "",
-    },
+    defaultValues: { mobile: "", pin: "" },
   });
 
   const mobileValue = watch("mobile");
@@ -64,7 +59,8 @@ export function LoginForm() {
     });
   };
 
-  const sanitizePin = (raw: string): string => raw.replace(/\D/g, "").slice(0, PIN_LENGTH);
+  const sanitizePin = (raw: string): string =>
+    raw.replace(/\D/g, "").slice(0, PIN_LENGTH);
 
   const updatePin = (value: string) => {
     const next = sanitizePin(value);
@@ -116,15 +112,11 @@ export function LoginForm() {
         try {
           const result = await adminLogin(localMobile, localPin);
           if (result.success) {
-            toast.success(result.message, {
-              description: result.description,
-            });
+            toast.success(result.message, { description: result.description });
             router.push("/admin/dashboard");
             router.refresh();
           } else {
-            toast.error(result.message, {
-              description: result.description,
-            });
+            toast.error(result.message, { description: result.description });
           }
         } finally {
           verifyLockRef.current = false;
@@ -132,7 +124,15 @@ export function LoginForm() {
         }
       });
     },
-    [isPending, mobileValue, pinValue, mobileFieldState.invalid, pinFieldState.invalid, trigger, router],
+    [
+      isPending,
+      mobileValue,
+      pinValue,
+      mobileFieldState.invalid,
+      pinFieldState.invalid,
+      trigger,
+      router,
+    ],
   );
 
   useEffect(() => {
@@ -152,9 +152,7 @@ export function LoginForm() {
     }, REALTIME_VERIFY_DEBOUNCE_MS);
 
     return () => {
-      if (debouncedVerifyTimer.current) {
-        clearTimeout(debouncedVerifyTimer.current);
-      }
+      if (debouncedVerifyTimer.current) clearTimeout(debouncedVerifyTimer.current);
     };
   }, [
     mobileValue,
@@ -178,7 +176,6 @@ export function LoginForm() {
   const pinRegistration = register("pin");
 
   const isAnyLoading = isPending || isAutoVerifying;
-
   const mobileOk = isDirty && !mobileFieldState.invalid && mobileValue.length > 6;
   const pinOk = isDirty && !pinFieldState.invalid && pinValue.length === PIN_LENGTH;
   const formLikelyValid = !!(mobileOk && pinOk);
@@ -226,17 +223,18 @@ export function LoginForm() {
               placeholder="+61 412 345 678"
               className={cn(
                 "rounded-2xl pl-11",
-                mobileFieldState.invalid && "ring-2 ring-rose-400/40 border-rose-400/40",
+                mobileFieldState.invalid &&
+                  "ring-2 ring-rose-400/40 border-rose-400/40",
                 mobileOk && "ring-2 ring-emerald-400/30 border-emerald-400/30",
               )}
               value={mobileValue}
-              onChange={(event) => {
-                updateMobile(event.target.value);
-              }}
+              onChange={(event) => updateMobile(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
-                  const nextPin = document.getElementById("login-pin") as HTMLInputElement | null;
+                  const nextPin = document.getElementById(
+                    "login-pin",
+                  ) as HTMLInputElement | null;
                   nextPin?.focus();
                   nextPin?.select();
                 }
@@ -256,9 +254,9 @@ export function LoginForm() {
           <div className="flex items-center justify-between">
             <label
               htmlFor="login-pin"
-              className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
+              className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400"
             >
-              <span>Security PIN</span>
+              Security PIN
             </label>
             <button
               type="button"
@@ -272,7 +270,6 @@ export function LoginForm() {
             <ShieldEllipsis className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-500" />
             <Input
               id="login-pin"
-              {...pinRegistration}
               name={pinRegistration.name}
               ref={pinRegistration.ref}
               onBlur={pinRegistration.onBlur}
@@ -290,7 +287,8 @@ export function LoginForm() {
               className={cn(
                 "rounded-2xl pl-11 font-mono",
                 pinRevealed ? "tracking-[0.4em]" : "tracking-[0.5em]",
-                pinFieldState.invalid && "ring-2 ring-rose-400/40 border-rose-400/40",
+                pinFieldState.invalid &&
+                  "ring-2 ring-rose-400/40 border-rose-400/40",
                 pinOk && "ring-2 ring-emerald-400/30 border-emerald-400/30",
               )}
               onKeyDown={(event) => {
@@ -301,7 +299,9 @@ export function LoginForm() {
                     target.selectionStart === target.selectionEnd &&
                     target.selectionStart === 0
                   ) {
-                    const prevMobile = document.getElementById("login-mobile") as HTMLInputElement | null;
+                    const prevMobile = document.getElementById(
+                      "login-mobile",
+                    ) as HTMLInputElement | null;
                     prevMobile?.focus();
                     const len = prevMobile?.value.length ?? 0;
                     prevMobile?.setSelectionRange(len, len);
@@ -330,7 +330,10 @@ export function LoginForm() {
                   "size-3 rounded-full border border-white/10 transition-colors",
                   index < pinValue.length ? "bg-emerald-300/80" : "bg-white/5",
                   pinOk && "border-emerald-400/40",
-                  formLikelyValid && !isPending && index === pinValue.length && isAutoVerifying
+                  formLikelyValid &&
+                    !isPending &&
+                    index === pinValue.length &&
+                    isAutoVerifying
                     ? "animate-pulse bg-emerald-200/70"
                     : "",
                 )}
