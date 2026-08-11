@@ -19,22 +19,7 @@ import { deactivateStaff } from "@/features/users/actions/staff-actions";
 import type { AppRole } from "@/types/app";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-
-const ROLE_LABEL: Record<AppRole, string> = {
-  super_admin: "Super Admin",
-  restaurant_admin: "Restaurant Admin",
-  manager: "Manager",
-  supervisor: "Supervisor",
-  employee: "Employee",
-};
-
-const ROLE_TONE: Record<AppRole, "neutral" | "emerald" | "amber" | "rose" | "sky" | "teal" | "indigo" | "violet" | "slate"> = {
-  super_admin: "rose",
-  restaurant_admin: "indigo",
-  manager: "sky",
-  supervisor: "amber",
-  employee: "emerald",
-};
+import { ROLE_LABEL, ROLE_TONE, formatUserLabel } from "@/lib/user-labels";
 
 interface Props {
   users: User[];
@@ -97,6 +82,7 @@ export const StaffDirectoryEnhanced = memo(function StaffDirectoryEnhanced({
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {users.map((u) => {
         const dept = departments.find((d) => d.id === u.departmentId);
+        const displayName = formatUserLabel(u);
         const name = `${u.firstName} ${u.lastName}`;
         return (
           <div
@@ -121,7 +107,7 @@ export const StaffDirectoryEnhanced = memo(function StaffDirectoryEnhanced({
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <h4 className="truncate text-sm font-semibold text-white">{name}</h4>
+                  <h4 className="truncate text-sm font-semibold text-white">{displayName}</h4>
                 </div>
                 <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
                   <Badge tone={ROLE_TONE[u.role]} size="sm">{ROLE_LABEL[u.role]}</Badge>
@@ -187,5 +173,3 @@ export const StaffDirectoryEnhanced = memo(function StaffDirectoryEnhanced({
     </div>
   );
 });
-
-export { ROLE_LABEL, ROLE_TONE };

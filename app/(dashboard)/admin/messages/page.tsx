@@ -10,7 +10,7 @@ export default async function MessagesPage() {
   if (!actor) redirect("/login");
 
   return (
-    <DashboardChrome title="Messages" subtitle="Internal secure communications with read receipts">
+    <DashboardChrome title="Messages" subtitle="Internal secure communications with read receipts" actor={actor}>
       <MessagesPageShell currentUserId={actor.userId} currentRole={actor.role} />
     </DashboardChrome>
   );

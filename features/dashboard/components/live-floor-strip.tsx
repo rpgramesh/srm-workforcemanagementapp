@@ -2,7 +2,8 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import type { LiveFloorMember } from "@/types/domain";
-import { initials, floorMinToHuman } from "@/features/data/supabase-utils";
+import { floorMinToHuman } from "@/features/data/supabase-utils";
+import { formatUserLabel, initialsFromName } from "@/lib/user-labels";
 
 interface LiveFloorStripProps {
   members: LiveFloorMember[];
@@ -40,12 +41,16 @@ export function LiveFloorStrip({ members, floorMapHref }: LiveFloorStripProps) {
                     className="text-xs text-slate-950"
                     style={{ backgroundColor: member.color ?? "#6EE7F7" }}
                   >
-                    {initials(member.fullName)}
+                    {initialsFromName(member.fullName)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-white">{member.fullName}</p>
-                  <p className="text-xs text-slate-400">{member.role}</p>
+                  <p className="truncate text-sm font-semibold text-white">
+                    {formatUserLabel({ fullName: member.fullName, role: member.role })}
+                  </p>
+                  {member.department ? (
+                    <p className="text-xs text-slate-400">{member.department}</p>
+                  ) : null}
                 </div>
                 <div className="ml-auto text-right">
                   <p className="text-xs font-semibold text-slate-200">

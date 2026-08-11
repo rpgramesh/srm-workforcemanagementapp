@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { WeeklyRosterData } from "@/types/domain";
-import { initials } from "@/features/data/supabase-utils";
+import { initialsFromName, formatUserLabel } from "@/lib/user-labels";
 
 interface WeeklyRosterGridProps {
   data: WeeklyRosterData;
@@ -39,11 +39,13 @@ export function WeeklyRosterGrid({ data }: WeeklyRosterGridProps) {
                     className="text-xs text-slate-950"
                     style={{ backgroundColor: row.color ?? "#A7F3D0" }}
                   >
-                    {initials(row.fullName)}
+                    {initialsFromName(row.fullName)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-white">{row.fullName}</p>
+                  <p className="truncate text-sm font-semibold text-white">
+                    {formatUserLabel({ fullName: row.fullName, role: row.badgeLabel })}
+                  </p>
                   <p className="mt-1 inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-300">
                     {row.badgeLabel}
                   </p>

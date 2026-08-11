@@ -8,9 +8,11 @@ export type AuditAction =
   | "filter_preset_deleted"
   | "login_success"
   | "login_failure"
+  | "logout"
   | "clock_in"
   | "clock_out"
-  | "permission_changed";
+  | "permission_changed"
+  | "pin_changed";
 
 export interface AuditLogRecord {
   id: string;

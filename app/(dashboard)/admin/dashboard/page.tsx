@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { DashboardChrome } from "@/components/layout/dashboard-chrome";
 import { MetricGrid } from "@/features/dashboard/components/metric-grid";
 import { LiveFloorStrip } from "@/features/dashboard/components/live-floor-strip";
@@ -9,11 +10,14 @@ import {
   getTodaysRoster,
   getShiftSwaps,
 } from "@/features/data/actions/dashboard-actions";
+import { currentActorInfo } from "@/features/auth/actions/login-action";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export default async function AdminDashboardPage() {
+  const actor = await currentActorInfo();
+  if (!actor) redirect("/login");
   const [metrics, liveMembers, todaysRoster, swaps] = await Promise.all([
     getDashboardMetricGrid(),
     getLiveFloorStrip(),
@@ -25,6 +29,7 @@ export default async function AdminDashboardPage() {
     <DashboardChrome
       title="Daily Overview"
       subtitle="Real-time performance metrics for today"
+      actor={actor}
     >
       <div className="space-y-10">
         <MetricGrid metrics={metrics} />

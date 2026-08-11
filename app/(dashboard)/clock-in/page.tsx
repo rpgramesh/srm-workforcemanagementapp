@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { DashboardChrome } from "@/components/layout/dashboard-chrome";
 import { ClockInTerminal } from "@/features/attendance/components/clock-in-terminal";
 import { ClockStatusCards } from "@/features/attendance/components/clock-status-cards";
@@ -8,11 +9,14 @@ import {
   getUpcomingWeekPreview,
 } from "@/features/data/actions/dashboard-actions";
 import { userRepository } from "@/features/users/repositories/supabase-user-repository";
+import { getCurrentActor } from "@/lib/server-session";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export default async function ClockInPage() {
+  const actor = await getCurrentActor();
+  if (!actor) redirect("/login");
   const users = await userRepository.list({ onlyActive: true, limit: 20 });
   const defaultUser =
     users.find((u) => u.role === "employee" || u.role === "supervisor") ??
@@ -30,6 +34,7 @@ export default async function ClockInPage() {
     <DashboardChrome
       title="Clock In / Out"
       subtitle="Enter your PIN to start or end your shift"
+      actor={actor}
     >
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <ClockInTerminal />

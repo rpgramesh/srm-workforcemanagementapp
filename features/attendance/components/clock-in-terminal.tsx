@@ -2,11 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { ArrowRight, CheckCircle2, Clock8, Delete, ShieldCheck, UserCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock8, Delete, ShieldCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { clockInWithPin } from "@/features/attendance/actions/clock-in-action";
 import { cn } from "@/lib/utils";
 import type { User } from "@/types/user";
+import { formatUserLabel, initialsFromName } from "@/lib/user-labels";
 
 const keypad = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
@@ -110,20 +111,20 @@ export function ClockInTerminal({ onAuthenticated }: ClockInTerminalProps) {
           {lastUser ? (
             <div className="flex items-center gap-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4">
               <div
-                className="flex size-12 items-center justify-center rounded-full text-slate-950 shadow-inner"
+                className="flex size-12 items-center justify-center rounded-full text-sm font-bold text-slate-950 shadow-inner"
                 style={{ backgroundColor: lastUser.color ?? "#34D399" }}
               >
-                <UserCircle2 className="size-6" />
+                {initialsFromName(lastUser)}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <p className="truncate text-sm font-semibold text-white">
-                    {lastUser.fullName}
+                    {formatUserLabel(lastUser)}
                   </p>
                   <CheckCircle2 className="size-4 shrink-0 text-emerald-300" />
                 </div>
                 <p className="mt-0.5 truncate text-xs text-slate-400">
-                  {[lastUser.jobTitle ?? String(lastUser.role).replace("_", " "), lastUser.employeeId]
+                  {[lastUser.jobTitle, lastUser.employeeId]
                     .filter(Boolean)
                     .join(" · ")}
                 </p>

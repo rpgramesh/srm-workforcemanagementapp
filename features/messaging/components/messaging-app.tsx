@@ -39,6 +39,7 @@ import type { Message, PolledMessage, ThreadSummary } from "@/types/messaging";
 import type { AppRole } from "@/types/app";
 import { Avatar } from "@/components/ui/avatar";
 import { canManageStaff } from "@/types/user";
+import { formatUserLabel, initialsFromName } from "@/lib/user-labels";
 
 type StaffMin = { id: string; firstName: string; lastName: string; role: AppRole; departmentId: string | null };
 
@@ -63,10 +64,6 @@ function participantIdsForThread(thread: ThreadSummary): string[] {
 
   const value = metadata.participantIds;
   return Array.isArray(value) ? value.filter((id): id is string => typeof id === "string") : [];
-}
-
-function initials(firstName: string, lastName: string) {
-  return `${firstName.slice(0, 1)}${lastName.slice(0, 1)}`.toUpperCase();
 }
 
 function timeAgo(iso: string | Date): string {
@@ -174,7 +171,11 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
       if (fromOthers.length) {
         await refreshInbox();
         const sample = fromOthers[fromOthers.length - 1];
-        toast(`New message from ${sample.senderName ?? "Staff"}`, {
+        const sampleSender = sample.senderId ? staff.find((s) => s.id === sample.senderId) : undefined;
+        const senderDisplay = sampleSender
+          ? formatUserLabel({ firstName: sampleSender.firstName, lastName: sampleSender.lastName, role: sampleSender.role })
+          : sample.senderName ?? "Staff";
+        toast(`New message from ${senderDisplay}`, {
           description: sample.body.length > 120 ? `${sample.body.slice(0, 120)}…` : sample.body,
           action: {
             label: "Open",
@@ -188,7 +189,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
       cancelled = true;
       clearInterval(timer);
     };
-  }, [selectedThread, refreshInbox, currentUserId]);
+  }, [selectedThread, refreshInbox, currentUserId, staff]);
 
   const openOrCreateDirect = async (userId: string) => {
     if (!currentUserId) return;
@@ -323,7 +324,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
     const other = ids.find((id) => id !== currentUserId);
     if (!other) return t.title ?? "Direct message";
     const u = staffById.get(other);
-    return u ? `${u.firstName} ${u.lastName}` : t.title ?? "Direct message";
+    return u ? formatUserLabel(u) : t.title ?? "Direct message";
   };
 
   const participantInfo = (t: ThreadSummary): { id: string | null; name: string; accent: string | undefined } | null => {
@@ -336,7 +337,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
     const other = ids.find((id) => id !== currentUserId);
     if (!other) return null;
     const u = staffById.get(other);
-    if (u) return { id: u.id, name: `${u.firstName} ${u.lastName}`, accent: undefined };
+    if (u) return { id: u.id, name: formatUserLabel(u), accent: undefined };
     return { id: other, name: t.title ?? "Staff", accent: undefined };
   };
 
@@ -428,7 +429,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                           />
                         ) : (
                           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/5 text-xs text-slate-300">
-                            {initials(t.title ?? "?", "")}
+                            {initialsFromName(t.title ?? "?")}
                           </div>
                         )}
                         {(t.unreadCount ?? 0) > 0 ? (
@@ -480,9 +481,9 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                   className="group inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-slate-900/60 px-2 py-1 text-[11px] text-slate-300 transition hover:border-sky-400/30 hover:bg-sky-500/10 hover:text-white"
                 >
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/5 text-[9px] font-bold text-slate-300">
-                    {initials(s.firstName, s.lastName)}
+                    {initialsFromName({ firstName: s.firstName, lastName: s.lastName })}
                   </span>
-                  {s.firstName} {s.lastName.slice(0, 1)}.
+                  {formatUserLabel(s)}
                 </button>
               ))}
             </div>
@@ -626,7 +627,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                           {!isMine ? (
                             <span className="mr-auto pr-2 text-[10px] font-medium">
                                 {sender
-                                  ? `${sender.firstName} ${sender.lastName}`
+                                  ? formatUserLabel(sender)
                                 : "Staff"}
                             </span>
                           ) : null}
@@ -747,7 +748,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                 <option value="">Choose a person…</option>
                 {staff.map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.firstName} {s.lastName} — {s.role.replace(/_/g, " ")}
+                    {formatUserLabel(s)}
                   </option>
                 ))}
               </Select>

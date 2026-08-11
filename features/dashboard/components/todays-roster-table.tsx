@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { TodaysRosterRow } from "@/types/domain";
+import { formatUserLabel, initialsFromName } from "@/lib/user-labels";
 
 interface TodaysRosterTableProps {
   rows: TodaysRosterRow[];
@@ -51,11 +52,13 @@ export function TodaysRosterTable({ rows, fullScheduleHref }: TodaysRosterTableP
                         className="text-xs text-slate-950"
                         style={{ backgroundColor: row.color ?? "#A7F3D0" }}
                       >
-                        {row.initials}
+                        {initialsFromName(row.fullName)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-sm font-semibold text-white">{row.fullName}</p>
+                      <p className="text-sm font-semibold text-white">
+                        {formatUserLabel({ fullName: row.fullName, role: row.role })}
+                      </p>
                       <p className="text-xs text-slate-500">Shift assigned</p>
                     </div>
                   </div>

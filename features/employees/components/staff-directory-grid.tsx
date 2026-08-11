@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CalendarDays, Filter, MessageCircle, Plus, TrendingDown, TrendingUp } from "lucide-react";
 import type { StaffDirectoryCard } from "@/types/domain";
-import { initials } from "@/features/data/supabase-utils";
+import { initialsFromName, formatUserLabel } from "@/lib/user-labels";
 import { cn } from "@/lib/utils";
 
 interface StaffDirectoryGridProps {
@@ -75,12 +75,13 @@ export function StaffDirectoryGrid({ staff, onAddStaff, onFilter, onMessageStaff
                       className="text-xs text-slate-950"
                       style={{ backgroundColor: card.color ?? "#A7F3D0" }}
                     >
-                      {initials(card.fullName)}
+                      {initialsFromName(card.fullName)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-white">{card.fullName}</p>
-                    <p className="mt-0.5 truncate text-xs text-slate-400">{card.role}</p>
+                    <p className="truncate text-sm font-semibold text-white">
+                      {formatUserLabel({ fullName: card.fullName, role: card.role })}
+                    </p>
                     {card.department ? (
                       <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-slate-500">
                         {card.department}

@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { DashboardChrome } from "@/components/layout/dashboard-chrome";
 import { Button } from "@/components/ui/button";
 import { RosterSummaryCards } from "@/features/roster/components/roster-summary-cards";
@@ -7,11 +8,14 @@ import {
   getRosterSummaryCards,
   getWeeklyRoster,
 } from "@/features/data/actions/dashboard-actions";
+import { currentActorInfo } from "@/features/auth/actions/login-action";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
 export default async function AdminSchedulePage() {
+  const actor = await currentActorInfo();
+  if (!actor) redirect("/login");
   const [summary, roster] = await Promise.all([
     getRosterSummaryCards(),
     getWeeklyRoster(null, 5),
@@ -30,6 +34,7 @@ export default async function AdminSchedulePage() {
     <DashboardChrome
       title="Staff Roster"
       subtitle={`Week of ${startLabel} — ${endLabel}`}
+      actor={actor}
     >
       <div className="space-y-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

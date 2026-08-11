@@ -10,7 +10,7 @@ export default async function AdminStaffPage() {
   if (!actor) redirect("/login");
 
   return (
-    <DashboardChrome title="Staff" subtitle="Directory, roles, permissions & messaging">
+    <DashboardChrome title="Staff" subtitle="Directory, roles, permissions & messaging" actor={actor}>
       <StaffManagementShell viewerRole={actor.role} />
     </DashboardChrome>
   );
