@@ -7,13 +7,13 @@ import type {
   StaffListFilters,
   StaffUpdateInput,
   StaffPermissions,
+  User,
 } from "@/types/user";
 import {
   canManageStaff as canManageStaffGuard,
   STAFF_MANAGER_ROLES,
   PIN_FORMAT,
 } from "@/types/user";
-import type { User } from "@/types/user";
 import { filterPresetRepository } from "@/features/presets/repositories/supabase-filter-preset-repository";
 import type { FilterPresetRepository } from "@/types/preset";
 import type { FilterPreset } from "@/types/preset";
@@ -262,7 +262,7 @@ export class StaffManagementService {
   async listStaff(actor: { userId: string | null; role: AppRole | null }, filters?: StaffListFilters): Promise<{ rows: User[]; total: number }> {
     const authz = await this.requireManager(actor.role, "listing staff");
     if (!authz.ok) return { rows: [], total: 0 };
-    const { limit, offset, ...restFilters } = filters ?? {};
+    const { limit: _limit, offset: _offset, ...restFilters } = filters ?? {};
     const [rows, total] = await Promise.all([
       this.users.filter(filters),
       this.users.filterCount(filters ? restFilters : undefined),

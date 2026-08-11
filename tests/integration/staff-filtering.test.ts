@@ -12,7 +12,7 @@ const PRESET_NAME = "Integration Test Preset";
 test("Staff Filtering and Presets Integration Test", async (t) => {
   // Dynamically import to ensure env variables are set
   const { staffManagementService } = await import("@/features/users/services/staff-management-service");
-  const { userRepository } = await import("@/features/users/repositories/supabase-user-repository");
+  await import("@/features/users/repositories/supabase-user-repository");
 
   const cleanupPresets = async () => {
     const pgClient = new Client({ connectionString: process.env.DATABASE_URL });

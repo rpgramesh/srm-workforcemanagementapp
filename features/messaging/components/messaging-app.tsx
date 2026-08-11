@@ -133,7 +133,6 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
     if (u) {
         openOrCreateDirect(u.id);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialRecipientId, staff.length]);
 
   // Auto-scroll on message change

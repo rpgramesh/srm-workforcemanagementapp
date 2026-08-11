@@ -13,13 +13,15 @@ test("Messaging System Database Integration Test", async (t) => {
   const { userRepository } = await import("@/features/users/repositories/supabase-user-repository");
   const { listDepartments } = await import("@/features/data/actions/reference-actions");
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   let ganga: any = null;
   let anmol: any = null;
   let ramesh: any = null;
 
   let gangaActor: any = null;
   let anmolActor: any = null;
-  let rameshActor: any = null;
+  let _rameshActor: any = null;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   let directThreadId: string | null = null;
   let directMessageId: string | null = null;
@@ -51,7 +53,7 @@ test("Messaging System Database Integration Test", async (t) => {
 
     gangaActor = { userId: ganga.id, role: ganga.role };
     anmolActor = { userId: anmol.id, role: anmol.role };
-    rameshActor = { userId: ramesh.id, role: ramesh.role };
+    _rameshActor = { userId: ramesh.id, role: ramesh.role };
   });
 
   after(async () => {
@@ -68,7 +70,7 @@ test("Messaging System Database Integration Test", async (t) => {
 
     // Load thread list for Ganga and find the direct thread
     const threads = await messagingService.listInbox(gangaActor);
-    const thread = threads.find((th) => th.kind === "direct" && th.participantIds.includes(anmol.id));
+    const thread = threads.find((th) => th.kind === "direct" && (th.participantIds ?? []).includes(anmol.id));
     assert.ok(thread, "Direct thread should exist in Ganga's inbox");
     directThreadId = thread.threadId;
 
@@ -98,7 +100,7 @@ test("Messaging System Database Integration Test", async (t) => {
     const msg = threadLoadResult.data!.messages.find((m) => m.id === directMessageId);
     assert.ok(msg, "Message should exist");
     
-    const readReceipt = msg.readBy.find((r) => r.userId === anmol.id);
+    const readReceipt = (msg.readBy ?? []).find((r) => r.userId === anmol.id);
     assert.ok(readReceipt, "Read receipt for Anmol should exist on the message");
     assert.ok(readReceipt.readAt instanceof Date, "Read receipt should have readAt timestamp");
   });

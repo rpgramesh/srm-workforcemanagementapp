@@ -520,7 +520,7 @@ export class PayrollService {
 export class AttendanceService {
   constructor(private readonly ops = operationsRepository) {}
 
-  async clockStatusForUser(userId: string, _periodId?: string | null): Promise<ClockStatusCardsData> { // eslint-disable-line @typescript-eslint/no-unused-vars
+  async clockStatusForUser(userId: string, _periodId?: string | null): Promise<ClockStatusCardsData> {
     const live = await this.ops.listLiveAttendance();
     const today = todayISO();
     const tomorrow = (() => {

@@ -236,7 +236,6 @@ export function AddStaffModal({ open, onClose, editingStaffId, onSaved, viewerRo
     }
     setValue("permissions", next, { shouldDirty: true });
     void trigger("permissions");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchRole]);
 
   const onSubmit = async (values: FormValues) => {
