@@ -56,11 +56,28 @@ export function StaffManagementShell({ viewerRole }: StaffManagementShellProps) 
   // Boot: departments + apply default preset if any
   useEffect(() => {
     (async () => {
-      const [depts, presets] = await Promise.all([
-        listDepartments(),
-        listFilterPresets("staff"),
-      ]);
+      let depts: DepartmentRow[] = [];
+      let presets: FilterPreset[] = [];
+      try {
+        [depts, presets] = await Promise.all([
+          listDepartments(),
+          listFilterPresets("staff").catch((e) => {
+            console.warn("[staff] filter presets unavailable", e instanceof Error ? e.message : String(e));
+            return [] as FilterPreset[];
+          }),
+        ]);
+      } catch (e: unknown) {
+        toast.error("Could not load reference data", {
+          description: e instanceof Error ? e.message : "Please try again",
+        });
+      }
       setDepartments(depts);
+      if (depts.length === 0) {
+        toast.warning("No departments available", {
+          description: "Run migrations 004 (departments table) + 005 (seed FOH/KIT/BAR/MGT) in Supabase SQL Editor.",
+          duration: 10000,
+        });
+      }
       const def = (presets as FilterPreset[]).find((p) => p.isDefault);
       const override = def?.filters as StaffListFilters | undefined;
       setFilters({ ...DEFAULT_FILTERS, ...(override ?? {}) });

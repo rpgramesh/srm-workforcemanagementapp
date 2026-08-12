@@ -20,6 +20,8 @@ export class SupabaseFilterPresetRepository implements FilterPresetRepository {
   private readonly client = createSupabaseServerClient();
 
   async list(userId: string, module: string): Promise<FilterPreset[]> {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(userId)) return [];
     const { data, error } = await this.client
       .from("filter_presets")
       .select("*")
@@ -28,7 +30,7 @@ export class SupabaseFilterPresetRepository implements FilterPresetRepository {
       .order("is_default", { ascending: false })
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true });
-    if (error) throw new Error(error.message ?? String(error));
+    if (error) return [];
     return (data as any[] ?? []).map(mapRow);
   }
 
@@ -39,6 +41,8 @@ export class SupabaseFilterPresetRepository implements FilterPresetRepository {
     filters: FilterPreset["filters"],
     isDefault: boolean = false,
   ): Promise<string> {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(userId)) throw new Error("Unable to save preset: current user is not database-backed.");
     const { data, error } = await this.client.rpc("upsert_filter_preset", {
       p_user_id: userId,
       p_module: module,
@@ -52,6 +56,8 @@ export class SupabaseFilterPresetRepository implements FilterPresetRepository {
   }
 
   async remove(userId: string, module: string, presetId: string): Promise<void> {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(userId)) return;
     const { error } = await this.client.rpc("delete_filter_preset", {
       p_user_id: userId,
       p_module: module,

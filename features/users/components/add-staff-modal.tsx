@@ -175,10 +175,24 @@ export function AddStaffModal({ open, onClose, editingStaffId, onSaved, viewerRo
   useEffect(() => {
     if (!open) return;
     setLoadingDept(true);
-    listDepartments().then((d) => {
-      setDepartments(d);
-      setLoadingDept(false);
-    });
+    listDepartments()
+      .then((d) => {
+        setDepartments(d);
+        if (d.length === 0) {
+          toast.warning("No departments available", {
+            description: "Run migration 004+005 in Supabase SQL Editor to seed departments.",
+            duration: 8000,
+          });
+        }
+      })
+      .catch((e: unknown) => {
+        const msg = e instanceof Error ? e.message : String(e);
+        toast.error("Could not load departments", { description: msg });
+        setDepartments([]);
+      })
+      .finally(() => {
+        setLoadingDept(false);
+      });
     if (!editingStaffId) {
       reset({
         mode: "create",
