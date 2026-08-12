@@ -1,6 +1,7 @@
 "use server";
 
 import { dashboardService, rosterService, staffService, payrollService, attendanceService } from "@/features/data/services/operations-services";
+import { userRepository } from "@/features/users/repositories/supabase-user-repository";
 import type { AttendanceSession } from "@/types/domain";
 
 export async function getDashboardMetricGrid() {
@@ -66,4 +67,75 @@ export async function recordClockInOut(args: {
   }
   const created = await attendanceService["ops"].recordClockIn(args);
   return { session: created, action: "clocked_in", message: `Clocked in — ${created.userFullName ?? "Staff"}` };
+}
+
+export async function getStaffClockView(userId: string): Promise<{
+  hourlyRate: number | null;
+  history: AttendanceSession[];
+  currentSession: AttendanceSession | null;
+  todayMinutes: number;
+  periodStart: string;
+  periodEnd: string;
+  periodMinutes: number;
+  periodEarnings: number;
+  periodGrossRate: number | null;
+  sessionsTotal: number;
+}> {
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  const twoWeeksAgo = new Date(today);
+  twoWeeksAgo.setDate(today.getDate() - 13);
+  const periodStart = twoWeeksAgo.toISOString().slice(0, 10);
+  const periodEnd = todayStr;
+
+  const ops = attendanceService["ops"] as typeof import("@/features/data/repositories/operations-repository").operationsRepository;
+  let user: { hourlyRate: number | null } | null = null;
+  try {
+    user = await userRepository.findById(userId);
+  } catch {
+    user = null;
+  }
+  const history: AttendanceSession[] = await ops.listUserAttendanceForWindow(userId, periodStart, periodEnd);
+  const live: AttendanceSession[] = await ops.listLiveAttendance();
+  const currentSession = live.find((a) => a.userId === userId) ?? null;
+
+  const todayAtt = history.filter((h) => h.clockedInAt.slice(0, 10) === todayStr);
+  const todayMinutes = todayAtt.reduce((acc, h) => {
+    if (h.workMinutes != null) return acc + h.workMinutes;
+    if (h.status === "clocked_in" || h.status === "on_break") {
+      const mins = Math.max(0, Math.round((Date.now() - new Date(h.clockedInAt).getTime()) / 60000));
+      return acc + mins;
+    }
+    return acc;
+  }, 0);
+
+  const periodMinutes = history.reduce((acc, h) => {
+    if (h.workMinutes != null) return acc + h.workMinutes;
+    if (h.status === "clocked_in" || h.status === "on_break") {
+      const mins = Math.max(0, Math.round((Date.now() - new Date(h.clockedInAt).getTime()) / 60000));
+      return acc + mins;
+    }
+    return acc;
+  }, 0);
+
+  const hourlyRate = user?.hourlyRate ?? history[0]?.hourlyRate ?? currentSession?.hourlyRate ?? null;
+
+  const approvedClosed = history.filter(
+    (h) => h.status !== "clocked_in" && h.status !== "on_break" && h.workMinutes != null && h.approvalStatus === "approved",
+  );
+  const approvedMinutes = approvedClosed.reduce((acc, h) => acc + (h.workMinutes ?? 0), 0);
+  const periodEarnings = hourlyRate != null ? Math.round((approvedMinutes / 60) * hourlyRate * 100) / 100 : 0;
+
+  return {
+    hourlyRate,
+    history,
+    currentSession,
+    todayMinutes,
+    periodStart,
+    periodEnd,
+    periodMinutes,
+    periodEarnings,
+    periodGrossRate: hourlyRate,
+    sessionsTotal: history.length,
+  };
 }

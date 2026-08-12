@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
+  BadgeDollarSign,
   CalendarDays,
   CircleHelp,
   LayoutGrid,
@@ -23,6 +24,7 @@ const navigation = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutGrid },
   { label: "Schedules", href: "/admin/schedule", icon: CalendarDays },
   { label: "Staff", href: "/admin/staff", icon: Users },
+  { label: "Payroll", href: "/admin/payroll", icon: BadgeDollarSign },
   { label: "Messages", href: "/admin/messages", icon: MessageSquare, badge: true },
 ];
 

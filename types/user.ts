@@ -110,12 +110,22 @@ export const STAFF_MANAGER_ROLES: AppRole[] = [
   "manager",
 ];
 
+export const PAYROLL_MANAGER_ROLES: AppRole[] = [
+  "super_admin",
+  "restaurant_admin",
+  "manager",
+];
+
 export function canAccessAdminDashboard(role: AppRole): boolean {
   return ADMIN_DASHBOARD_ROLES.includes(role);
 }
 
 export function canManageStaff(role: AppRole): boolean {
   return STAFF_MANAGER_ROLES.includes(role);
+}
+
+export function canManagePayroll(role: AppRole): boolean {
+  return PAYROLL_MANAGER_ROLES.includes(role);
 }
 
 export const PIN_FORMAT = /^\d{4}$/;

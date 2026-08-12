@@ -62,6 +62,11 @@ interface AttendanceRow extends Record<string, any> {
   full_name?: string | null; job_title?: string | null; color?: string | null;
   department_name?: string | null; location_name?: string | null;
   seconds_on_shift?: number | null;
+  approval_status?: AttendanceSession["approvalStatus"];
+  approved_by?: string | null;
+  approved_at?: string | null;
+  note?: string | null;
+  hourly_rate?: string | number | null;
 }
 interface SwapRow extends Record<string, any> {
   id: string; requester_user_id: string; shift_id: string; offered_to_user_id: string | null;
@@ -158,6 +163,11 @@ const mapAttendance = (r: AttendanceRow): AttendanceSession => ({
   departmentName: r.department_name ?? null,
   locationName: r.location_name ?? null,
   secondsOnShift: r.seconds_on_shift ?? null,
+  approvalStatus: (r.approval_status as AttendanceSession["approvalStatus"]) ?? "pending",
+  approvedBy: r.approved_by ?? null,
+  approvedAt: r.approved_at ?? null,
+  note: r.note ?? null,
+  hourlyRate: float(r.hourly_rate ?? null),
 });
 
 const mapSwap = (r: SwapRow): ShiftSwapRequest => ({
@@ -401,6 +411,10 @@ export class OperationsRepository {
   async recordClockIn(
     args: { userId: string; shiftId?: string | null; terminalCode?: string | null; inLat?: number; inLng?: number },
   ): Promise<AttendanceSession> {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(args.userId);
+    if (!isUuid) {
+      throw new Error("Clock-in requires a real staff user. Sign in as a seeded staff member or use Admin > Staff first.");
+    }
     const { data, error } = await sb()
       .from("attendance_sessions")
       .insert({
@@ -433,16 +447,296 @@ export class OperationsRepository {
     return mapAttendance(data as AttendanceRow);
   }
 
-  async listUserAttendanceForWindow(userId: string, from: string, to: string) {
+  async getAttendanceById(id: string): Promise<AttendanceSession | null> {
     const { data, error } = await sb()
       .from("attendance_sessions")
       .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? mapAttendance(data as AttendanceRow) : null;
+  }
+
+  async listAllAttendance(params: { from?: string; to?: string; userId?: string; approvalStatus?: string[]; status?: string[]; limit?: number; offset?: number } = {}) {
+    let q: any = sb()
+      .from("attendance_sessions")
+      .select(`
+        *,
+        user_full:users!attendance_sessions_user_id_fkey(first_name,last_name,job_title,color,hourly_rate,employee_id),
+        dept:shifts!attendance_sessions_shift_id_fkey(departments(name))
+      `);
+    if (params.from) q = q.gte("clocked_in_at", `${params.from}T00:00:00.000Z`);
+    if (params.to) q = q.lte("clocked_in_at", `${params.to}T23:59:59.999Z`);
+    if (params.userId) q = q.eq("user_id", params.userId);
+    if (params.approvalStatus && params.approvalStatus.length) q = q.in("approval_status", params.approvalStatus);
+    if (params.status && params.status.length) q = q.in("status", params.status);
+    if (params.limit) q = q.limit(params.limit);
+    if (params.offset && typeof params.limit === "number") q = q.range(params.offset, params.offset + params.limit - 1);
+    const { data, error } = await q.order("clocked_in_at", { ascending: false });
+    if (error) throw error;
+    return (data ?? []).map((r: any) => {
+      const u = r.user_full && typeof r.user_full === "object" ? r.user_full : null;
+      const deptRow = r.dept && typeof r.dept === "object" ? (r.dept as any)?.departments ?? null : null;
+      const row: AttendanceRow = {
+        ...r,
+        full_name: u ? [u.first_name, u.last_name].filter(Boolean).join(" ") : r.full_name ?? null,
+        job_title: u?.job_title ?? r.job_title ?? null,
+        color: u?.color ?? r.color ?? null,
+        hourly_rate: u?.hourly_rate ?? r.hourly_rate ?? null,
+        employee_id: u?.employee_id ?? null,
+        department_name: deptRow?.name ?? r.department_name ?? null,
+      };
+      return mapAttendance(row);
+    });
+  }
+
+  async updateAttendance(
+    id: string,
+    patch: Partial<{ clockedInAt: string; clockedOutAt: string | null; status: AttendanceSession["status"]; note: string | null }>,
+    editorUserId?: string,
+    reason?: string,
+  ): Promise<AttendanceSession> {
+    const existing = await this.getAttendanceById(id);
+    if (!existing) throw new Error("Attendance session not found");
+
+    const updatePayload: Record<string, any> = {};
+    const edits: Array<{ field: string; old: string | null; new: string | null }> = [];
+
+    if (patch.clockedInAt !== undefined) {
+      updatePayload.clocked_in_at = patch.clockedInAt;
+      edits.push({ field: "clocked_in_at", old: existing.clockedInAt ?? null, new: patch.clockedInAt });
+    }
+    if (patch.clockedOutAt !== undefined) {
+      updatePayload.clocked_out_at = patch.clockedOutAt;
+      edits.push({ field: "clocked_out_at", old: existing.clockedOutAt ?? null, new: patch.clockedOutAt });
+    }
+    if (patch.status !== undefined) {
+      updatePayload.status = patch.status;
+      edits.push({ field: "status", old: existing.status, new: patch.status });
+    }
+    if (patch.note !== undefined) {
+      updatePayload.note = patch.note;
+      edits.push({ field: "note", old: existing.note ?? null, new: patch.note });
+    }
+
+    const { data, error } = await sb()
+      .from("attendance_sessions")
+      .update(updatePayload)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw error;
+
+    if (edits.length > 0) {
+      try {
+        const auditRows = edits.map((e) => ({
+          attendance_id: id,
+          edited_by: editorUserId ?? null,
+          field_name: e.field,
+          old_value: e.old,
+          new_value: e.new,
+          reason: reason ?? null,
+        }));
+        await sb().from("attendance_edits").insert(auditRows);
+      } catch {
+        // Audit is best-effort; never block core update
+      }
+    }
+    return mapAttendance(data as AttendanceRow);
+  }
+
+  async setAttendanceApproval(
+    id: string,
+    status: AttendanceSession["approvalStatus"],
+    approverUserId: string,
+  ): Promise<AttendanceSession> {
+    const { data, error } = await sb()
+      .from("attendance_sessions")
+      .update({
+        approval_status: status,
+        approved_by: status === "pending" ? null : approverUserId,
+        approved_at: status === "pending" ? null : new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw error;
+    return mapAttendance(data as AttendanceRow);
+  }
+
+  async bulkApproveAttendance(ids: string[], approverUserId: string): Promise<number> {
+    if (ids.length === 0) return 0;
+    const { count, error } = await sb()
+      .from("attendance_sessions")
+      .update({
+        approval_status: "approved",
+        approved_by: approverUserId,
+        approved_at: new Date().toISOString(),
+      })
+      .in("id", ids);
+    if (error) throw error;
+    return count ?? 0;
+  }
+
+  async listUserAttendanceForWindow(userId: string, from: string, to: string) {
+    const { data, error } = await sb()
+      .from("attendance_sessions")
+      .select(`*, user_simple:users!attendance_sessions_user_id_fkey(first_name,last_name,job_title,color,hourly_rate)`)
       .eq("user_id", userId)
       .gte("clocked_in_at", `${from}T00:00:00.000Z`)
       .lte("clocked_in_at", `${to}T23:59:59.999Z`)
       .order("clocked_in_at", { ascending: false });
     if (error) throw error;
-    return (data as AttendanceRow[]).map(mapAttendance);
+    return (data ?? []).map((r: any) => {
+      const u = r.user_simple && typeof r.user_simple === "object" ? r.user_simple : null;
+      const row: AttendanceRow = {
+        ...r,
+        full_name: u ? [u.first_name, u.last_name].filter(Boolean).join(" ") : r.full_name ?? null,
+        job_title: u?.job_title ?? r.job_title ?? null,
+        color: u?.color ?? r.color ?? null,
+        hourly_rate: u?.hourly_rate ?? r.hourly_rate ?? null,
+      };
+      return mapAttendance(row);
+    });
+  }
+
+  async calcPeriodPayoutPreview(userId: string, periodStart: string, periodEnd: string): Promise<{
+    totalMinutes: number; totalHours: number; hourlyRate: number | null; grossAmount: number;
+    sessionCount: number; approvedCount: number;
+  }> {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId);
+    if (!isUuid) {
+      return { totalMinutes: 0, totalHours: 0, hourlyRate: null, grossAmount: 0, sessionCount: 0, approvedCount: 0 };
+    }
+    const { data, error } = await sb()
+      .rpc("calc_period_payout_preview", { p_user_id: userId, p_period_start: periodStart, p_period_end: periodEnd })
+      .single();
+    if (error || !data) {
+      const window = await this.listUserAttendanceForWindow(userId, periodStart, periodEnd);
+      const approved = window.filter((w) => w.approvalStatus === "approved" && w.status !== "clocked_in" && w.status !== "on_break" && w.workMinutes != null);
+      const totalMinutes = approved.reduce((acc, w) => acc + (w.workMinutes ?? 0), 0);
+      const rate = (window[0]?.hourlyRate) ?? null;
+      const hours = totalMinutes / 60;
+      return {
+        totalMinutes,
+        totalHours: Math.round(hours * 10000) / 10000,
+        hourlyRate: rate,
+        grossAmount: rate != null ? Math.round(hours * rate * 100) / 100 : 0,
+        sessionCount: window.length,
+        approvedCount: approved.length,
+      };
+    }
+    const rec = data as {
+      total_minutes?: number | null;
+      hourly_rate?: number | string | null;
+      session_count?: number | null;
+      approved_count?: number | null;
+    };
+    const tm = Number(rec.total_minutes ?? 0);
+    const hrs = tm / 60;
+    const rate = rec.hourly_rate != null ? Number(rec.hourly_rate) : null;
+    return {
+      totalMinutes: tm,
+      totalHours: Math.round(hrs * 10000) / 10000,
+      hourlyRate: rate,
+      grossAmount: rate != null ? Math.round(hrs * rate * 100) / 100 : 0,
+      sessionCount: Number(rec.session_count ?? 0),
+      approvedCount: Number(rec.approved_count ?? 0),
+    };
+  }
+
+  async listPayouts(params: { from?: string; to?: string; userId?: string; status?: string[] } = {}) {
+    let q: any = sb()
+      .from("staff_payouts")
+      .select(`*, user:users!staff_payouts_user_id_fkey(first_name,last_name,employee_id,color)`);
+    if (params.from) q = q.gte("period_start", params.from);
+    if (params.to) q = q.lte("period_end", params.to);
+    if (params.userId) q = q.eq("user_id", params.userId);
+    if (params.status && params.status.length) q = q.in("status", params.status);
+    const { data, error } = await q.order("created_at", { ascending: false });
+    if (error) throw error;
+    return (data ?? []).map((r: any) => {
+      const u = r.user && typeof r.user === "object" ? r.user : null;
+      return {
+        id: r.id,
+        payrollPeriodId: r.payroll_period_id ?? null,
+        userId: r.user_id,
+        periodStart: r.period_start,
+        periodEnd: r.period_end,
+        totalMinutes: Number(r.total_minutes ?? 0),
+        totalHours: Number(r.total_hours ?? 0),
+        hourlyRate: Number(r.hourly_rate ?? 0),
+        grossAmount: Number(r.gross_amount ?? 0),
+        status: r.status,
+        paidAt: r.paid_at ?? null,
+        paidBy: r.paid_by ?? null,
+        reference: r.reference ?? null,
+        notes: r.notes ?? null,
+        createdAt: r.created_at,
+        updatedAt: r.updated_at,
+        userFullName: u ? [u.first_name, u.last_name].filter(Boolean).join(" ") : null,
+        userEmployeeId: u?.employee_id ?? null,
+        userColor: u?.color ?? null,
+      };
+    });
+  }
+
+  async createPayout(args: {
+    payrollPeriodId?: string | null; userId: string; periodStart: string; periodEnd: string;
+    hourlyRate: number; reference?: string | null; notes?: string | null;
+  }) {
+    const preview = await this.calcPeriodPayoutPreview(args.userId, args.periodStart, args.periodEnd);
+    const { data, error } = await sb()
+      .from("staff_payouts")
+      .insert({
+        payroll_period_id: args.payrollPeriodId ?? null,
+        user_id: args.userId,
+        period_start: args.periodStart,
+        period_end: args.periodEnd,
+        total_minutes: preview.totalMinutes,
+        hourly_rate: args.hourlyRate,
+        gross_amount: preview.grossAmount,
+        status: "draft",
+        reference: args.reference ?? null,
+        notes: args.notes ?? null,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+
+    try {
+      const linked = await this.listAllAttendance({
+        userId: args.userId,
+        from: args.periodStart,
+        to: args.periodEnd,
+        approvalStatus: ["approved"],
+      });
+      const id = data.id;
+      const linkRows = linked.filter((l: AttendanceSession) => l.status !== "clocked_in" && l.status !== "on_break" && l.workMinutes != null)
+        .map((l: AttendanceSession) => ({ payout_id: id, attendance_id: l.id }));
+      if (linkRows.length > 0) {
+        await sb().from("attendance_payout_links").insert(linkRows);
+      }
+    } catch {
+      /* best-effort link */
+    }
+    return data;
+  }
+
+  async setPayoutStatus(id: string, status: "draft" | "processing" | "paid" | "void", paidBy?: string) {
+    const patch: Record<string, any> = { status };
+    if (status === "paid") {
+      patch.paid_at = new Date().toISOString();
+      patch.paid_by = paidBy ?? null;
+    }
+    const { data, error } = await sb()
+      .from("staff_payouts")
+      .update(patch)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
   }
 
   async getUsers(roles?: AppRole[], onlyActive = true) {

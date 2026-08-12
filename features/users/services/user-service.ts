@@ -1,9 +1,11 @@
 import { normalizeAustralianMobile } from "@/features/auth/services/au-mobile";
 import { userRepository } from "@/features/users/repositories/supabase-user-repository";
+import { operationsRepository } from "@/features/data/repositories/operations-repository";
 import { adminCredentials, userCredentials } from "@/lib/auth-config";
 import type { VerifiedUser, User, UserPagination } from "@/types/user";
 import { canAccessAdminDashboard } from "@/types/user";
 import type { AppRole } from "@/types/app";
+import type { AttendanceSession, ClockInResult as DomainClockInResult } from "@/types/domain";
 
 export interface LoginAttempt {
   mobile: string;
@@ -22,7 +24,17 @@ export interface ClockInResult {
   message: string;
   description?: string;
   user?: User;
+  session?: AttendanceSession;
+  action?: "clocked_in" | "clocked_out";
+  hourlyRate?: number | null;
+  currentPeriodEarnings?: number | null;
 }
+
+export type TerminalClockResult = DomainClockInResult & {
+  action?: "clocked_in" | "clocked_out";
+  hourlyRate?: number | null;
+  currentPeriodEarnings?: number | null;
+};
 
 export class UserService {
   constructor(private readonly repo = userRepository) {}
@@ -149,6 +161,80 @@ export class UserService {
       };
     }
 
+    const tryToggle = async (user: User): Promise<ClockInResult> => {
+      const ops = operationsRepository;
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
+
+      const weeklyStart = new Date();
+      weeklyStart.setDate(weeklyStart.getDate() - 13);
+      const weeklyStartStr = weeklyStart.toISOString().slice(0, 10);
+      const weeklyEndStr = new Date().toISOString().slice(0, 10);
+
+      try {
+        const live = await ops.listLiveAttendance();
+        const existing = (Array.isArray(live) ? live : []).find(
+          (a: AttendanceSession) => a.userId === user.id,
+        );
+        let session: AttendanceSession | undefined;
+        let action: "clocked_in" | "clocked_out";
+        if (existing) {
+          session = await ops.recordClockOut(existing.id);
+          action = "clocked_out";
+        } else {
+          session = await ops.recordClockIn({ userId: user.id });
+          action = "clocked_in";
+        }
+
+        let currentPeriodEarnings: number | null = null;
+        try {
+          const preview = await ops.calcPeriodPayoutPreview(user.id, weeklyStartStr, weeklyEndStr);
+          currentPeriodEarnings = preview?.grossAmount ?? 0;
+        } catch {
+          currentPeriodEarnings = null;
+        }
+
+        return {
+          success: true,
+          message:
+            action === "clocked_in"
+              ? `Clocked in — ${user.fullName}`
+              : `Clocked out — ${user.fullName}`,
+          description: `${user.jobTitle ?? "Staff"} · ${new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}`,
+          user,
+          session,
+          action,
+          hourlyRate: user.hourlyRate ?? null,
+          currentPeriodEarnings,
+        };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Unable to record clock action.";
+        if (msg.includes("real staff user")) {
+          return {
+            success: true,
+            message: `PIN recognised — ${user.fullName}`,
+            description: `${user.jobTitle ?? "Staff"} · Demo mode — no clock record written (sign in as a seeded staff member to write records).`,
+            user,
+            action: undefined,
+            hourlyRate: user.hourlyRate ?? null,
+            currentPeriodEarnings: null,
+          };
+        }
+        return {
+          success: false,
+          message: "Clock action failed",
+          description: msg,
+          user,
+          hourlyRate: user.hourlyRate ?? null,
+        };
+      }
+    };
+
     if (userCredentials && pin === userCredentials.pin) {
       const envUser: User = {
         id: "env-staff-user",
@@ -174,14 +260,7 @@ export class UserService {
         notes: null,
         permissions: {},
       };
-      return {
-        success: true,
-        message: `Clocked in — ${envUser.fullName}`,
-        description: envUser.jobTitle
-          ? `${envUser.jobTitle} · ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-          : `Successfully clocked in at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
-        user: envUser,
-      };
+      return tryToggle(envUser);
     }
 
     if (adminCredentials && pin === adminCredentials.pin) {
@@ -209,12 +288,7 @@ export class UserService {
         notes: null,
         permissions: {},
       };
-      return {
-        success: true,
-        message: `Clocked in — ${envUser.fullName}`,
-        description: `Successfully clocked in at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
-        user: envUser,
-      };
+      return tryToggle(envUser);
     }
 
     let user: User | null = null;
@@ -237,14 +311,7 @@ export class UserService {
       };
     }
 
-    return {
-      success: true,
-      message: `Clocked in — ${user.fullName}`,
-      description: user.jobTitle
-        ? `${user.jobTitle} · ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-        : `Successfully clocked in at ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
-      user,
-    };
+    return tryToggle(user);
   }
 
   listUsers(params?: UserPagination) {

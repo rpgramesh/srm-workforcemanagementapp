@@ -77,6 +77,8 @@ export interface RosterPeriod {
   publishedAt: string | null;
 }
 
+export type AttendanceApprovalStatus = "pending" | "approved" | "rejected";
+
 export interface AttendanceSession {
   id: string;
   userId: string;
@@ -97,6 +99,11 @@ export interface AttendanceSession {
   departmentName: string | null;
   locationName: string | null;
   secondsOnShift: number | null;
+  approvalStatus: AttendanceApprovalStatus;
+  approvedBy: string | null;
+  approvedAt: string | null;
+  note: string | null;
+  hourlyRate: number | null;
 }
 
 export interface ShiftSwapRequest {
@@ -268,4 +275,39 @@ export interface ClockInResult {
   message: string;
   description?: string;
   session?: AttendanceSession;
+  user?: import("./user").User | null;
 }
+
+export type StaffPayoutStatus = "draft" | "processing" | "paid" | "void";
+
+export interface StaffPayout {
+  id: string;
+  payrollPeriodId: string | null;
+  userId: string;
+  periodStart: string;
+  periodEnd: string;
+  totalMinutes: number;
+  totalHours: number;
+  hourlyRate: number;
+  grossAmount: number;
+  status: StaffPayoutStatus;
+  paidAt: string | null;
+  paidBy: string | null;
+  reference: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  userFullName: string | null;
+  userEmployeeId: string | null;
+  userColor: string | null;
+}
+
+export interface PayoutPreview {
+  totalMinutes: number;
+  totalHours: number;
+  hourlyRate: number | null;
+  grossAmount: number;
+  sessionCount: number;
+  approvedCount: number;
+}
+
