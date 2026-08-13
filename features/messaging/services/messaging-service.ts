@@ -26,6 +26,10 @@ export class MessagingService {
     private readonly audit: AuditLogServiceLike = auditLogService,
   ) {}
 
+  private async tryAudit(action: Parameters<AuditLogServiceLike["append"]>[0], opts: Parameters<AuditLogServiceLike["append"]>[1]) {
+    try { await this.audit.append(action, opts); } catch { /* audit is non-blocking for send/read flows */ }
+  }
+
   private requireAuthenticated(actor: { userId: string | null; role: AppRole | null }): { ok: boolean; message: string; description?: string } {
     if (!actor.userId) return { ok: false, message: "Sign in required", description: "You must be signed in to send or read messages." };
     return { ok: true, message: "ok" };
@@ -94,7 +98,7 @@ export class MessagingService {
       }
       const threadId = await this.messages.ensureDirectThread(actor.userId, recipientId);
       const messageId = await this.messages.sendMessage(threadId, actor.userId, body);
-      await this.audit.append("message_sent", {
+      await this.tryAudit("message_sent", {
         actorUserId: actor.userId,
         targetUserId: recipientId,
         targetThreadId: threadId,
@@ -127,7 +131,7 @@ export class MessagingService {
     try {
       const threadId = await this.messages.ensureDepartmentThread(departmentId);
       const messageId = await this.messages.sendMessage(threadId, actor.userId, body);
-      await this.audit.append("message_sent", {
+      await this.tryAudit("message_sent", {
         actorUserId: actor.userId,
         departmentId,
         targetThreadId: threadId,
@@ -150,7 +154,7 @@ export class MessagingService {
     try {
       const n = await this.messages.markThreadReadUntil(threadId, actor.userId, upToMessageId);
       if (n > 0) {
-        await this.audit.append("message_read", {
+        await this.tryAudit("message_read", {
           actorUserId: actor.userId,
           targetThreadId: threadId,
           details: { marked: n, upToMessageId },

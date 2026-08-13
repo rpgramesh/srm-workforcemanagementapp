@@ -208,6 +208,11 @@ const mapTerminal = (r: TerminalRow): Terminal => ({
   isActive: r.is_active,
 });
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function uuidOrNull(id: string | undefined | null): string | null {
+  return typeof id === "string" && UUID_RE.test(id) ? id : null;
+}
+
 export class OperationsRepository {
   async listDepartments(onlyActive = true) {
     let q = sb().from("departments").select("*");
@@ -531,7 +536,7 @@ export class OperationsRepository {
       try {
         const auditRows = edits.map((e) => ({
           attendance_id: id,
-          edited_by: editorUserId ?? null,
+          edited_by: uuidOrNull(editorUserId),
           field_name: e.field,
           old_value: e.old,
           new_value: e.new,
@@ -550,12 +555,13 @@ export class OperationsRepository {
     status: AttendanceSession["approvalStatus"],
     approverUserId: string,
   ): Promise<AttendanceSession> {
+    const safeApprover = status === "pending" ? null : uuidOrNull(approverUserId);
     const { data, error } = await sb()
       .from("attendance_sessions")
       .update({
         approval_status: status,
-        approved_by: status === "pending" ? null : approverUserId,
-        approved_at: status === "pending" ? null : new Date().toISOString(),
+        approved_by: safeApprover,
+        approved_at: safeApprover ? new Date().toISOString() : null,
       })
       .eq("id", id)
       .select()
@@ -566,11 +572,12 @@ export class OperationsRepository {
 
   async bulkApproveAttendance(ids: string[], approverUserId: string): Promise<number> {
     if (ids.length === 0) return 0;
+    const safeApprover = uuidOrNull(approverUserId);
     const { count, error } = await sb()
       .from("attendance_sessions")
       .update({
         approval_status: "approved",
-        approved_by: approverUserId,
+        approved_by: safeApprover,
         approved_at: new Date().toISOString(),
       })
       .in("id", ids);
@@ -727,7 +734,7 @@ export class OperationsRepository {
     const patch: Record<string, any> = { status };
     if (status === "paid") {
       patch.paid_at = new Date().toISOString();
-      patch.paid_by = paidBy ?? null;
+      patch.paid_by = uuidOrNull(paidBy);
     }
     const { data, error } = await sb()
       .from("staff_payouts")

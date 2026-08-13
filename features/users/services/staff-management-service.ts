@@ -63,6 +63,10 @@ export class StaffManagementService {
     private readonly audit: AuditLogServiceLike = auditLogService,
   ) {}
 
+  private async tryAudit(action: Parameters<AuditLogServiceLike["append"]>[0], opts: Parameters<AuditLogServiceLike["append"]>[1]) {
+    try { await this.audit.append(action, opts); } catch { /* audit is non-blocking — never break core staff ops */ }
+  }
+
   static validateCreate(input: StaffCreateInput): Record<string, string[]> {
     const issues: Record<string, string[]> = {};
     const push = (k: string, m: string) => {
@@ -146,7 +150,7 @@ export class StaffManagementService {
         email: input.email ? input.email.trim() : null,
         permissions,
       });
-      await this.audit.append("staff_created", {
+      await this.tryAudit("staff_created", {
         actorUserId: actor.userId ?? null,
         targetUserId: created.id,
         departmentId: created.departmentId ?? null,
@@ -216,7 +220,7 @@ export class StaffManagementService {
         email: typeof input.email === "string" ? (input.email.trim() || null) : undefined,
         permissions,
       });
-      await this.audit.append("staff_updated", {
+      await this.tryAudit("staff_updated", {
         actorUserId: actor.userId ?? null,
         targetUserId: updated.id,
         departmentId: updated.departmentId ?? null,
@@ -246,7 +250,7 @@ export class StaffManagementService {
     if (!before) return { success: false, message: "Staff member not found" };
     try {
       await this.users.softDelete(staffId);
-      await this.audit.append("staff_deleted", {
+      await this.tryAudit("staff_deleted", {
         actorUserId: actor.userId ?? null,
         targetUserId: staffId,
         departmentId: before.departmentId ?? null,
@@ -294,7 +298,7 @@ export class StaffManagementService {
     if (clean.length > 40) return { success: false, message: "Preset name must be 40 characters or fewer" };
     try {
       const id = await this.presets.upsert(actor.userId, module, clean, filters, isDefault);
-      await this.audit.append("filter_preset_saved", { actorUserId: actor.userId, details: { module, name: clean, isDefault } });
+      await this.tryAudit("filter_preset_saved", { actorUserId: actor.userId, details: { module, name: clean, isDefault } });
       return { success: true, message: `Preset "${clean}" saved`, data: id };
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unable to save preset";
@@ -306,7 +310,7 @@ export class StaffManagementService {
     if (!actor.userId) return { success: false, message: "You must be signed in to delete presets" };
     try {
       await this.presets.remove(actor.userId, module, presetId);
-      await this.audit.append("filter_preset_deleted", { actorUserId: actor.userId, details: { module, presetId } });
+      await this.tryAudit("filter_preset_deleted", { actorUserId: actor.userId, details: { module, presetId } });
       return { success: true, message: "Preset deleted" };
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unable to delete preset";
