@@ -276,6 +276,15 @@ export async function changePin(
     };
   }
 
+  if (actor.userId.startsWith("env-")) {
+    return {
+      success: true,
+      message: "Preview mode: PIN changes not persisted",
+      description:
+        "You are signed in as the seeded demo admin. PIN changes for this account are not persisted. Sign in with a real seeded staff account to save changes.",
+    };
+  }
+
   const actorRecord = await userService.getUser(actor.userId);
   if (!actorRecord || !actorRecord.mobile) {
     return {

@@ -48,7 +48,14 @@ function mapSummary(row: any, participantIdsOverride?: string[]): ThreadSummary 
 export class SupabaseMessagingRepository implements MessagingRepository {
   private readonly client = createSupabaseServerClient();
 
+  private requireUuid(id: string, name: string): void {
+    const ok = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+    if (!ok) throw new Error(`Message ${name} requires a real user account (preview/demo accounts do not support threaded messages). Got: ${id.slice(0, 32)}`);
+  }
+
   async ensureDirectThread(userA: string, userB: string): Promise<string> {
+    this.requireUuid(userA, "sender");
+    this.requireUuid(userB, "recipient");
     const { data, error } = await this.client.rpc("ensure_direct_thread", {
       p_user_a: userA,
       p_user_b: userB,
@@ -69,6 +76,8 @@ export class SupabaseMessagingRepository implements MessagingRepository {
   }
 
   async listThreadSummaries(userId: string): Promise<ThreadSummary[]> {
+    const ok = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId);
+    if (!ok) return [];
     const { data, error } = await this.client.rpc("list_thread_summaries", {
       p_user_id: userId,
     });
@@ -145,6 +154,7 @@ export class SupabaseMessagingRepository implements MessagingRepository {
   }
 
   async sendMessage(threadId: string, senderId: string, body: string): Promise<string> {
+    this.requireUuid(senderId, "sender");
     const { data, error } = await this.client.rpc("send_message", {
       p_thread_id: threadId,
       p_sender_id: senderId,
@@ -156,6 +166,7 @@ export class SupabaseMessagingRepository implements MessagingRepository {
   }
 
   async markThreadReadUntil(threadId: string, userId: string, messageId: string): Promise<number> {
+    this.requireUuid(userId, "reader");
     const { data, error } = await this.client.rpc("mark_thread_read_until", {
       p_thread_id: threadId,
       p_user_id: userId,
@@ -166,6 +177,8 @@ export class SupabaseMessagingRepository implements MessagingRepository {
   }
 
   async pollNewMessages(userId: string, since: Date): Promise<PolledMessage[]> {
+    const ok = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId);
+    if (!ok) return [];
     const { data, error } = await this.client.rpc("poll_new_messages", {
       p_user_id: userId,
       p_since: since.toISOString(),

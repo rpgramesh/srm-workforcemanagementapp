@@ -94,6 +94,14 @@ export async function updateMyProfile(raw: unknown): Promise<ActionResult> {
     return { success: false, message: "Please fix the highlighted fields", issues };
   }
 
+  if (actor.userId.startsWith("env-")) {
+    return {
+      success: true,
+      message:
+        "Preview mode: profile edits are not persisted for the seeded demo admin account. Sign in with a real seeded staff account to save changes.",
+    };
+  }
+
   const data = parsed.data;
   const result = await updateStaff({
     id: actor.userId,
@@ -141,6 +149,14 @@ export async function changePin(raw: unknown): Promise<ActionResult> {
       issues[key].push(e.message);
     }
     return { success: false, message: "Please fix the highlighted fields", issues };
+  }
+
+  if (actor.userId.startsWith("env-")) {
+    return {
+      success: true,
+      message:
+        "Preview mode: PIN changes are not persisted for the seeded demo admin account. Sign in with a real seeded staff account to save changes.",
+    };
   }
 
   const result = await updateStaff({

@@ -67,6 +67,22 @@ export class StaffManagementService {
     try { await this.audit.append(action, opts); } catch { /* audit is non-blocking — never break core staff ops */ }
   }
 
+  private requireRealUserId(id: string | undefined, which: string): { ok: true } | { ok: false; message: string; description: string } {
+    if (typeof id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) return { ok: true };
+    if (typeof id === "string" && id.startsWith("env-")) {
+      return {
+        ok: false,
+        message: "Preview mode (demo admin)",
+        description: "The seeded demo admin account is read-only. Sign in with a real seeded staff account to save changes.",
+      };
+    }
+    return {
+      ok: false,
+      message: which + " required",
+      description: "A valid staff id is required to " + which,
+    };
+  }
+
   static validateCreate(input: StaffCreateInput): Record<string, string[]> {
     const issues: Record<string, string[]> = {};
     const push = (k: string, m: string) => {
@@ -185,7 +201,8 @@ export class StaffManagementService {
   async updateStaff(actor: { userId: string | null; role: AppRole | null }, input: StaffUpdateInput): Promise<StaffServiceOperationResult<User>> {
     const authz = await this.requireManager(actor.role, "updating staff");
     if (!authz.ok) return { success: false, message: authz.message, description: authz.description };
-    if (!input.id) return { success: false, message: "User ID is required" };
+    const idCheck = this.requireRealUserId(input.id, "update staff");
+    if (!idCheck.ok) return { success: false, message: idCheck.message, description: idCheck.description };
 
     const before = await this.users.findById(input.id);
     if (!before) return { success: false, message: "Staff member not found" };
@@ -245,7 +262,9 @@ export class StaffManagementService {
   async deactivateStaff(actor: { userId: string | null; role: AppRole | null }, staffId: string): Promise<StaffServiceOperationResult<void>> {
     const authz = await this.requireManager(actor.role, "deleting staff");
     if (!authz.ok) return { success: false, message: authz.message, description: authz.description };
-    if (!staffId) return { success: false, message: "Staff ID is required" };
+    const idCheck = this.requireRealUserId(staffId, "remove staff");
+    if (!idCheck.ok) return { success: false, message: idCheck.message, description: idCheck.description };
+
     const before = await this.users.findById(staffId);
     if (!before) return { success: false, message: "Staff member not found" };
     try {

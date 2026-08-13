@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AuditLogRepository, AuditLogRecord, AuditAction } from "@/types/audit";
 import { createSupabaseServerClient } from "@/lib/supabase";
 
