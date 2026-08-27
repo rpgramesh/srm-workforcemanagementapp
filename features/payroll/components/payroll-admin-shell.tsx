@@ -415,7 +415,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
         <CardContent className="space-y-6 pt-5">
           {/* Filter Controls Bar */}
           <div className="grid gap-4 md:grid-cols-4 items-end bg-slate-900/60 p-4 rounded-xl border border-slate-800">
-            <Field label="Period start" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <Field label="Period start">
               <Input
                 type="date"
                 value={periodStart}
@@ -423,7 +423,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
                 className="bg-slate-800 border-slate-700 text-white focus:border-blue-500"
               />
             </Field>
-            <Field label="Period end" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <Field label="Period end">
               <Input
                 type="date"
                 value={periodEnd}
