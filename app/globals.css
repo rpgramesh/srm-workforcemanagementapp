@@ -242,3 +242,54 @@ button {
     display: none; /* Hide top table header on mobile */
   }
 }
+
+/* Sidebar default desktop styling */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 256px;
+  background-color: #0f172a;
+  border-right: 1px solid #1e293b;
+  transition: transform 0.3s ease-in-out;
+  z-index: 50;
+}
+
+/* Hide mobile header on desktop */
+.mobile-header {
+  display: none;
+}
+
+/* Mobile Screen Breakpoint (< 1024px) */
+@media (max-width: 1023px) {
+  .mobile-header {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background-color: #0f172a;
+    border-bottom: 1px solid #1e293b;
+    padding: 0 16px;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 40;
+  }
+
+  /* Slide sidebar off-screen by default on mobile */
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  /* Add class .open via JavaScript to slide in */
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    padding-top: 64px; /* Push content below top mobile bar */
+    padding-left: 0;
+  }
+}
