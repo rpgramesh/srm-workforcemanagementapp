@@ -59,7 +59,7 @@ function fmtHM(totalMinutes: number) {
 
 function fmtDateTime(iso: string) {
   try {
-    return new Date(iso).toLocaleString([], {
+    return new Date(iso).toLocaleString("en-AU", {
       month: "short",
       day: "numeric",
       hour: "2-digit",
@@ -72,7 +72,7 @@ function fmtDateTime(iso: string) {
 
 function fmtDate(iso: string) {
   try {
-    return new Date(iso).toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
+    return new Date(iso).toLocaleDateString("en-AU", { year: "numeric", month: "short", day: "numeric" });
   } catch {
     return iso;
   }
@@ -138,9 +138,9 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
         adminListPayouts({ from: periodStart, to: periodEnd }).catch(() => []),
         payForUserId
           ? calcPayoutPreview({ userId: payForUserId, periodStart, periodEnd }).catch(() => ({
-              ok: false as const,
-              error: "Preview unavailable",
-            }))
+            ok: false as const,
+            error: "Preview unavailable",
+          }))
           : Promise.resolve(null),
       ]);
       setAttendance(att);
@@ -335,53 +335,59 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-white/[0.03]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Sessions pending</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Sessions pending</p>
             <Clock4 className="size-4 text-amber-300" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-white">{summary.pendingCount}</p>
+            <p className="text-2xl font-bold text-slate-900">{summary.pendingCount}</p>
           </CardContent>
         </Card>
         <Card className="bg-white/[0.03]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Approved hours</p>
-            <BadgeCheck className="size-4 text-emerald-300" />
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Approved hours</p>
+            <BadgeCheck className="size-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-white">{fmtHM(summary.approvedMinutes)}</p>
+            <p className="text-2xl font-bold text-slate-900">{fmtHM(summary.approvedMinutes)}</p>
           </CardContent>
         </Card>
         <Card className="bg-white/[0.03]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Approved gross</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Approved gross</p>
             <DollarSign className="size-4 text-sky-300" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-white">{formatCurrency(summary.approvedGross)}</p>
+            <p className="text-2xl font-bold text-slate-900">{formatCurrency(summary.approvedGross)}</p>
           </CardContent>
         </Card>
         <Card className="bg-white/[0.03]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Payouts issued</p>
-            <BadgeDollarSign className="size-4 text-emerald-300" />
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Payouts issued</p>
+            <BadgeDollarSign className="size-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-white">{formatCurrency(summary.payoutGross)}</p>
+            <p className="text-2xl font-bold text-slate-900">{formatCurrency(summary.payoutGross)}</p>
           </CardContent>
         </Card>
-      </div>
-
-      <Card className="bg-slate-950/30">
-        <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-3">
+      </div> */}
+      <Card className="bg-[#181920] text-slate-100 border-slate-800 shadow-xl">
+        <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
           <div>
-            <p className="text-base font-semibold text-white">Attendance &amp; Approval</p>
+            <h3 className="text-lg font-bold text-white tracking-tight">Attendance &amp; Approval</h3>
             <p className="text-sm text-slate-400">Review, approve, and adjust every clock session</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="ghost" size="sm" icon={<RefreshCcw className="size-4" />} onClick={fetchAll} disabled={isLoading}>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<RefreshCcw className="size-4" />}
+              onClick={fetchAll}
+              disabled={isLoading}
+              className="text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700/60"
+            >
               Refresh
             </Button>
             <Button
@@ -390,6 +396,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
               icon={<CheckCircle2 className="size-4" />}
               onClick={bulkApprove}
               disabled={totalSelected === 0}
+              className="bg-blue-600 hover:bg-blue-500 text-white font-medium"
             >
               Approve {totalSelected > 0 ? `(${totalSelected})` : "selected"}
             </Button>
@@ -398,58 +405,73 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
               size="sm"
               icon={<FileCheck2 className="size-4" />}
               onClick={() => openPayout()}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium"
             >
               Generate payout
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-4">
-            <Field label="Period start">
-              <Input type="date" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} />
+
+        <CardContent className="space-y-6 pt-5">
+          {/* Filter Controls Bar */}
+          <div className="grid gap-4 md:grid-cols-4 items-end bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+            <Field label="Period start" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <Input
+                type="date"
+                value={periodStart}
+                onChange={(e) => setPeriodStart(e.target.value)}
+                className="bg-slate-800 border-slate-700 text-white focus:border-blue-500"
+              />
             </Field>
-            <Field label="Period end">
-              <Input type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} />
+            <Field label="Period end" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <Input
+                type="date"
+                value={periodEnd}
+                onChange={(e) => setPeriodEnd(e.target.value)}
+                className="bg-slate-800 border-slate-700 text-white focus:border-blue-500"
+              />
             </Field>
-            <Field label="Staff member">
-              <Select value={userIdFilter} onChange={(e) => setUserIdFilter(e.target.value)}>
+            <Field label="Staff member" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <Select
+                value={userIdFilter}
+                onChange={(e) => setUserIdFilter(e.target.value)}
+                className="bg-slate-800 border-slate-700 text-white focus:border-blue-500"
+              >
                 <option value="">All staff</option>
                 {staff.map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.fullName}
-                    {s.employeeId ? ` · ${s.employeeId}` : ""}
+                    {s.fullName}{s.employeeId ? ` · ${s.employeeId}` : ""}
                   </option>
                 ))}
               </Select>
             </Field>
-            <Field label="Filters">
-              <div className="flex flex-wrap items-center gap-2">
-                {(["pending","approved","rejected"] as AttendanceApprovalStatus[]).map((s) => (
+            <Field label="Filters" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                {(["pending", "approved", "rejected"] as AttendanceApprovalStatus[]).map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => toggleApprovalFilter(s)}
                     className={cn(
-                      "h-9 rounded-full px-3 text-xs font-medium border transition",
+                      "h-7 rounded-full px-2.5 text-xs font-medium border transition capitalize",
                       approvalFilter.includes(s)
-                        ? "border-emerald-300/40 bg-emerald-300/10 text-emerald-100"
-                        : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10",
+                        ? "border-blue-500 bg-blue-500/20 text-blue-300 font-semibold"
+                        : "border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white",
                     )}
                   >
                     {s}
                   </button>
                 ))}
-                <Filter className="ml-1 size-4 text-slate-500" />
-                {(["clocked_in","clocked_out","on_break","auto_closed","abandoned"] as AttendanceSession["status"][]).map((s) => (
+                {(["clocked_in", "clocked_out", "on_break", "auto_closed", "abandoned"] as AttendanceSession["status"][]).map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => toggleStatusFilter(s)}
                     className={cn(
-                      "h-9 rounded-full px-3 text-xs font-medium border transition",
+                      "h-7 rounded-full px-2.5 text-xs font-medium border transition capitalize",
                       statusFilter.includes(s)
-                        ? "border-sky-300/40 bg-sky-300/10 text-sky-100"
-                        : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10",
+                        ? "border-sky-500 bg-sky-500/20 text-sky-300 font-semibold"
+                        : "border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white",
                     )}
                   >
                     {s.replace("_", " ")}
@@ -459,259 +481,286 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
             </Field>
           </div>
 
-          <Table>
-            <THead>
-              <TR>
-                <TH className="w-10"></TH>
-                <TH>Staff</TH>
-                <TH>Clock-in</TH>
-                <TH>Clock-out</TH>
-                <TH>Hours</TH>
-                <TH>Rate</TH>
-                <TH>Gross</TH>
-                <TH>Approval</TH>
-                <TH className="text-right">Actions</TH>
-              </TR>
-            </THead>
-            <TBody>
-              {attendance.length === 0 ? (
+          {/* Table Layout */}
+          <div className="overflow-x-auto rounded-lg border border-slate-800">
+            <Table className="w-full text-left">
+              <THead className="bg-slate-900/80 border-b border-slate-800">
                 <TR>
-                  <TD colSpan={9} className="py-10 text-center text-slate-500">
-                    No attendance matches these filters.
-                  </TD>
+                  <TH className="w-10 px-4 py-3"></TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Staff</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Clock-in</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Clock-out</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Hours</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Rate</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Gross</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Approval</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</TH>
                 </TR>
-              ) : (
-                attendance.map((a) => {
-                  const s = rateLookup.get(a.userId);
-                  const displayRate = a.hourlyRate ?? s?.hourlyRate ?? null;
-                  const gross =
-                    a.grossPay ?? (displayRate != null && a.workMinutes != null ? Math.round((a.workMinutes / 60) * displayRate * 100) / 100 : null);
-                  const checked = selected.has(a.id);
-                  return (
-                    <TR key={a.id} className={cn(checked && "bg-emerald-300/5")}>
-                      <TD>
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggleSelected(a.id)}
-                          className="h-4 w-4 rounded border-white/10 bg-white/5 accent-emerald-400"
-                          aria-label="Select session"
-                        />
-                      </TD>
-                      <TD>
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="flex size-9 items-center justify-center rounded-full text-[11px] font-bold text-slate-950"
-                            style={{ backgroundColor: a.userColor ?? s?.color ?? "#475569" }}
-                          >
-                            {a.userFullName
-                              ? initialsFromName(a.userFullName)
-                              : "·"}
+              </THead>
+              <TBody className="divide-y divide-slate-800/60">
+                {attendance.length === 0 ? (
+                  <TR>
+                    <TD colSpan={9} className="py-12 text-center text-slate-400 font-medium">
+                      No attendance matches these filters.
+                    </TD>
+                  </TR>
+                ) : (
+                  attendance.map((a) => {
+                    const s = rateLookup.get(a.userId);
+                    const displayRate = a.hourlyRate ?? s?.hourlyRate ?? null;
+                    const gross =
+                      a.grossPay ?? (displayRate != null && a.workMinutes != null ? Math.round((a.workMinutes / 60) * displayRate * 100) / 100 : null);
+                    const checked = selected.has(a.id);
+                    return (
+                      <TR key={a.id} className={cn("transition-colors hover:bg-slate-800/40", checked && "bg-blue-950/20")}>
+                        <TD className="px-4 py-3">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleSelected(a.id)}
+                            className="h-4 w-4 rounded border-slate-600 bg-slate-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-900"
+                            aria-label="Select session"
+                          />
+                        </TD>
+                        <TD className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="flex size-9 items-center justify-center rounded-full text-xs font-bold text-slate-950 shadow-sm"
+                              style={{ backgroundColor: a.userColor ?? s?.color ?? "#94A3B8" }}
+                            >
+                              {a.userFullName ? initialsFromName(a.userFullName) : "·"}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-white">{a.userFullName ?? s?.fullName ?? "Unknown"}</p>
+                              <p className="truncate text-xs text-slate-400">
+                                {a.userJobTitle ?? s?.jobTitle ?? s?.role ?? ""}
+                                {a.departmentName ? ` · ${a.departmentName}` : ""}
+                              </p>
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-white">{a.userFullName ?? s?.fullName ?? "Unknown"}</p>
-                            <p className="truncate text-xs text-slate-400">
-                              {a.userJobTitle ?? s?.jobTitle ?? s?.role ?? ""}
-                              {a.departmentName ? ` · ${a.departmentName}` : ""}
-                            </p>
-                          </div>
-                        </div>
-                      </TD>
-                      <TD className="text-slate-200">{fmtDateTime(a.clockedInAt)}</TD>
-                      <TD className="text-slate-200">{a.clockedOutAt ? fmtDateTime(a.clockedOutAt) : "—"}</TD>
-                      <TD className="font-mono text-slate-200">{a.workMinutes != null ? fmtHM(a.workMinutes) : a.status}</TD>
-                      <TD className="text-slate-200">{displayRate != null ? formatCurrency(displayRate) : "—"}</TD>
-                      <TD className="font-semibold text-white">{gross != null ? formatCurrency(gross) : "—"}</TD>
-                      <TD>
-                        {a.approvalStatus === "approved" ? (
-                          <Badge tone="emerald" size="sm">Approved</Badge>
-                        ) : a.approvalStatus === "rejected" ? (
-                          <Badge tone="rose" size="sm">Rejected</Badge>
-                        ) : (
-                          <Badge tone="slate" size="sm">Pending</Badge>
-                        )}
-                      </TD>
-                      <TD className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {a.approvalStatus !== "approved" ? (
-                            <Button variant="ghost" size="sm" icon={<BadgeCheck className="size-4" />} onClick={() => setApproval(a.id, "approved")}>
-                              Approve
-                            </Button>
+                        </TD>
+                        <TD className="px-4 py-3 text-sm text-slate-300">{fmtDateTime(a.clockedInAt)}</TD>
+                        <TD className="px-4 py-3 text-sm text-slate-300">{a.clockedOutAt ? fmtDateTime(a.clockedOutAt) : "—"}</TD>
+                        <TD className="px-4 py-3 text-sm font-mono text-slate-200">{a.workMinutes != null ? fmtHM(a.workMinutes) : a.status}</TD>
+                        <TD className="px-4 py-3 text-sm text-slate-300">{displayRate != null ? formatCurrency(displayRate) : "—"}</TD>
+                        <TD className="px-4 py-3 text-sm font-semibold text-white text-right">{gross != null ? formatCurrency(gross) : "—"}</TD>
+                        <TD className="px-4 py-3">
+                          {a.approvalStatus === "approved" ? (
+                            <span className="inline-flex items-center rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-400 border border-emerald-500/20">Approved</span>
+                          ) : a.approvalStatus === "rejected" ? (
+                            <span className="inline-flex items-center rounded-md bg-rose-500/10 px-2 py-1 text-xs font-semibold text-rose-400 border border-rose-500/20">Rejected</span>
                           ) : (
-                            <Button variant="ghost" size="sm" icon={<Ban className="size-4" />} onClick={() => setApproval(a.id, "pending")}>
-                              Reopen
-                            </Button>
+                            <span className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-400 border border-amber-500/20">Pending</span>
                           )}
-                          {a.approvalStatus !== "rejected" ? (
-                            <Button variant="ghost" size="sm" icon={<XCircle className="size-4" />} onClick={() => setApproval(a.id, "rejected")}>
-                              Reject
+                        </TD>
+                        <TD className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            {a.approvalStatus !== "approved" ? (
+                              <Button variant="ghost" size="sm" icon={<BadgeCheck className="size-4" />} onClick={() => setApproval(a.id, "approved")} className="text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300">
+                                Approve
+                              </Button>
+                            ) : (
+                              <Button variant="ghost" size="sm" icon={<Ban className="size-4" />} onClick={() => setApproval(a.id, "pending")} className="text-amber-400 hover:bg-amber-500/10 hover:text-amber-300">
+                                Reopen
+                              </Button>
+                            )}
+                            {a.approvalStatus !== "rejected" && (
+                              <Button variant="ghost" size="sm" icon={<XCircle className="size-4" />} onClick={() => setApproval(a.id, "rejected")} className="text-rose-400 hover:bg-rose-500/10 hover:text-rose-300">
+                                Reject
+                              </Button>
+                            )}
+                            <Button variant="ghost" size="sm" icon={<PenLine className="size-4" />} onClick={() => openEdit(a)} className="text-slate-400 hover:bg-slate-800 hover:text-white">
+                              Edit
                             </Button>
-                          ) : null}
-                          <Button variant="ghost" size="sm" icon={<PenLine className="size-4" />} onClick={() => openEdit(a)}>
-                            Edit
-                          </Button>
-                        </div>
-                      </TD>
-                    </TR>
-                  );
-                })
-              )}
-            </TBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-slate-950/30">
-        <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-3">
-          <div>
-            <p className="text-base font-semibold text-white">Hourly pay rates</p>
-            <p className="text-sm text-slate-400">Set the per-hour rate used in payout calculations</p>
+                          </div>
+                        </TD>
+                      </TR>
+                    );
+                  })
+                )}
+              </TBody>
+            </Table>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <THead>
-              <TR>
-                <TH>Staff</TH>
-                <TH>Role</TH>
-                <TH>Status</TH>
-                <TH>Hourly rate</TH>
-                <TH className="text-right">Action</TH>
-              </TR>
-            </THead>
-            <TBody>
-              {staff.map((s) => (
-                <TR key={s.id}>
-                  <TD>
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="flex size-9 items-center justify-center rounded-full text-[11px] font-bold text-slate-950"
-                        style={{ backgroundColor: s.color ?? "#475569" }}
-                      >
-                        {initialsFromName(s.fullName)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-white">{s.fullName}</p>
-                        <p className="truncate text-xs text-slate-400">
-                          {s.employeeId ? `${s.employeeId} · ` : ""}{s.jobTitle ?? s.role}
-                        </p>
-                      </div>
-                    </div>
-                  </TD>
-                  <TD className="text-slate-200">{s.role.replace("_", " ")}</TD>
-                  <TD>{s.isActive ? <Badge tone="emerald" size="sm">Active</Badge> : <Badge tone="slate" size="sm">Inactive</Badge>}</TD>
-                  <TD className="text-slate-200">{s.hourlyRate != null ? formatCurrency(s.hourlyRate) : "—"}</TD>
-                  <TD className="text-right">
-                    <Button variant="ghost" size="sm" icon={<Pencil className="size-4" />} onClick={() => openRate(s)}>
-                      Set rate
-                    </Button>
-                  </TD>
-                </TR>
-              ))}
-            </TBody>
-          </Table>
         </CardContent>
       </Card>
 
-      <Card className="bg-slate-950/30">
-        <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-3">
+      <Card className="bg-[#181920] border-slate-800 shadow-xl text-slate-100">
+        <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
           <div>
-            <p className="text-base font-semibold text-white">Payouts</p>
+            <h3 className="text-lg font-bold text-white tracking-tight">Payouts</h3>
             <p className="text-sm text-slate-400">Generated payout records with full financial trail</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="primary" size="sm" icon={<PlusCircle className="size-4" />} onClick={() => openPayout()}>
+            <Button
+              variant="primary"
+              size="sm"
+              icon={<PlusCircle className="size-4" />}
+              onClick={() => openPayout()}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium"
+            >
               New payout
             </Button>
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <THead>
-              <TR>
-                <TH>Staff</TH>
-                <TH>Period</TH>
-                <TH>Hours</TH>
-                <TH>Rate</TH>
-                <TH>Gross</TH>
-                <TH>Ref / Notes</TH>
-                <TH>Status</TH>
-                <TH className="text-right">Actions</TH>
-              </TR>
-            </THead>
-            <TBody>
-              {payouts.length === 0 ? (
+          <div className="overflow-x-auto">
+            <Table className="w-full text-left">
+              <THead className="bg-slate-900/80 border-b border-slate-800">
                 <TR>
-                  <TD colSpan={8} className="py-10 text-center text-slate-500">
-                    No payouts generated yet for this period.
-                  </TD>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Staff</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Period</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Hours</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Rate</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Gross</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Ref / Notes</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</TH>
                 </TR>
-              ) : (
-                payouts.map((p) => (
-                  <TR key={p.id}>
-                    <TD>
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="flex size-9 items-center justify-center rounded-full text-[11px] font-bold text-slate-950"
-                          style={{ backgroundColor: p.userColor ?? "#475569" }}
-                        >
-                          {p.userFullName
-                            ? initialsFromName(p.userFullName)
-                            : "·"}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-white">{p.userFullName ?? "Unknown"}</p>
-                          <p className="truncate text-xs text-slate-400">{p.userEmployeeId ?? ""}</p>
-                        </div>
-                      </div>
-                    </TD>
-                    <TD className="text-slate-200">
-                      {fmtDate(p.periodStart)} → {fmtDate(p.periodEnd)}
-                    </TD>
-                    <TD className="font-mono text-slate-200">{fmtHM(p.totalMinutes)}</TD>
-                    <TD className="text-slate-200">{formatCurrency(p.hourlyRate)}</TD>
-                    <TD className="font-semibold text-white">{formatCurrency(p.grossAmount)}</TD>
-                    <TD className="text-slate-400 text-xs">
-                      {p.reference ? <p className="font-semibold text-slate-200">#{p.reference}</p> : null}
-                      {p.notes ? <p className="truncate max-w-[220px]">{p.notes}</p> : null}
-                    </TD>
-                    <TD>
-                      {p.status === "paid" ? (
-                        <Badge tone="emerald" size="sm">Paid</Badge>
-                      ) : p.status === "processing" ? (
-                        <Badge tone="sky" size="sm">Processing</Badge>
-                      ) : p.status === "void" ? (
-                        <Badge tone="slate" size="sm">Void</Badge>
-                      ) : (
-                        <Badge tone="slate" size="sm">Draft</Badge>
-                      )}
-                    </TD>
-                    <TD className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {p.status === "draft" ? (
-                          <Button variant="ghost" size="sm" onClick={() => markPayout(p.id, "processing")}>
-                            Mark processing
-                          </Button>
-                        ) : null}
-                        {p.status === "processing" ? (
-                          <Button variant="primary" size="sm" onClick={() => markPayout(p.id, "paid")}>
-                            Mark paid
-                          </Button>
-                        ) : null}
-                        {p.status !== "void" ? (
-                          <Button variant="ghost" size="sm" onClick={() => markPayout(p.id, "void")}>
-                            Void
-                          </Button>
-                        ) : null}
-                      </div>
+              </THead>
+              <TBody className="divide-y divide-slate-800/60">
+                {payouts.length === 0 ? (
+                  <TR>
+                    <TD colSpan={8} className="py-12 text-center text-slate-400 font-medium">
+                      No payouts generated yet for this period.
                     </TD>
                   </TR>
-                ))
-              )}
-            </TBody>
-          </Table>
+                ) : (
+                  payouts.map((p) => (
+                    <TR key={p.id} className="transition-colors hover:bg-slate-800/40">
+                      <TD className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="flex size-9 items-center justify-center rounded-full text-xs font-bold text-slate-950 shadow-sm"
+                            style={{ backgroundColor: p.userColor ?? "#94A3B8" }}
+                          >
+                            {p.userFullName ? initialsFromName(p.userFullName) : "·"}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-white">{p.userFullName ?? "Unknown"}</p>
+                            <p className="truncate text-xs text-slate-400">{p.userEmployeeId ?? ""}</p>
+                          </div>
+                        </div>
+                      </TD>
+                      <TD className="px-4 py-3 text-sm text-slate-300">
+                        {fmtDate(p.periodStart)} → {fmtDate(p.periodEnd)}
+                      </TD>
+                      <TD className="px-4 py-3 text-sm font-mono text-slate-200">{fmtHM(p.totalMinutes)}</TD>
+                      <TD className="px-4 py-3 text-sm text-slate-300">{formatCurrency(p.hourlyRate)}</TD>
+                      <TD className="px-4 py-3 text-sm font-semibold text-white text-right">{formatCurrency(p.grossAmount)}</TD>
+                      <TD className="px-4 py-3 text-xs text-slate-400">
+                        {p.reference ? <p className="font-semibold text-slate-200">#{p.reference}</p> : null}
+                        {p.notes ? <p className="truncate max-w-[220px]">{p.notes}</p> : null}
+                      </TD>
+                      <TD className="px-4 py-3">
+                        {p.status === "paid" ? (
+                          <span className="inline-flex items-center rounded-md bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400 border border-emerald-500/20">Paid</span>
+                        ) : p.status === "processing" ? (
+                          <span className="inline-flex items-center rounded-md bg-sky-500/10 px-2.5 py-1 text-xs font-semibold text-sky-400 border border-sky-500/20">Processing</span>
+                        ) : p.status === "void" ? (
+                          <span className="inline-flex items-center rounded-md bg-rose-500/10 px-2.5 py-1 text-xs font-semibold text-rose-400 border border-rose-500/20">Void</span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-md bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-300 border border-slate-700">Draft</span>
+                        )}
+                      </TD>
+                      <TD className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {p.status === "draft" && (
+                            <Button variant="ghost" size="sm" onClick={() => markPayout(p.id, "processing")} className="text-sky-400 hover:bg-sky-500/10 hover:text-sky-300">
+                              Mark processing
+                            </Button>
+                          )}
+                          {p.status === "processing" && (
+                            <Button variant="primary" size="sm" onClick={() => markPayout(p.id, "paid")} className="bg-emerald-600 hover:bg-emerald-500 text-white">
+                              Mark paid
+                            </Button>
+                          )}
+                          {p.status !== "void" && (
+                            <Button variant="ghost" size="sm" onClick={() => markPayout(p.id, "void")} className="text-rose-400 hover:bg-rose-500/10 hover:text-rose-300">
+                              Void
+                            </Button>
+                          )}
+                        </div>
+                      </TD>
+                    </TR>
+                  ))
+                )}
+              </TBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
+
+      <Card className="bg-[#181920] border-slate-800 shadow-xl text-slate-100">
+        <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
+          <div>
+            <h3 className="text-lg font-bold text-white tracking-tight">Hourly pay rates</h3>
+            <p className="text-sm text-slate-400">Set the per-hour rate used in payout calculations</p>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table className="w-full text-left">
+              <THead className="bg-slate-900/80 border-b border-slate-800">
+                <TR>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Staff</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Role</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Hourly rate</TH>
+                  <TH className="px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Action</TH>
+                </TR>
+              </THead>
+              <TBody className="divide-y divide-slate-800/60">
+                {staff.map((s) => (
+                  <TR key={s.id} className="transition-colors hover:bg-slate-800/40">
+                    <TD className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="flex size-9 items-center justify-center rounded-full text-xs font-bold text-slate-950 shadow-sm"
+                          style={{ backgroundColor: s.color ?? "#94A3B8" }}
+                        >
+                          {initialsFromName(s.fullName)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-white">{s.fullName}</p>
+                          <p className="truncate text-xs text-slate-400">
+                            {s.employeeId ? `${s.employeeId} · ` : ""}{s.jobTitle ?? s.role}
+                          </p>
+                        </div>
+                      </div>
+                    </TD>
+                    <TD className="px-4 py-3 text-sm text-slate-300 capitalize">{s.role.replace("_", " ")}</TD>
+                    <TD className="px-4 py-3">
+                      {s.isActive ? (
+                        <span className="inline-flex items-center rounded-md bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400 border border-emerald-500/20">Active</span>
+                      ) : (
+                        <span className="inline-flex items-center rounded-md bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-400 border border-slate-700">Inactive</span>
+                      )}
+                    </TD>
+                    <TD className="px-4 py-3 text-sm font-semibold text-white text-right font-mono">
+                      {s.hourlyRate != null ? formatCurrency(s.hourlyRate) : "—"}
+                    </TD>
+                    <TD className="px-4 py-3 text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        icon={<Pencil className="size-4" />}
+                        onClick={() => openRate(s)}
+                        className="text-slate-300 hover:bg-slate-800 hover:text-white"
+                      >
+                        Set rate
+                      </Button>
+                    </TD>
+                  </TR>
+                ))}
+              </TBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+
+
+
 
       <Modal
         open={!!editAttendanceId && !!editValues}
@@ -742,7 +791,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
             </Field>
             <Field label="Status">
               <Select value={editValues.status} onChange={(e) => setEditValues({ ...editValues, status: e.target.value as AttendanceSession["status"] })}>
-                {(["clocked_in","clocked_out","on_break","auto_closed","abandoned"] as AttendanceSession["status"][]).map((s) => (
+                {(["clocked_in", "clocked_out", "on_break", "auto_closed", "abandoned"] as AttendanceSession["status"][]).map((s) => (
                   <option key={s} value={s}>{s.replace("_", " ")}</option>
                 ))}
               </Select>
@@ -845,25 +894,25 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Calculation preview</p>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Calculation preview</p>
             {preview ? (
               <div className="mt-3 grid gap-3 sm:grid-cols-4">
                 <div>
                   <p className="text-xs uppercase tracking-wider text-slate-500">Sessions</p>
-                  <p className="text-sm font-semibold text-white">{preview.sessionCount} total · {preview.approvedCount} approved</p>
+                  <p className="text-sm font-semibold text-slate-900">{preview.sessionCount} total · {preview.approvedCount} approved</p>
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wider text-slate-500">Hours</p>
-                  <p className="text-lg font-semibold text-white">{preview.totalHours.toFixed(2)}</p>
+                  <p className="text-lg font-semibold text-slate-900">{preview.totalHours.toFixed(2)}</p>
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wider text-slate-500">Rate</p>
-                  <p className="text-lg font-semibold text-white">{preview.hourlyRate != null ? formatCurrency(preview.hourlyRate) : "—"}</p>
+                  <p className="text-lg font-semibold text-slate-900">{preview.hourlyRate != null ? formatCurrency(preview.hourlyRate) : "—"}</p>
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wider text-slate-500">Gross</p>
-                  <p className="text-lg font-bold text-emerald-300">{formatCurrency(preview.grossAmount)}</p>
+                  <p className="text-lg font-bold text-blue-600">{formatCurrency(preview.grossAmount)}</p>
                 </div>
               </div>
             ) : (

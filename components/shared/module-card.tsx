@@ -4,15 +4,15 @@ import type { DeliveryModule } from "@/types/app";
 
 const statusStyles: Record<DeliveryModule["status"], string> = {
   current:
-    "border-emerald-400/30 bg-emerald-400/10 text-emerald-200 shadow-[0_0_30px_rgba(52,211,153,0.12)]",
+    "border-blue-500/30 bg-blue-500/10 text-blue-700 shadow-[0_0_30px_rgba(52,211,153,0.12)]",
   next: "border-sky-400/20 bg-sky-400/10 text-sky-100",
-  planned: "border-white/10 bg-white/5 text-slate-200",
+  planned: "border-slate-200 bg-white/5 text-slate-900",
 };
 
 const badgeStyles: Record<DeliveryModule["status"], string> = {
-  current: "bg-emerald-400/15 text-emerald-200",
+  current: "bg-blue-500/15 text-blue-700",
   next: "bg-sky-400/15 text-sky-100",
-  planned: "bg-white/10 text-slate-200",
+  planned: "bg-white/10 text-slate-900",
 };
 
 const statusLabel: Record<DeliveryModule["status"], string> = {
@@ -46,10 +46,10 @@ export function ModuleCard({ module }: ModuleCardProps) {
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold tracking-[-0.02em] text-white">
+        <h3 className="text-lg font-semibold tracking-[-0.02em] text-slate-900">
           {module.title}
         </h3>
-        <p className="text-sm leading-6 text-slate-300">{module.description}</p>
+        <p className="text-sm leading-6 text-slate-700">{module.description}</p>
       </div>
     </article>
   );

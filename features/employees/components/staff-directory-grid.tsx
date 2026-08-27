@@ -33,8 +33,8 @@ export function StaffDirectoryGrid({ staff, onAddStaff, onFilter, onMessageStaff
     <section className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">Staff Directory</h2>
-          <p className="mt-1 text-sm text-slate-400">
+          <h2 className="text-xl font-semibold tracking-[-0.03em] text-slate-900">Staff Directory</h2>
+          <p className="mt-1 text-sm text-slate-500">
             Manage team roles and schedule compliance.
           </p>
         </div>
@@ -42,7 +42,7 @@ export function StaffDirectoryGrid({ staff, onAddStaff, onFilter, onMessageStaff
           <button
             type="button"
             onClick={onFilter}
-            className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10"
+            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-white/10"
           >
             <Filter className="size-4" />
             Filter
@@ -50,7 +50,7 @@ export function StaffDirectoryGrid({ staff, onAddStaff, onFilter, onMessageStaff
           <button
             type="button"
             onClick={onAddStaff}
-            className="inline-flex items-center gap-2 rounded-2xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-300"
+            className="inline-flex items-center gap-2 rounded-2xl bg-blue-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-blue-600"
           >
             <Plus className="size-4" />
             Add Staff
@@ -60,14 +60,14 @@ export function StaffDirectoryGrid({ staff, onAddStaff, onFilter, onMessageStaff
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {staff.length === 0 ? (
-          <Card className="bg-slate-950/35 sm:col-span-2 xl:col-span-4">
-            <CardContent className="p-10 text-center text-sm text-slate-400">
+          <Card className="bg-slate-50/35 sm:col-span-2 xl:col-span-4">
+            <CardContent className="p-10 text-center text-sm text-slate-500">
               No staff members are set up yet. Click &quot;Add Staff&quot; to create the first record.
             </CardContent>
           </Card>
         ) : (
           staff.map((card) => (
-            <Card key={card.userId} className="bg-slate-950/35">
+            <Card key={card.userId} className="bg-slate-50/35">
               <CardContent className="space-y-4 p-5">
                 <div className="flex items-start gap-3">
                   <Avatar className="size-12 rounded-2xl">
@@ -79,7 +79,7 @@ export function StaffDirectoryGrid({ staff, onAddStaff, onFilter, onMessageStaff
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-white">
+                    <p className="truncate text-sm font-semibold text-slate-900">
                       {formatUserLabel({ fullName: card.fullName, role: card.role })}
                     </p>
                     {card.department ? (
@@ -92,25 +92,25 @@ export function StaffDirectoryGrid({ staff, onAddStaff, onFilter, onMessageStaff
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                  <div className="rounded-2xl border border-slate-200 bg-white/5 p-3">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
                       This week
                     </p>
-                    <p className="mt-1 flex items-end gap-1 text-lg font-semibold tracking-[-0.02em] text-white">
+                    <p className="mt-1 flex items-end gap-1 text-lg font-semibold tracking-[-0.02em] text-slate-900">
                       {formatWeeklyHours(card.weeklyHours)}
                       {card.weeklyHours >= 44 ? (
                         <TrendingUp className="size-3 text-rose-300" />
                       ) : (
-                        <TrendingDown className="size-3 text-emerald-300" />
+                        <TrendingDown className="size-3 text-blue-600" />
                       )}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                  <div className="rounded-2xl border border-slate-200 bg-white/5 p-3">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
                       Next shift
                     </p>
-                    <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-slate-200">
-                      <CalendarDays className={cn("size-3.5", card.status === "on_leave" ? "text-amber-300" : "text-slate-400")} />
+                    <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-slate-900">
+                      <CalendarDays className={cn("size-3.5", card.status === "on_leave" ? "text-amber-300" : "text-slate-500")} />
                       <span className="line-clamp-1">
                         {card.nextShiftLabel ?? "None scheduled"}
                       </span>
@@ -121,7 +121,7 @@ export function StaffDirectoryGrid({ staff, onAddStaff, onFilter, onMessageStaff
                 <button
                   type="button"
                   onClick={onMessageStaff ? () => onMessageStaff(card.userId) : undefined}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/5 py-2 text-xs font-semibold text-slate-900 hover:bg-white/10"
                 >
                   <MessageCircle className="size-3.5" />
                   Message

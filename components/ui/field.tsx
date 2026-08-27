@@ -8,7 +8,7 @@ type TextAreaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & { inval
 type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & { invalid?: boolean };
 
 const base =
-  "block w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-500 shadow-inner shadow-slate-950/40 transition outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:opacity-50";
+  "block w-full rounded-xl border border-slate-200 bg-white/5 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 shadow-inner shadow-slate-950/40 transition outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:opacity-50";
 
 const invalidClass = "border-rose-400/40 focus:border-rose-400/60 focus:ring-rose-400/20";
 
@@ -30,7 +30,7 @@ export function Field({
       {label ? (
         <label
           htmlFor={id}
-          className="block text-xs font-medium uppercase tracking-wider text-slate-400"
+          className="block text-xs font-medium uppercase tracking-wider text-slate-500"
         >
           {label}
         </label>
@@ -96,14 +96,14 @@ export function SwitchField({
   description?: string;
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 transition hover:bg-white/10">
+    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white/5 p-3 transition hover:bg-white/10">
       <span
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={clsx(
             "mt-0.5 inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition",
-          checked ? "bg-emerald-500" : "bg-white/10",
+          checked ? "bg-blue-600" : "bg-white/10",
         )}
       >
         <span
@@ -114,9 +114,9 @@ export function SwitchField({
         />
       </span>
       <span className="min-w-0">
-        <span className="block text-sm font-medium text-white">{label}</span>
+        <span className="block text-sm font-medium text-slate-900">{label}</span>
         {description ? (
-          <span className="mt-0.5 block text-xs text-slate-400">{description}</span>
+          <span className="mt-0.5 block text-xs text-slate-500">{description}</span>
         ) : null}
       </span>
     </label>

@@ -61,14 +61,14 @@ export function ModuleResultRow({ hit, active, onClick }: ModuleResultRowProps) 
       className={cn(
         "group flex w-full items-center gap-3 rounded-2xl border px-3 py-2.5 transition-colors",
         active
-          ? "border-emerald-400/30 bg-emerald-400/10"
-          : "border-transparent hover:border-white/10 hover:bg-white/5",
+          ? "border-blue-500/30 bg-blue-500/10"
+          : "border-transparent hover:border-slate-200 hover:bg-white/5",
       )}
     >
       <div
         className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5",
-          tone === "emerald" && "border-emerald-400/20 bg-emerald-400/10 text-emerald-300",
+          "flex size-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white/5",
+          tone === "emerald" && "border-blue-500/20 bg-blue-500/10 text-blue-600",
           tone === "sky" && "border-sky-400/20 bg-sky-400/10 text-sky-300",
           tone === "amber" && "border-amber-400/20 bg-amber-400/10 text-amber-300",
           tone === "rose" && "border-rose-400/20 bg-rose-400/10 text-rose-300",
@@ -81,9 +81,9 @@ export function ModuleResultRow({ hit, active, onClick }: ModuleResultRowProps) 
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="truncate text-sm font-medium text-white">{hit.title}</p>
+          <p className="truncate text-sm font-medium text-slate-900">{hit.title}</p>
         </div>
-        <p className="mt-0.5 truncate text-xs text-slate-400">{hit.subtitle}</p>
+        <p className="mt-0.5 truncate text-xs text-slate-500">{hit.subtitle}</p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -93,8 +93,8 @@ export function ModuleResultRow({ hit, active, onClick }: ModuleResultRowProps) 
         <ChevronRight
           className={cn(
             "size-4 shrink-0 text-slate-500 transition-transform",
-            "group-hover:text-slate-300 group-hover:translate-x-0.5",
-            active && "translate-x-0.5 text-emerald-300",
+            "group-hover:text-slate-700 group-hover:translate-x-0.5",
+            active && "translate-x-0.5 text-blue-600",
           )}
         />
       </div>

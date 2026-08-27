@@ -71,5 +71,14 @@ export async function pollMessages(sinceIso: string): Promise<PolledMessage[]> {
 
 export async function unreadCount(): Promise<number> {
   const actor = await getCurrentActor();
-  return messagingService.unreadCount({ userId: actor?.userId ?? null, role: actor?.role ?? null });
+  const timeout = new Promise<number>((resolve) => setTimeout(() => resolve(0), 7500));
+  try {
+    const result = await Promise.race([
+      messagingService.unreadCount({ userId: actor?.userId ?? null, role: actor?.role ?? null }),
+      timeout,
+    ]);
+    return typeof result === "number" && Number.isFinite(result) ? result : 0;
+  } catch {
+    return 0;
+  }
 }

@@ -19,14 +19,14 @@ export function PayrollOverview({ data }: PayrollOverviewProps) {
   });
 
   return (
-    <Card className="bg-slate-950/35">
+    <Card className="bg-slate-50/35">
       <CardContent className="p-7">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
               Payroll Overview
             </p>
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-slate-700">
               Current Pay Period: {startLabel} — {endLabel}
             </p>
           </div>
@@ -36,24 +36,24 @@ export function PayrollOverview({ data }: PayrollOverviewProps) {
         </div>
 
         <div className="mt-8 grid gap-4 lg:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
+          <div className="rounded-3xl border border-slate-200 bg-white/5 p-5">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">
               Total Gross
             </p>
-            <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-white">
+            <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-slate-900">
               {currency(totalGross, currencyCode)}
             </p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
+          <div className="rounded-3xl border border-slate-200 bg-white/5 p-5">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">
               Total Hours
             </p>
-            <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-white">
+            <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-slate-900">
               {totalHours.toFixed(1)}h
             </p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
+          <div className="rounded-3xl border border-slate-200 bg-white/5 p-5">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">
               Overtime Cost
             </p>
             <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-rose-100">

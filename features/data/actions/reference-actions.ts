@@ -10,10 +10,10 @@ export interface DepartmentRow {
 }
 
 const DEFAULT_DEPARTMENTS: DepartmentRow[] = [
-  { id: "dept-foh", name: "Front of House", short_label: "FRONT", color: "#10B981" },
-  { id: "dept-kit", name: "Kitchen",       short_label: "KITCHEN", color: "#0EA5E9" },
-  { id: "dept-bar", name: "Bar",           short_label: "BAR", color: "#F59E0B" },
-  { id: "dept-mgt", name: "Management",    short_label: "MGMT", color: "#F43F5E" },
+  { id: "dept-foh", name: "Front of House", short_label: "FRONT", color: "#2563EB" },
+  { id: "dept-kit", name: "Kitchen", short_label: "KITCHEN", color: "#0EA5E9" },
+  { id: "dept-bar", name: "Bar", short_label: "BAR", color: "#F59E0B" },
+  { id: "dept-mgt", name: "Management", short_label: "MGMT", color: "#F43F5E" },
 ];
 
 function accentToHex(accentClass: string | null): string | null {

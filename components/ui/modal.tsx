@@ -42,23 +42,26 @@ export function Modal({ open, onClose, title, subtitle, children, size = "md", f
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:p-8">
+      {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 backdrop-blur-md"
         onClick={onClose}
         aria-hidden
       />
+      {/* Panel */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
         className={clsx(
-          "relative z-10 w-full my-8 rounded-2xl border border-white/10 bg-slate-900/95 shadow-2xl shadow-slate-950/50 ring-1 ring-white/5 backdrop-blur",
+          "relative z-10 w-full my-8 rounded-2xl border border-white/[0.08] bg-[#0d1526] shadow-[0_24px_80px_rgba(0,0,0,0.7)] ring-1 ring-white/[0.04]",
           SIZE_CLASS[size],
         )}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-white/10 px-6 py-5">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] px-6 py-5">
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg font-semibold tracking-[-0.02em] text-white">{title}</h2>
+            <h2 className="text-lg font-semibold tracking-[-0.02em] text-slate-100">{title}</h2>
             {subtitle ? (
               <p className="mt-1 text-sm text-slate-400">{subtitle}</p>
             ) : null}
@@ -66,15 +69,17 @@ export function Modal({ open, onClose, title, subtitle, children, size = "md", f
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-400 transition hover:bg-white/5 hover:text-white"
+            className="rounded-xl p-2 text-slate-400 transition hover:bg-white/8 hover:text-slate-200"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
+        {/* Body */}
         <div className="max-h-[calc(100vh-200px)] overflow-y-auto px-6 py-5">{children}</div>
+        {/* Footer */}
         {footer ? (
-          <div className="flex items-center justify-end gap-3 border-t border-white/10 bg-slate-950/30 px-6 py-4 rounded-b-2xl">
+          <div className="flex items-center justify-end gap-3 border-t border-white/[0.07] bg-white/[0.02] px-6 py-4 rounded-b-2xl">
             {footer}
           </div>
         ) : null}

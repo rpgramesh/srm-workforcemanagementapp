@@ -36,13 +36,13 @@ export function NotificationBell({
         onClick={handleToggle}
         aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : "Notifications"}
         className={cn(
-          "relative flex size-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10",
+          "relative flex size-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/5 text-slate-900 hover:bg-white/10",
           className,
         )}
       >
-        <Bell className={cn("size-4", open ? "text-white" : "")} />
+        <Bell className={cn("size-4", open ? "text-slate-900" : "")} />
         {unreadCount > 0 ? (
-          <span className="absolute -right-0.5 -top-0.5 flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white shadow-[0_0_0_2px_rgba(2,6,23,1)]">
+          <span className="absolute -right-0.5 -top-0.5 flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-slate-900 shadow-[0_0_0_2px_rgba(2,6,23,1)]">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         ) : null}

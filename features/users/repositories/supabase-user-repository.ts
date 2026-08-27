@@ -8,6 +8,7 @@ import type {
   StaffPermissions,
 } from "@/types/user";
 import { UserRepository } from "@/features/users/repositories/user-repository";
+import { normalizeSupabaseError } from "@/features/data/supabase-utils";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import type { AppRole } from "@/types/app";
 
@@ -154,7 +155,7 @@ export class SupabaseUserRepository implements UserRepository {
       .eq("id", id)
       .maybeSingle();
 
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return data ? mapRow(data as SupabaseUserRow) : null;
   }
 
@@ -166,7 +167,7 @@ export class SupabaseUserRepository implements UserRepository {
       .eq("is_active", true)
       .maybeSingle();
 
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return data ? mapRow(data as SupabaseUserRow) : null;
   }
 
@@ -177,7 +178,7 @@ export class SupabaseUserRepository implements UserRepository {
       .eq("employee_id", employeeId)
       .maybeSingle();
 
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return data ? mapRow(data as SupabaseUserRow) : null;
   }
 
@@ -195,7 +196,7 @@ export class SupabaseUserRepository implements UserRepository {
       .order("first_name", { ascending: true });
 
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return (data as SupabaseUserRow[]).map(mapRow);
   }
 
@@ -205,7 +206,7 @@ export class SupabaseUserRepository implements UserRepository {
       .select("*", { count: "exact", head: true });
     const withFilters = applyPaginationFilters(q, params);
     const { count, error } = await withFilters;
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return Number(count ?? 0);
   }
 
@@ -217,7 +218,7 @@ export class SupabaseUserRepository implements UserRepository {
       query = query.range(params.offset, params.offset + (params.limit ?? 50) - 1);
     }
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return (data as SupabaseUserRow[]).map(mapRow);
   }
 
@@ -225,7 +226,7 @@ export class SupabaseUserRepository implements UserRepository {
     const q = this.client.from("users").select("*", { count: "exact", head: true });
     const withFilters = applyStaffFilters(q, params);
     const { count, error } = await withFilters;
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return Number(count ?? 0);
   }
 
@@ -303,7 +304,7 @@ export class SupabaseUserRepository implements UserRepository {
       pin_input: pin,
     });
 
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     const row = Array.isArray(data) ? data[0] : null;
     if (!row?.matched || !row?.user_id) return null;
 
@@ -315,7 +316,7 @@ export class SupabaseUserRepository implements UserRepository {
       pin_input: pin,
     });
 
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     const row = Array.isArray(data) ? data[0] : null;
     if (!row?.matched || !row?.user_id) return null;
 

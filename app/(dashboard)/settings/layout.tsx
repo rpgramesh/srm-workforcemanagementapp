@@ -78,19 +78,18 @@ export default async function SettingsLayout({
       actor={actor}
     >
       <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {visibleTabs.map((tab) => {
             const isActive = currentPath.includes(`/settings/${tab.id}`);
             return (
               <Link key={tab.id} href={tab.href} className="block">
                 <div
-                  className={`w-full cursor-pointer rounded-2xl border p-4 text-left transition ${
-                    isActive
-                      ? "border-emerald-400/40 bg-emerald-400/10"
-                      : "border-white/10 bg-white/5 hover:bg-white/10"
-                  }`}
+                  className={`w-full cursor-pointer rounded-2xl border p-4 text-left backdrop-blur-md transition-all duration-200 ${isActive
+                      ? "border-blue-500/40 bg-blue-600/15 shadow-lg shadow-blue-500/5"
+                      : "border-slate-800/80 bg-[#181920]/80 hover:border-slate-700 hover:bg-slate-800/50"
+                    }`}
                 >
-                  <div className={`text-sm font-semibold ${isActive ? "text-emerald-300" : "text-white"}`}>
+                  <div className={`text-sm font-bold ${isActive ? "text-blue-400" : "text-white"}`}>
                     {tab.label}
                   </div>
                   <div className="mt-1 text-xs text-slate-400">{tab.description}</div>

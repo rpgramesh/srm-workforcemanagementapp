@@ -57,7 +57,7 @@ interface NotificationCenterProps {
 
 const PRIORITY_DOT: Record<NotificationPriority, string> = {
   info: "bg-slate-400",
-  success: "bg-emerald-400",
+  success: "bg-blue-500",
   warning: "bg-amber-400",
   critical: "bg-rose-500",
 };
@@ -166,8 +166,8 @@ function ToggleSwitch({
       disabled={disabled}
       onClick={() => !disabled && onCheckedChange(!checked)}
       className={cn(
-        "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/50 disabled:cursor-not-allowed disabled:opacity-40",
-        checked ? "bg-emerald-400" : "bg-white/10",
+        "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/50 disabled:cursor-not-allowed disabled:opacity-40",
+        checked ? "bg-blue-500" : "bg-white/10",
       )}
     >
       <span
@@ -197,14 +197,14 @@ function ChannelToggle({
       className={cn(
         "group flex flex-col items-center gap-1.5 rounded-xl border p-2 transition-colors",
         enabled
-          ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200"
-          : "border-white/10 bg-white/5 text-slate-400 hover:border-white/15 hover:bg-white/10",
+          ? "border-blue-500/30 bg-blue-500/10 text-blue-700"
+          : "border-slate-200 bg-white/5 text-slate-500 hover:border-white/15 hover:bg-white/10",
       )}
     >
       <Icon
         className={cn(
           "size-4 transition-colors",
-          enabled ? "text-emerald-300" : "text-slate-500 group-hover:text-slate-300",
+          enabled ? "text-blue-600" : "text-slate-500 group-hover:text-slate-700",
         )}
       />
       <span className="text-[10px] font-medium tracking-wide">{CHANNEL_LABELS[channel]}</span>
@@ -215,6 +215,7 @@ function ChannelToggle({
 export function NotificationCenter({
   open,
   onClose,
+  actorUserId,
   onUnreadChange,
 }: NotificationCenterProps) {
   const [tab, setTab] = React.useState<TabKey>("all");
@@ -251,15 +252,14 @@ export function NotificationCenter({
   const loadPreferences = React.useCallback(async () => {
     setLoadingPrefs(true);
     try {
-      const actorUserId = "current-user-seed";
-      const prefs = await getNotificationPreferences(actorUserId);
+      const prefs = await getNotificationPreferences(actorUserId ?? "current-user-seed");
       if (prefs) {
         setPreferences(prefs);
       }
     } finally {
       setLoadingPrefs(false);
     }
-  }, []);
+  }, [actorUserId]);
 
   React.useEffect(() => {
     if (open) {
@@ -417,16 +417,16 @@ export function NotificationCenter({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 280, mass: 0.7 }}
-            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-white/10 bg-slate-950/95 shadow-2xl sm:max-w-lg"
+            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-slate-200 bg-slate-50/95 shadow-2xl sm:max-w-lg"
           >
-            <header className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
+            <header className="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4">
               <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300">
+                <div className="flex size-9 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600">
                   <Bell className="size-4" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-semibold text-white">Notifications</h2>
-                  <p className="text-[11px] text-slate-400">
+                  <h2 className="text-sm font-semibold text-slate-900">Notifications</h2>
+                  <p className="text-[11px] text-slate-500">
                     {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
                   </p>
                 </div>
@@ -448,14 +448,14 @@ export function NotificationCenter({
                   type="button"
                   onClick={onClose}
                   aria-label="Close notifications"
-                  className="ml-1 flex size-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                  className="ml-1 flex size-9 items-center justify-center rounded-xl border border-slate-200 bg-white/5 text-slate-700 hover:bg-white/10"
                 >
                   <X className="size-4" />
                 </button>
               </div>
             </header>
 
-            <div role="tablist" className="flex gap-1 border-b border-white/10 px-3 py-2">
+            <div role="tablist" className="flex gap-1 border-b border-slate-200 px-3 py-2">
               {(["all", "unread", "preferences"] as TabKey[]).map((t) => {
                 const active = tab === t;
                 const label =
@@ -477,8 +477,8 @@ export function NotificationCenter({
                     className={cn(
                       "flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-colors",
                       active
-                        ? "bg-white/10 text-white shadow-inner"
-                        : "text-slate-400 hover:bg-white/5 hover:text-slate-200",
+                        ? "bg-white/10 text-slate-900 shadow-inner"
+                        : "text-slate-500 hover:bg-white/5 hover:text-slate-900",
                     )}
                   >
                     {Icon ? <Icon className="size-3.5" /> : null}
@@ -492,7 +492,7 @@ export function NotificationCenter({
               {tab === "preferences" ? (
                 <div className="space-y-6 px-5 py-5">
                   {loadingPrefs ? (
-                    <div className="py-12 text-center text-sm text-slate-400">
+                    <div className="py-12 text-center text-sm text-slate-500">
                     Loading preferences...
                   </div>
                 ) : preferences ? (
@@ -500,8 +500,8 @@ export function NotificationCenter({
                       <section className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="text-sm font-semibold text-white">Do Not Disturb</h3>
-                            <p className="mt-0.5 text-[11px] text-slate-400">
+                            <h3 className="text-sm font-semibold text-slate-900">Do Not Disturb</h3>
+                            <p className="mt-0.5 text-[11px] text-slate-500">
                               Suppress notifications during set hours
                             </p>
                           </div>
@@ -511,27 +511,27 @@ export function NotificationCenter({
                           />
                         </div>
                         {preferences.dnd.enabled ? (
-                          <div className="grid grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-white/5 p-3">
+                          <div className="grid grid-cols-2 gap-3 rounded-2xl border border-slate-200 bg-white/5 p-3">
                             <div>
-                              <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                              <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-slate-500">
                                 From
                               </label>
                               <input
                                 type="time"
                                 value={preferences.dnd.from}
                                 onChange={(e) => handleDndTimeChange("from", e.target.value)}
-                                className="w-full rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2 text-xs text-white focus:border-emerald-400/40 focus:outline-none focus:ring-1 focus:ring-emerald-400/40"
+                                className="w-full rounded-xl border border-slate-200 bg-white/60 px-3 py-2 text-xs text-slate-900 focus:border-blue-500/40 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                               />
                             </div>
                             <div>
-                              <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                              <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-slate-500">
                                 To
                               </label>
                               <input
                                 type="time"
                                 value={preferences.dnd.to}
                                 onChange={(e) => handleDndTimeChange("to", e.target.value)}
-                                className="w-full rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2 text-xs text-white focus:border-emerald-400/40 focus:outline-none focus:ring-1 focus:ring-emerald-400/40"
+                                className="w-full rounded-xl border border-slate-200 bg-white/60 px-3 py-2 text-xs text-slate-900 focus:border-blue-500/40 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                               />
                             </div>
                           </div>
@@ -541,8 +541,8 @@ export function NotificationCenter({
                       <section className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="text-sm font-semibold text-white">Quiet Weekends</h3>
-                            <p className="mt-0.5 text-[11px] text-slate-400">
+                            <h3 className="text-sm font-semibold text-slate-900">Quiet Weekends</h3>
+                            <p className="mt-0.5 text-[11px] text-slate-500">
                               Silence non-urgent alerts on Saturday and Sunday
                             </p>
                           </div>
@@ -556,8 +556,8 @@ export function NotificationCenter({
                       <section className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="text-sm font-semibold text-white">Daily Summary</h3>
-                            <p className="mt-0.5 text-[11px] text-slate-400">
+                            <h3 className="text-sm font-semibold text-slate-900">Daily Summary</h3>
+                            <p className="mt-0.5 text-[11px] text-slate-500">
                               Morning digest of shifts, swaps, and messages
                             </p>
                           </div>
@@ -572,8 +572,8 @@ export function NotificationCenter({
 
                       <section className="space-y-4">
                         <div>
-                          <h3 className="text-sm font-semibold text-white">Notification Types</h3>
-                          <p className="mt-0.5 text-[11px] text-slate-400">
+                          <h3 className="text-sm font-semibold text-slate-900">Notification Types</h3>
+                          <p className="mt-0.5 text-[11px] text-slate-500">
                             Choose delivery channels per category
                           </p>
                         </div>
@@ -585,13 +585,13 @@ export function NotificationCenter({
                             return (
                               <div
                                 key={type}
-                                className="rounded-2xl border border-white/10 bg-white/5 p-3"
+                                className="rounded-2xl border border-slate-200 bg-white/5 p-3"
                               >
                                 <div className="mb-2.5 flex items-center gap-2.5">
-                                  <div className="flex size-7 items-center justify-center rounded-lg bg-white/10 text-slate-300">
+                                  <div className="flex size-7 items-center justify-center rounded-lg bg-white/10 text-slate-700">
                                     <TypeIcon className="size-3.5" />
                                   </div>
-                                  <span className="text-xs font-medium text-white">
+                                  <span className="text-xs font-medium text-slate-900">
                                     {TYPE_LABELS[type]}
                                   </span>
                                 </div>
@@ -614,7 +614,7 @@ export function NotificationCenter({
                       </section>
                     </>
                   ) : (
-                    <div className="py-12 text-center text-sm text-slate-400">
+                    <div className="py-12 text-center text-sm text-slate-500">
                       Unable to load preferences
                     </div>
                   )}
@@ -644,10 +644,10 @@ export function NotificationCenter({
                       <div className="mb-4 flex size-16 items-center justify-center rounded-3xl bg-white/5">
                         <Bell className="size-7 text-slate-500" />
                       </div>
-                      <p className="text-sm font-medium text-slate-200">
+                      <p className="text-sm font-medium text-slate-900">
                         {tab === "unread" ? "No unread notifications" : "No notifications yet"}
                       </p>
-                      <p className="mt-1 text-xs text-slate-400">
+                      <p className="mt-1 text-xs text-slate-500">
                         {tab === "unread"
                           ? "Great job staying on top of things"
                           : "You'll see updates here when they arrive"}
@@ -676,8 +676,8 @@ export function NotificationCenter({
                                 className={cn(
                                   "relative flex size-9 shrink-0 items-center justify-center rounded-xl border",
                                   isUnread
-                                    ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
-                                    : "border-white/10 bg-white/5 text-slate-400",
+                                    ? "border-blue-500/20 bg-blue-500/10 text-blue-600"
+                                    : "border-slate-200 bg-white/5 text-slate-500",
                                 )}
                               >
                                 <TypeIcon className="size-4" />
@@ -695,7 +695,7 @@ export function NotificationCenter({
                                       <h4
                                         className={cn(
                                           "truncate text-[13px] font-semibold leading-tight",
-                                          isUnread ? "text-white" : "text-slate-200",
+                                          isUnread ? "text-slate-900" : "text-slate-900",
                                         )}
                                       >
                                         {n.title}
@@ -708,7 +708,7 @@ export function NotificationCenter({
                                         {n.priority}
                                       </Badge>
                                     </div>
-                                    <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-slate-400">
+                                    <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-slate-500">
                                       {n.body}
                                     </p>
                                   </div>
@@ -721,7 +721,7 @@ export function NotificationCenter({
                                       aria-label="Dismiss notification"
                                       onClick={(e) => handleDismiss(n.id, e)}
                                       disabled={isDismissing}
-                                      className="ml-1 flex size-7 items-center justify-center rounded-lg text-slate-500 opacity-0 transition hover:bg-white/10 hover:text-slate-200 group-hover:opacity-100 focus:opacity-100"
+                                      className="ml-1 flex size-7 items-center justify-center rounded-lg text-slate-500 opacity-0 transition hover:bg-white/10 hover:text-slate-900 group-hover:opacity-100 focus:opacity-100"
                                     >
                                       <X className="size-3.5" />
                                     </button>
@@ -731,7 +731,7 @@ export function NotificationCenter({
                                   {n.actionHref ? (
                                     <a
                                       href={n.actionHref}
-                                      className="inline-flex items-center gap-1 rounded-lg bg-emerald-400/10 px-2.5 py-1 text-[11px] font-medium text-emerald-300 hover:bg-emerald-400/15"
+                                      className="inline-flex items-center gap-1 rounded-lg bg-blue-500/10 px-2.5 py-1 text-[11px] font-medium text-blue-600 hover:bg-blue-500/15"
                                     >
                                       {n.actionLabel ?? "View"}
                                       <ChevronRight className="size-3" />
@@ -742,7 +742,7 @@ export function NotificationCenter({
                                       type="button"
                                       onClick={() => handleMarkRead(n.id)}
                                       disabled={isReading}
-                                      className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-slate-300 hover:bg-white/10 disabled:opacity-60"
+                                      className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:bg-white/10 disabled:opacity-60"
                                     >
                                       {isReading ? (
                                         <RefreshCw className="size-3 animate-spin" />

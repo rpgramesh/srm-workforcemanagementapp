@@ -2,12 +2,14 @@ import { redirect } from "next/navigation";
 import { DashboardChrome } from "@/components/layout/dashboard-chrome";
 import { MessagesPageShell } from "@/features/messaging/components/messages-page-shell";
 import { currentActorInfo } from "@/features/auth/actions/login-action";
+import { canLogin } from "@/types/user";
 
 export const dynamic = "force-dynamic";
 
 export default async function MessagesPage() {
   const actor = await currentActorInfo();
   if (!actor) redirect("/login");
+  if (!canLogin(actor.role)) redirect("/clock-in");
 
   return (
     <DashboardChrome title="Messages" subtitle="Internal secure communications with read receipts" actor={actor}>

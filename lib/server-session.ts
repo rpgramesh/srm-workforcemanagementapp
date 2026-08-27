@@ -81,6 +81,9 @@ export async function clearActorSession(): Promise<void> {
 }
 
 export async function getCurrentActor(): Promise<ServerActor | null> {
+  if ((global as any).__mockActor !== undefined) {
+    return (global as any).__mockActor;
+  }
   const c = await cookies();
   const token = c.get(SESSION_COOKIE)?.value;
   return decodeSession(token);

@@ -14,11 +14,11 @@ export function LiveFloorStrip({ members, floorMapHref }: LiveFloorStripProps) {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">Live Floor</h2>
+        <h2 className="text-xl font-semibold tracking-[-0.03em] text-slate-900">Live Floor</h2>
         <button
           type="button"
           onClick={floorMapHref ? () => (window.location.href = floorMapHref) : undefined}
-          className="text-sm font-semibold text-emerald-200 hover:text-emerald-100"
+          className="text-sm font-semibold text-blue-700 hover:text-emerald-100"
         >
           View Floor Map
         </button>
@@ -26,15 +26,15 @@ export function LiveFloorStrip({ members, floorMapHref }: LiveFloorStripProps) {
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         {members.length === 0 ? (
           <div className="md:col-span-2 xl:col-span-5">
-            <Card className="bg-slate-950/35">
-              <CardContent className="p-6 text-center text-sm text-slate-400">
+            <Card className="bg-slate-50/35">
+              <CardContent className="p-6 text-center text-sm text-slate-500">
                 No staff members are currently clocked in. The next scheduled shift will appear here.
               </CardContent>
             </Card>
           </div>
         ) : (
           members.map((member) => (
-            <Card key={member.userId} className="bg-slate-950/35">
+            <Card key={member.userId} className="bg-slate-50/35">
               <CardContent className="flex items-center gap-4 p-4">
                 <Avatar className="size-12 rounded-2xl">
                   <AvatarFallback
@@ -45,15 +45,15 @@ export function LiveFloorStrip({ members, floorMapHref }: LiveFloorStripProps) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-white">
+                  <p className="truncate text-sm font-semibold text-slate-900">
                     {formatUserLabel({ fullName: member.fullName, role: member.role })}
                   </p>
                   {member.department ? (
-                    <p className="text-xs text-slate-400">{member.department}</p>
+                    <p className="text-xs text-slate-500">{member.department}</p>
                   ) : null}
                 </div>
                 <div className="ml-auto text-right">
-                  <p className="text-xs font-semibold text-slate-200">
+                  <p className="text-xs font-semibold text-slate-900">
                     {floorMinToHuman(member.durationMinutes)}
                   </p>
                   <p className="text-[10px] uppercase tracking-[0.24em] text-slate-500">On shift</p>

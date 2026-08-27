@@ -3,7 +3,7 @@ import { userRepository } from "@/features/users/repositories/supabase-user-repo
 import { operationsRepository } from "@/features/data/repositories/operations-repository";
 import { adminCredentials, userCredentials } from "@/lib/auth-config";
 import type { VerifiedUser, User, UserPagination } from "@/types/user";
-import { canAccessAdminDashboard } from "@/types/user";
+import { defaultDashboardRouteForRole } from "@/types/user";
 import type { AppRole } from "@/types/app";
 import type { AttendanceSession, ClockInResult as DomainClockInResult } from "@/types/domain";
 
@@ -17,6 +17,8 @@ export interface AdminLoginResult {
   message: string;
   description?: string;
   verified?: VerifiedUser;
+  redirectTo?: string;
+  role?: AppRole | null;
 }
 
 export interface ClockInResult {
@@ -37,7 +39,7 @@ export type TerminalClockResult = DomainClockInResult & {
 };
 
 export class UserService {
-  constructor(private readonly repo = userRepository) {}
+  constructor(private readonly repo = userRepository) { }
 
   async adminLogin({ mobile, pin }: LoginAttempt): Promise<AdminLoginResult> {
     const normalized = normalizeAustralianMobile(mobile);
@@ -71,7 +73,7 @@ export class UserService {
           jobTitle: "System Owner",
           hourlyRate: null,
           avatarUrl: null,
-          color: "#10B981",
+          color: "#2563EB",
           isActive: true,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -89,6 +91,8 @@ export class UserService {
           message: "Signed in successfully",
           description: `Welcome back, ${envUser.fullName}.`,
           verified: { user: envUser, source: "env_admin" },
+          redirectTo: defaultDashboardRouteForRole(envUser.role),
+          role: envUser.role,
         };
       }
       return {
@@ -100,11 +104,37 @@ export class UserService {
 
     if (userCredentials && normalized === userCredentials.normalizedMobile) {
       if (pin === userCredentials.pin) {
+        const envStaff: User = {
+          id: "env-staff-user",
+          firstName: "Demo",
+          lastName: "Staff",
+          fullName: "Demo Staff",
+          mobile: normalized,
+          role: "employee",
+          employeeId: null,
+          jobTitle: "Team Member",
+          hourlyRate: null,
+          avatarUrl: null,
+          color: "#0EA5E9",
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          email: null,
+          departmentId: null,
+          employmentDate: null,
+          address: null,
+          emergencyContactName: null,
+          emergencyContactPhone: null,
+          notes: null,
+          permissions: {},
+        };
         return {
-          success: false,
-          message: "Dashboard access denied",
-          description:
-            "This account is a staff (Employee) account. Please use the Clock-In terminal at /clock-in to start your shift, or contact your manager for dashboard access.",
+          success: true,
+          message: "Signed in successfully",
+          description: `Welcome back, ${envStaff.fullName}. Use the Clock-In terminal to start your shift.`,
+          verified: { user: envStaff, source: "env_staff" },
+          redirectTo: defaultDashboardRouteForRole(envStaff.role),
+          role: envStaff.role,
         };
       }
       return {
@@ -131,16 +161,7 @@ export class UserService {
         success: false,
         message: "Access denied",
         description:
-          "Mobile and PIN do not match any active administrator account.",
-      };
-    }
-
-    if (!canAccessAdminDashboard(verified.role)) {
-      return {
-        success: false,
-        message: "Dashboard access denied",
-        description:
-          "Your role does not have permission to access the admin dashboard. Use the Clock-In terminal instead.",
+          "Mobile and PIN do not match any active staff account.",
       };
     }
 
@@ -149,6 +170,8 @@ export class UserService {
       message: "Signed in successfully",
       description: `Welcome back, ${verified.fullName}.`,
       verified: { user: verified, source: "supabase" },
+      redirectTo: defaultDashboardRouteForRole(verified.role),
+      role: verified.role,
     };
   }
 
@@ -202,7 +225,7 @@ export class UserService {
             action === "clocked_in"
               ? `Clocked in — ${user.fullName}`
               : `Clocked out — ${user.fullName}`,
-          description: `${user.jobTitle ?? "Staff"} · ${new Date().toLocaleTimeString([], {
+          description: `${user.jobTitle ?? "Staff"} · ${new Date().toLocaleTimeString("en-AU", {
             hour: "2-digit",
             minute: "2-digit",
           })}`,
@@ -213,7 +236,12 @@ export class UserService {
           currentPeriodEarnings,
         };
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Unable to record clock action.";
+        const msg =
+          err instanceof Error
+            ? err.message
+            : err && typeof err === "object" && typeof (err as Record<string, unknown>).message === "string"
+              ? (err as Record<string, unknown>).message as string
+              : "Unable to record clock action.";
         if (msg.includes("real staff user")) {
           return {
             success: true,
@@ -234,6 +262,31 @@ export class UserService {
         };
       }
     };
+
+    let user: User | null = null;
+    let verifyError: ClockInResult | null = null;
+    try {
+      user = await this.repo.verifyByClockInPin(pin);
+    } catch (err) {
+      verifyError = {
+        success: false,
+        message: "Clock-in failed",
+        description:
+          err instanceof Error
+            ? err.message
+            : err && typeof err === "object" && typeof (err as Record<string, unknown>).message === "string"
+              ? (err as Record<string, unknown>).message as string
+              : "Unable to reach the clock-in service.",
+      };
+    }
+
+    if (user) {
+      return tryToggle(user);
+    }
+
+    if (verifyError) {
+      return verifyError;
+    }
 
     if (userCredentials && pin === userCredentials.pin) {
       const envUser: User = {
@@ -275,7 +328,7 @@ export class UserService {
         jobTitle: "System Owner",
         hourlyRate: null,
         avatarUrl: null,
-        color: "#10B981",
+        color: "#2563EB",
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -289,18 +342,6 @@ export class UserService {
         permissions: {},
       };
       return tryToggle(envUser);
-    }
-
-    let user: User | null = null;
-    try {
-      user = await this.repo.verifyByClockInPin(pin);
-    } catch (err) {
-      return {
-        success: false,
-        message: "Clock-in failed",
-        description:
-          err instanceof Error ? err.message : "Unable to reach the clock-in service.",
-      };
     }
 
     if (!user) {

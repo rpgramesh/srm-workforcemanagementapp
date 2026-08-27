@@ -12,7 +12,8 @@ export type AuditAction =
   | "clock_in"
   | "clock_out"
   | "permission_changed"
-  | "pin_changed";
+  | "pin_changed"
+  | "settings_updated";
 
 export interface AuditLogRecord {
   id: string;

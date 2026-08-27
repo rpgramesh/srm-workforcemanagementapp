@@ -19,7 +19,7 @@ import {
 import { roleLabel } from "@/lib/user-labels";
 
 const AVATAR_COLORS = [
-  "#10B981",
+  "#2563EB",
   "#06B6D4",
   "#8B5CF6",
   "#F59E0B",
@@ -144,40 +144,70 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
 
   return (
     <div className="space-y-6">
-      <Card>
+      {/* User Card Header */}
+      <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
         <CardHeader className="flex flex-row items-center gap-4">
           <Avatar firstName={firstName} lastName={lastName} size="lg" accent={color} />
           <div className="flex-1">
-            <CardTitle className="text-lg">{firstName} {lastName}</CardTitle>
+            <CardTitle className="text-lg font-bold text-white">{firstName} {lastName}</CardTitle>
             <div className="mt-1 flex items-center gap-2">
               <Badge tone="emerald" size="sm">{roleLabel(actor.role)}</Badge>
-              <span className="text-xs text-slate-400">{actor.userId.slice(0, 8)}…</span>
+              <span className="font-mono text-xs text-slate-400">{actor.userId.slice(0, 8)}…</span>
             </div>
           </div>
         </CardHeader>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile</CardTitle>
+      {/* Profile Card */}
+      <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
+        <CardHeader className="border-b border-slate-800/60 pb-4">
+          <CardTitle className="text-lg font-bold text-white">Profile</CardTitle>
           <p className="mt-1 text-xs text-slate-400">Personal details and account information</p>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="space-y-5 pt-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field id="firstName" label="First Name">
-              <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+              <Input
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="bg-slate-900 border-slate-800 text-white focus:border-blue-500"
+              />
             </Field>
             <Field id="lastName" label="Last Name">
-              <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+              <Input
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="bg-slate-900 border-slate-800 text-white focus:border-blue-500"
+              />
             </Field>
             <Field id="mobile" label="Mobile Number" hint="Australian format e.g. 0412 345 678">
-              <Input id="mobile" value={mobile} onChange={(e) => setMobile(e.target.value)} />
+              <Input
+                id="mobile"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                className="bg-slate-900 border-slate-800 text-white focus:border-blue-500"
+              />
             </Field>
             <Field id="email" label="Email Address">
-              <Input id="email" type="email" value={email ?? ""} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" />
+              <Input
+                id="email"
+                type="email"
+                value={email ?? ""}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                className="bg-slate-900 border-slate-800 text-white placeholder:text-slate-600 focus:border-blue-500"
+              />
             </Field>
             <Field id="jobTitle" label="Job Title">
-              <Input id="jobTitle" value={jobTitle ?? ""} onChange={(e) => setJobTitle(e.target.value)} placeholder="e.g. Senior Waiter" />
+              <Input
+                id="jobTitle"
+                value={jobTitle ?? ""}
+                onChange={(e) => setJobTitle(e.target.value)}
+                placeholder="e.g. Senior Waiter"
+                className="bg-slate-900 border-slate-800 text-white placeholder:text-slate-600 focus:border-blue-500"
+              />
             </Field>
             <Field id="color" label="Avatar Colour" hint="Used across roster and messaging">
               <div className="flex flex-wrap gap-2 pt-2">
@@ -186,7 +216,8 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
                     key={c}
                     type="button"
                     onClick={() => setColor(c)}
-                    className={`h-8 w-8 rounded-full border-2 transition ${color === c ? "border-white scale-110" : "border-white/20 hover:border-white/50"}`}
+                    className={`h-8 w-8 rounded-full border-2 transition ${color === c ? "border-white scale-110 shadow-md shadow-black/40" : "border-slate-800 hover:border-slate-500"
+                      }`}
                     style={{ backgroundColor: c }}
                     aria-label={`Select color ${c}`}
                   />
@@ -194,7 +225,7 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
               </div>
             </Field>
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-2">
             <Button variant="primary" onClick={handleSaveProfile} disabled={isPending}>
               {isPending ? "Saving…" : "Save Profile"}
             </Button>
@@ -202,31 +233,47 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Preferences</CardTitle>
+      {/* Preferences Card */}
+      <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
+        <CardHeader className="border-b border-slate-800/60 pb-4">
+          <CardTitle className="text-lg font-bold text-white">Preferences</CardTitle>
           <p className="mt-1 text-xs text-slate-400">Personalise your dashboard experience</p>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="space-y-5 pt-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field id="theme" label="Theme">
-              <Select id="theme" value={theme} onChange={(e) => setTheme(e.target.value)}>
+              <Select
+                id="theme"
+                value={theme}
+                onChange={(e) => setTheme(e.target.value)}
+                className="bg-slate-900 border-slate-800 text-white focus:border-blue-500"
+              >
                 {THEMES.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                  <option key={t.value} value={t.value} className="bg-slate-900 text-white">{t.label}</option>
                 ))}
               </Select>
             </Field>
             <Field id="timezone" label="Timezone">
-              <Select id="timezone" value={timezone} onChange={(e) => setTimezone(e.target.value)}>
+              <Select
+                id="timezone"
+                value={timezone}
+                onChange={(e) => setTimezone(e.target.value)}
+                className="bg-slate-900 border-slate-800 text-white focus:border-blue-500"
+              >
                 {TIMEZONES.map((tz) => (
-                  <option key={tz} value={tz}>{tz}</option>
+                  <option key={tz} value={tz} className="bg-slate-900 text-white">{tz}</option>
                 ))}
               </Select>
             </Field>
             <Field id="language" label="Language">
-              <Select id="language" value={language} onChange={(e) => setLanguage(e.target.value)}>
+              <Select
+                id="language"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="bg-slate-900 border-slate-800 text-white focus:border-blue-500"
+              >
                 {LANGUAGES.map((l) => (
-                  <option key={l.value} value={l.value}>{l.label}</option>
+                  <option key={l.value} value={l.value} className="bg-slate-900 text-white">{l.label}</option>
                 ))}
               </Select>
             </Field>
@@ -239,7 +286,7 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
               description="Denser layout with tighter spacing for more information density"
             />
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-2">
             <Button variant="primary" onClick={handleSavePreferences} disabled={isPending}>
               {isPending ? "Saving…" : "Save Preferences"}
             </Button>
@@ -247,12 +294,13 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Privacy</CardTitle>
+      {/* Privacy Card */}
+      <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
+        <CardHeader className="border-b border-slate-800/60 pb-4">
+          <CardTitle className="text-lg font-bold text-white">Privacy</CardTitle>
           <p className="mt-1 text-xs text-slate-400">Control visibility and communication preferences</p>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="space-y-5 pt-6">
           <div className="space-y-3">
             <SwitchField
               checked={showOnlineStatus}
@@ -266,13 +314,14 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
               id="allowMessagesFrom"
               value={allowMessagesFrom}
               onChange={(e) => setAllowMessagesFrom(e.target.value as "everyone" | "managers" | "none")}
+              className="bg-slate-900 border-slate-800 text-white focus:border-blue-500"
             >
-              <option value="everyone">Everyone on the team</option>
-              <option value="managers">Only managers and admins</option>
-              <option value="none">Nobody (offline)</option>
+              <option value="everyone" className="bg-slate-900 text-white">Everyone on the team</option>
+              <option value="managers" className="bg-slate-900 text-white">Only managers and admins</option>
+              <option value="none" className="bg-slate-900 text-white">Nobody (offline)</option>
             </Select>
           </Field>
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-2">
             <Button variant="primary" onClick={handleSavePreferences} disabled={isPending}>
               {isPending ? "Saving…" : "Save Privacy"}
             </Button>
@@ -280,12 +329,13 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Security</CardTitle>
+      {/* Security Card */}
+      <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
+        <CardHeader className="border-b border-slate-800/60 pb-4">
+          <CardTitle className="text-lg font-bold text-white">Security</CardTitle>
           <p className="mt-1 text-xs text-slate-400">Update your 4-digit access PIN for clock-in and sign-in</p>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="space-y-5 pt-6">
           <div className="grid gap-4 sm:grid-cols-3">
             <Field id="currentPin" label="Current PIN" error={pinErrors.currentPin?.[0]}>
               <Input
@@ -296,6 +346,7 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
                 value={currentPin}
                 onChange={(e) => setCurrentPin(sanitizePin(e.target.value))}
                 placeholder="••••"
+                className="bg-slate-900 border-slate-800 text-white tracking-widest placeholder:text-slate-600 focus:border-blue-500"
               />
             </Field>
             <Field id="newPin" label="New 4-Digit PIN" error={pinErrors.newPin?.[0]} hint="Must be different from current">
@@ -307,6 +358,7 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
                 value={newPin}
                 onChange={(e) => setNewPin(sanitizePin(e.target.value))}
                 placeholder="••••"
+                className="bg-slate-900 border-slate-800 text-white tracking-widest placeholder:text-slate-600 focus:border-blue-500"
               />
             </Field>
             <Field id="confirmPin" label="Confirm New PIN" error={pinErrors.confirmPin?.[0]}>
@@ -318,11 +370,12 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
                 value={confirmPin}
                 onChange={(e) => setConfirmPin(sanitizePin(e.target.value))}
                 placeholder="••••"
+                className="bg-slate-900 border-slate-800 text-white tracking-widest placeholder:text-slate-600 focus:border-blue-500"
               />
             </Field>
           </div>
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-slate-500">
+          <div className="flex items-center justify-between pt-2">
+            <p className="text-xs text-slate-400">
               PIN change will be recorded in the audit log for security compliance
             </p>
             <Button variant="primary" onClick={handleChangePin} disabled={isPending}>

@@ -98,27 +98,18 @@ export class DashboardService {
         id: "staff_clocked_in",
         label: "Staff Clocked In",
         value: String(staffActive).padStart(2, "0"),
-        suffix: `/${totalStaffToday > 0 ? totalStaffToday : staffActive + 4}`,
+        suffix: `/${totalStaffToday}`,
         hint: `Live now · ${new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" })}`,
         accent: "emerald",
       },
       {
         id: "active_shifts",
         label: "Active Shifts",
-        value: String(Math.max(1, deptsActive)).padStart(2, "0"),
+        value: String(deptsActive).padStart(2, "0"),
         suffix: `of ${totalDepartments} departments`,
         hint: (await this.ops.listDepartments()).slice(0, 3).map((d) => d.shortLabel).join(", ") + "...",
         accent: "sky",
       },
-      // {
-      //   id: "labor_vs_budget",
-      //   label: "Labor Cost vs Budget",
-      //   value: `${progress}%`,
-      //   suffix: "utilized",
-      //   hint: `Remaining buffer: ${Math.max(0, 100 - progress)}%`,
-      //   accent: "rose",
-      //   progressPercent: progress,
-      // },
     ];
   }
 
@@ -321,12 +312,11 @@ export class RosterService {
   }
 
   async upcomingWeekPreview(userId: string): Promise<UpcomingShiftPreview[]> {
-    const start = new Date(Date.now() - ((new Date().getDay() + 6) % 7) * 86400000).toISOString().slice(0, 10);
-    const end = (() => {
-      const d = new Date(`${start}T00:00:00Z`);
-      d.setUTCDate(d.getUTCDate() + 6);
-      return d.toISOString().slice(0, 10);
-    })();
+    const today = new Date();
+    const start = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    const d = new Date(today);
+    d.setDate(d.getDate() + 14);
+    const end = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
     const mine = await this.ops.listShifts({ userId, from: start, to: end });
     const live = await this.ops.listLiveAttendance();

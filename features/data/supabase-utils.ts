@@ -2,6 +2,24 @@ import { createSupabaseServerClient } from "@/lib/supabase";
 
 export const sb = () => createSupabaseServerClient();
 
+export function normalizeSupabaseError(error: unknown): Error {
+  if (error instanceof Error) return error;
+  if (error && typeof error === "object") {
+    const e = error as Record<string, unknown>;
+    const parts: string[] = [];
+    if (typeof e.message === "string" && e.message.length > 0) parts.push(e.message);
+    if (typeof e.details === "string" && e.details.length > 0) parts.push(`(${e.details})`);
+    if (typeof e.hint === "string" && e.hint.length > 0) parts.push(`Hint: ${e.hint}`);
+    if (typeof e.code === "string" && e.code.length > 0) parts.push(`[pg:${e.code}]`);
+    if (typeof e.schema === "string" && e.schema.length > 0) parts.push(`schema=${e.schema}`);
+    if (typeof e.table === "string" && e.table.length > 0) parts.push(`table=${e.table}`);
+    if (typeof e.column === "string" && e.column.length > 0) parts.push(`col=${e.column}`);
+    const msg = parts.length > 0 ? parts.join(" ") : String(error);
+    return new Error(msg, { cause: error });
+  }
+  return new Error(String(error));
+}
+
 export function handleResult<T>(
   result: { data: T | null; error?: unknown } | { data?: T; error?: unknown },
   fallback: T,

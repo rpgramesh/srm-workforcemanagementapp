@@ -254,7 +254,7 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-4 pt-[12vh] sm:pt-[14vh]">
       <div
-        className="fixed inset-0 bg-slate-950/80 backdrop-blur-md"
+        className="fixed inset-0 bg-slate-50/80 backdrop-blur-md"
         onClick={onClose}
         aria-hidden
       />
@@ -262,10 +262,10 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Global Search"
-        className="relative z-10 w-full max-w-3xl rounded-3xl border border-white/10 bg-slate-900/95 shadow-2xl shadow-slate-950/60 ring-1 ring-white/5 backdrop-blur-xl"
+        className="relative z-10 w-full max-w-3xl rounded-3xl border border-slate-200 bg-white/95 shadow-2xl shadow-slate-950/60 ring-1 ring-white/5 backdrop-blur-xl"
       >
-        <div className="flex items-center gap-3 border-b border-white/10 px-5 pt-5 pb-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/25 bg-emerald-400/10 text-emerald-300">
+        <div className="flex items-center gap-3 border-b border-slate-200 px-5 pt-5 pb-3">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-blue-500/25 bg-blue-500/10 text-blue-600">
             <Search className="size-4.5" />
           </div>
           <div className="min-w-0 flex-1">
@@ -279,9 +279,9 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                     ? `Search in ${activeModules.map((m) => MODULE_META[m].label).join(", ")}...`
                     : "Search staff, shifts, departments... (type to filter)"
                 }
-                className="h-12 rounded-2xl border-white/5 bg-slate-950/40 pl-4 pr-28 text-base"
+                className="h-12 rounded-2xl border-white/5 bg-slate-50/40 pl-4 pr-28 text-base"
               />
-              <div className="pointer-events-none absolute right-24 top-1/2 hidden -translate-y-1/2 items-center gap-1 rounded-lg border border-white/10 bg-slate-950/60 px-1.5 py-1 text-[10px] text-slate-400 sm:flex">
+              <div className="pointer-events-none absolute right-24 top-1/2 hidden -translate-y-1/2 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50/60 px-1.5 py-1 text-[10px] text-slate-500 sm:flex">
                 <Command className="size-3" />
                 <span>K</span>
               </div>
@@ -290,7 +290,7 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+            className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white/5 text-slate-500 transition hover:bg-white/10 hover:text-slate-900"
             aria-label="Close search"
           >
             <X className="size-4.5" />
@@ -310,8 +310,8 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                     active
-                      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200"
-                      : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10",
+                      ? "border-blue-500/30 bg-blue-500/10 text-blue-700"
+                      : "border-slate-200 bg-white/5 text-slate-700 hover:bg-white/10",
                   )}
                 >
                   <Icon className="size-3.5" />
@@ -333,8 +333,8 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
                     active
-                      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200"
-                      : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10",
+                      ? "border-blue-500/30 bg-blue-500/10 text-blue-700"
+                      : "border-slate-200 bg-white/5 text-slate-700 hover:bg-white/10",
                   )}
                 >
                   <Icon className="size-3" />
@@ -355,8 +355,8 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                     active
-                      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200"
-                      : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10",
+                      ? "border-blue-500/30 bg-blue-500/10 text-blue-700"
+                      : "border-slate-200 bg-white/5 text-slate-700 hover:bg-white/10",
                   )}
                 >
                   <Icon className="size-3.5" />
@@ -373,7 +373,7 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                 "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                 showAdvanced || hasAnyFilter
                   ? "border-amber-400/25 bg-amber-400/10 text-amber-200"
-                  : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10",
+                  : "border-slate-200 bg-white/5 text-slate-700 hover:bg-white/10",
               )}
             >
               <Filter className="size-3.5" />
@@ -389,10 +389,10 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
         </div>
 
         {showAdvanced ? (
-          <div className="space-y-3 border-b border-white/5 bg-slate-950/30 px-5 py-4">
+          <div className="space-y-3 border-b border-white/5 bg-slate-50/30 px-5 py-4">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <div className="relative" ref={roleDropdownRef}>
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
                   Role
                 </label>
                 <button
@@ -401,7 +401,7 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                     setRoleDropdownOpen((o) => !o);
                     setDeptDropdownOpen(false);
                   }}
-                  className="flex h-11 w-full items-center justify-between rounded-2xl border border-white/10 bg-slate-950/40 px-4 text-left text-sm text-slate-200 transition-colors hover:border-white/20"
+                  className="flex h-11 w-full items-center justify-between rounded-2xl border border-slate-200 bg-slate-50/40 px-4 text-left text-sm text-slate-900 transition-colors hover:border-slate-300"
                 >
                   <span className={cn(!filters.role && "text-slate-500")}>
                     {filters.role ? ROLE_OPTIONS.find((r) => r.id === filters.role)?.label : "Any role"}
@@ -409,17 +409,17 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                   <ChevronDown className="size-4 text-slate-500" />
                 </button>
                 {roleDropdownOpen ? (
-                  <div className="absolute left-0 right-0 top-full z-20 mt-1.5 max-h-60 overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/98 p-1 shadow-2xl backdrop-blur">
+                  <div className="absolute left-0 right-0 top-full z-20 mt-1.5 max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white/98 p-1 shadow-2xl backdrop-blur">
                     <button
                       type="button"
                       onClick={() => {
                         updateFilter("role", null);
                         setRoleDropdownOpen(false);
                       }}
-                      className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs text-slate-400 hover:bg-white/5"
+                      className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs text-slate-500 hover:bg-white/5"
                     >
                       Any role
-                      {!filters.role ? <Check className="size-3.5 text-emerald-300" /> : null}
+                      {!filters.role ? <Check className="size-3.5 text-blue-600" /> : null}
                     </button>
                     {ROLE_OPTIONS.map((r) => (
                       <button
@@ -429,11 +429,11 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                           updateFilter("role", r.id);
                           setRoleDropdownOpen(false);
                         }}
-                        className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-200 hover:bg-white/5"
+                        className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-900 hover:bg-white/5"
                       >
                         {r.label}
                         {filters.role === r.id ? (
-                          <Check className="size-3.5 text-emerald-300" />
+                          <Check className="size-3.5 text-blue-600" />
                         ) : null}
                       </button>
                     ))}
@@ -442,7 +442,7 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
               </div>
 
               <div className="relative" ref={deptDropdownRef}>
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
                   Department
                 </label>
                 <button
@@ -451,7 +451,7 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                     setDeptDropdownOpen((o) => !o);
                     setRoleDropdownOpen(false);
                   }}
-                  className="flex h-11 w-full items-center justify-between rounded-2xl border border-white/10 bg-slate-950/40 px-4 text-left text-sm text-slate-200 transition-colors hover:border-white/20"
+                  className="flex h-11 w-full items-center justify-between rounded-2xl border border-slate-200 bg-slate-50/40 px-4 text-left text-sm text-slate-900 transition-colors hover:border-slate-300"
                 >
                   <span className={cn(!filters.departmentId && "text-slate-500")}>
                     {filters.departmentId
@@ -462,17 +462,17 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                   <ChevronDown className="size-4 text-slate-500" />
                 </button>
                 {deptDropdownOpen ? (
-                  <div className="absolute left-0 right-0 top-full z-20 mt-1.5 max-h-60 overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/98 p-1 shadow-2xl backdrop-blur">
+                  <div className="absolute left-0 right-0 top-full z-20 mt-1.5 max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white/98 p-1 shadow-2xl backdrop-blur">
                     <button
                       type="button"
                       onClick={() => {
                         updateFilter("departmentId", null);
                         setDeptDropdownOpen(false);
                       }}
-                      className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs text-slate-400 hover:bg-white/5"
+                      className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs text-slate-500 hover:bg-white/5"
                     >
                       Any department
-                      {!filters.departmentId ? <Check className="size-3.5 text-emerald-300" /> : null}
+                      {!filters.departmentId ? <Check className="size-3.5 text-blue-600" /> : null}
                     </button>
                     {(facets.departments.length > 0
                       ? facets.departments
@@ -485,13 +485,13 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                           updateFilter("departmentId", d.id);
                           setDeptDropdownOpen(false);
                         }}
-                        className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-200 hover:bg-white/5"
+                        className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-900 hover:bg-white/5"
                       >
                         <span className="truncate">{d.label}</span>
                         <div className="flex items-center gap-2">
                           <Badge tone="slate" size="sm">{d.count}</Badge>
                           {filters.departmentId === d.id ? (
-                            <Check className="size-3.5 text-emerald-300" />
+                            <Check className="size-3.5 text-blue-600" />
                           ) : null}
                         </div>
                       </button>
@@ -506,7 +506,7 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
               </div>
 
               <div>
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
                   Active Only
                 </label>
                 <button
@@ -515,8 +515,8 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                   className={cn(
                     "flex h-11 w-full items-center justify-between rounded-2xl border px-4 text-sm transition-colors",
                     filters.onlyActive
-                      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200"
-                      : "border-white/10 bg-slate-950/40 text-slate-500 hover:border-white/20 hover:text-slate-300",
+                      ? "border-blue-500/30 bg-blue-500/10 text-blue-700"
+                      : "border-slate-200 bg-slate-50/40 text-slate-500 hover:border-slate-300 hover:text-slate-700",
                   )}
                 >
                   <span>{filters.onlyActive ? "Active staff/shifts only" : "Include inactive"}</span>
@@ -524,17 +524,17 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                     className={cn(
                       "flex size-5 items-center justify-center rounded-full border",
                       filters.onlyActive
-                        ? "border-emerald-400/40 bg-emerald-400/20"
-                        : "border-white/10 bg-slate-950/60",
+                        ? "border-blue-500/40 bg-blue-500/20"
+                        : "border-slate-200 bg-slate-50/60",
                     )}
                   >
-                    {filters.onlyActive ? <Check className="size-3 text-emerald-300" /> : null}
+                    {filters.onlyActive ? <Check className="size-3 text-blue-600" /> : null}
                   </div>
                 </button>
               </div>
 
               <div>
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
                   Date From
                 </label>
                 <div className="relative">
@@ -545,13 +545,13 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                     onChange={(e) =>
                       updateFilter("dateFrom", e.target.value ? e.target.value : null)
                     }
-                    className="h-11 w-full rounded-2xl border border-white/10 bg-slate-950/40 pl-11 pr-4 text-sm text-slate-200 text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/40 [color-scheme:dark]"
+                    className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50/40 pl-11 pr-4 text-sm text-slate-900 text-slate-900 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/40 [color-scheme:dark]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
                   Date To
                 </label>
                 <div className="relative">
@@ -562,7 +562,7 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                     onChange={(e) =>
                       updateFilter("dateTo", e.target.value ? e.target.value : null)
                     }
-                    className="h-11 w-full rounded-2xl border border-white/10 bg-slate-950/40 pl-11 pr-4 text-sm text-slate-200 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/40 [color-scheme:dark]"
+                    className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50/40 pl-11 pr-4 text-sm text-slate-900 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/40 [color-scheme:dark]"
                   />
                 </div>
               </div>
@@ -571,7 +571,7 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                 <Button
                   variant="ghost"
                   onClick={clearAllFilters}
-                  className="h-11 w-full rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10"
+                  className="h-11 w-full rounded-2xl border border-slate-200 bg-white/5 hover:bg-white/10"
                 >
                   <X className="size-4" />
                   Clear filters
@@ -678,7 +678,7 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
           <div className="flex items-center gap-3">
             {loading ? (
               <span className="inline-flex items-center gap-1.5">
-                <span className="size-1.5 animate-pulse rounded-full bg-emerald-300" />
+                <span className="size-1.5 animate-pulse rounded-full bg-blue-600" />
                 Searching...
               </span>
             ) : (
@@ -706,16 +706,16 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
             ) : null}
           </div>
           <div className="hidden items-center gap-2 sm:flex">
-            <span className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px]">
+            <span className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white/5 px-1.5 py-0.5 text-[10px]">
               <kbd className="font-sans">↑</kbd>
               <kbd className="font-sans">↓</kbd>
               Navigate
             </span>
-            <span className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px]">
+            <span className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white/5 px-1.5 py-0.5 text-[10px]">
               <kbd className="font-sans">Enter</kbd>
               Open
             </span>
-            <span className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px]">
+            <span className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white/5 px-1.5 py-0.5 text-[10px]">
               <kbd className="font-sans">Esc</kbd>
               Close
             </span>
@@ -728,10 +728,10 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
         >
           {flatHits.length === 0 && !loading ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="mb-3 flex size-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-500">
+              <div className="mb-3 flex size-14 items-center justify-center rounded-2xl border border-slate-200 bg-white/5 text-slate-500">
                 <Search className="size-6" />
               </div>
-              <p className="text-sm font-medium text-slate-300">No matching results</p>
+              <p className="text-sm font-medium text-slate-700">No matching results</p>
               <p className="mt-1 max-w-xs text-xs text-slate-500">
                 {query
                   ? `Try different keywords for "${query}", or remove some filters`
@@ -744,7 +744,7 @@ export function GlobalSearchModal({ open, onClose }: GlobalSearchModalProps) {
                 const { label, Icon } = MODULE_META[moduleId];
                 return (
                   <div key={moduleId} className="space-y-1.5">
-                    <div className="sticky top-0 z-10 flex items-center gap-2 bg-slate-900/95 px-2 py-1 backdrop-blur">
+                    <div className="sticky top-0 z-10 flex items-center gap-2 bg-white/95 px-2 py-1 backdrop-blur">
                       <Icon className="size-3.5 text-slate-500" />
                       <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                         {label}

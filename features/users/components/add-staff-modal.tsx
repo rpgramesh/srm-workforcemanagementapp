@@ -338,7 +338,7 @@ export function AddStaffModal({ open, onClose, editingStaffId, onSaved, viewerRo
             label={
               <span className="inline-flex items-center gap-1.5">
                 {mode === "edit" ? "New PIN (optional)" : "4-digit PIN"}
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                <ShieldCheck className="h-3.5 w-3.5 text-blue-500" />
                 </span>
             }
             hint={mode === "edit" ? "Leave blank to keep the current PIN" : "Never use 1234, 0000 or similar"}
@@ -379,7 +379,7 @@ export function AddStaffModal({ open, onClose, editingStaffId, onSaved, viewerRo
             <Field label="Avatar color" error={fieldError(errors.color?.message)}>
             <div className="flex items-center gap-3">
                 <Input type="color" className={clsx("h-11 w-14 p-1")} {...register("color")} invalid={!!errors.color} />
-              <span className="text-xs text-slate-400">Used as avatar fallback</span>
+              <span className="text-xs text-slate-500">Used as avatar fallback</span>
             </div>
           </Field>
         </section>
@@ -402,19 +402,19 @@ export function AddStaffModal({ open, onClose, editingStaffId, onSaved, viewerRo
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
                 <Shield className="h-4 w-4 text-sky-400" />
                 Permissions matrix
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 Defaults are applied from the role above; you may override individual toggles. Changes are recorded in the audit log.
               </p>
             </div>
-            <label className="flex items-center gap-2 text-xs text-slate-400">
+            <label className="flex items-center gap-2 text-xs text-slate-500">
               Active account
               <input
                 type="checkbox"
-                className="h-4 w-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-400/30"
+                className="h-4 w-4 rounded border-slate-300 bg-white/5 text-blue-600 focus:ring-blue-500/30"
                   {...register("isActive")}
               />
             </label>

@@ -52,6 +52,7 @@ export interface MessagingRepository {
   ensureDirectThread(userA: string, userB: string): Promise<string>;
   ensureDepartmentThread(departmentId: string, title?: string | null): Promise<string>;
   listThreadSummaries(userId: string): Promise<ThreadSummary[]>;
+  countUnreadMessages(userId: string): Promise<number>;
   listThreadMessages(threadId: string, limit?: number, before?: Date | null): Promise<Message[]>;
   getThreadParticipants(threadId: string): Promise<Array<{ userId: string; fullName: string | null; color: string | null }>>;
   sendMessage(threadId: string, senderId: string, body: string): Promise<string>;

@@ -75,6 +75,30 @@ export class SupabaseMessagingRepository implements MessagingRepository {
     return data as string;
   }
 
+  async countUnreadMessages(userId: string): Promise<number> {
+    const ok = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId);
+    if (!ok) return 0;
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timeoutMs = 5000;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+    try {
+      const { data, error } = await this.client.rpc("list_thread_summaries", {
+        p_user_id: userId,
+      });
+      if (error) throw new Error(error.message ?? String(error));
+      const rows = (Array.isArray(data) ? data : []) as any[];
+      let total = 0;
+      for (const r of rows) total += Number(r?.unread_count ?? 0) || 0;
+      return total;
+    } catch (e) {
+      if (e instanceof Error && (e as any).code === "22P02") return 0;
+      if (e instanceof DOMException && e.name === "AbortError") return 0;
+      return 0;
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
+  }
+
   async listThreadSummaries(userId: string): Promise<ThreadSummary[]> {
     const ok = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId);
     if (!ok) return [];

@@ -22,10 +22,10 @@ export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const DEFAULT_GRADIENTS = [
-  "from-emerald-400/30 to-sky-400/30",
+  "from-blue-500/30 to-sky-400/30",
   "from-amber-400/30 to-rose-400/30",
   "from-violet-400/30 to-indigo-400/30",
-  "from-teal-400/30 to-emerald-400/30",
+  "from-teal-400/30 to-blue-500/30",
   "from-rose-400/30 to-fuchsia-400/30",
   "from-sky-400/30 to-indigo-400/30",
 ];
@@ -56,7 +56,7 @@ export function Avatar({
   return (
     <div
       className={cn(
-        "relative shrink-0 overflow-hidden border border-white/10 bg-white/5 font-semibold text-slate-100 flex items-center justify-center",
+        "relative shrink-0 overflow-hidden border border-slate-200 bg-white/5 font-semibold text-slate-100 flex items-center justify-center",
         sizeClass,
           accent ? "" : `bg-linear-to-br ${gradientOrAccent}`,
         className,
@@ -85,7 +85,7 @@ export function AvatarFallback({
   return (
     <span
       className={cn(
-        "flex size-full items-center justify-center bg-linear-to-br from-emerald-400/20 via-slate-950 to-sky-400/20",
+        "flex size-full items-center justify-center bg-linear-to-br from-blue-500/20 via-slate-950 to-sky-400/20",
         className,
       )}
       {...props}

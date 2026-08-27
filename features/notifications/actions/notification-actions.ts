@@ -5,11 +5,46 @@ import { getCurrentActor } from "@/lib/server-session";
 import type {
   Notification,
   NotificationType,
+  NotificationChannel,
   NotificationPreferences,
   TypeChannelPreferences,
 } from "@/types/platform";
+import { sb } from "@/features/data/supabase-utils";
+
+type NotifDbRow = {
+  id: string | number;
+  user_id: string | number;
+  type?: string | null;
+  title?: string | null;
+  body?: string | null;
+  channel?: string | null;
+  priority?: string | null;
+  action_href?: string | null;
+  actor_name?: string | null;
+  seen_at?: string | null;
+  read_at?: string | null;
+  dismissed_at?: string | null;
+  created_at?: string | null;
+};
+
+type PrefsDbRow = {
+  channels?: unknown;
+  dnd_enabled?: unknown;
+  dnd_from?: unknown;
+  dnd_to?: unknown;
+  quiet_weekends?: unknown;
+  summary_daily?: unknown;
+  updated_at?: unknown;
+  user_id?: unknown;
+  created_at?: unknown;
+} | null;
 
 export type NotificationPriority = "info" | "success" | "warning" | "critical";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function isUuid(id: string | null | undefined): id is string {
+  return typeof id === "string" && UUID_RE.test(id);
+}
 
 const NOTIFICATION_TYPES: NotificationType[] = [
   "shift_assigned",
@@ -30,121 +65,12 @@ const NOTIFICATION_TYPES: NotificationType[] = [
   "system_maintenance",
   "announcement",
   "payroll_ready",
+  "shift_changed",
 ];
 
-const SEED_TEMPLATES: Array<{
-  type: NotificationType;
-  title: string;
-  body: string;
-  priority: NotificationPriority;
-  actionHref?: string;
-  actionLabel?: string;
-  minutesAgo: number;
-}> = [
-  {
-    type: "shift_assigned",
-    title: "New Shift Assigned",
-    body: "You have been scheduled for a dinner shift this Saturday from 5:00 PM to 11:00 PM.",
-    priority: "warning",
-    actionHref: "/schedule",
-    actionLabel: "View Schedule",
-    minutesAgo: 12,
-  },
-  {
-    type: "shift_swap_requested",
-    title: "Shift Swap Request",
-    body: "Sarah Chen wants to swap her Friday lunch shift with your Sunday brunch shift.",
-    priority: "info",
-    actionHref: "/schedule",
-    actionLabel: "Review Swap",
-    minutesAgo: 38,
-  },
-  {
-    type: "message_received",
-    title: "New Message from Manager",
-    body: "Hi team, please review the updated closing procedures before your next shift.",
-    priority: "warning",
-    actionHref: "/admin/messages",
-    actionLabel: "Read Message",
-    minutesAgo: 65,
-  },
-  {
-    type: "clock_in_reminder",
-    title: "Clock-In Reminder",
-    body: "Your shift starts in 30 minutes. Don't forget to clock in when you arrive.",
-    priority: "info",
-    minutesAgo: 92,
-  },
-  {
-    type: "shift_swap_approved",
-    title: "Leave Request Approved",
-    body: "Your annual leave request for December 23-27 has been approved by management.",
-    priority: "success",
-    actionHref: "/staff",
-    actionLabel: "View Requests",
-    minutesAgo: 120,
-  },
-  {
-    type: "roster_published",
-    title: "Weekly Roster Published",
-    body: "The roster for next week has been published. Review your scheduled shifts now.",
-    priority: "warning",
-    actionHref: "/schedule",
-    actionLabel: "View Roster",
-    minutesAgo: 180,
-  },
-  {
-    type: "payroll_ready",
-    title: "Payroll Processed",
-    body: "Your payslip for this period is now available. Total hours: 38.5, Gross: $1,347.50.",
-    priority: "warning",
-    actionLabel: "View Payslip",
-    minutesAgo: 360,
-  },
-  {
-    type: "shift_updated",
-    title: "Shift Time Updated",
-    body: "Your Thursday dinner shift start time has changed from 5:00 PM to 4:30 PM.",
-    priority: "info",
-    actionHref: "/schedule",
-    actionLabel: "Check Shift",
-    minutesAgo: 420,
-  },
-  {
-    type: "announcement",
-    title: "Staff Meeting Scheduled",
-    body: "Mandatory all-staff meeting next Monday at 2:00 PM in the main dining area.",
-    priority: "warning",
-    minutesAgo: 540,
-  },
-  {
-    type: "system_maintenance",
-    title: "New Feature Available",
-    body: "You can now request shift swaps directly from the schedule page. Try it today!",
-    priority: "info",
-    minutesAgo: 1440,
-  },
-  {
-    type: "shift_cancelled",
-    title: "Shift Cancelled",
-    body: "Your Tuesday lunch shift has been cancelled due to reduced booking volume.",
-    priority: "critical",
-    actionHref: "/schedule",
-    actionLabel: "View Changes",
-    minutesAgo: 1920,
-  },
-  {
-    type: "shift_swap_declined",
-    title: "Leave Request Declined",
-    body: "Unfortunately your leave request for Nov 15-17 was declined. Speak with your manager for alternatives.",
-    priority: "critical",
-    actionHref: "/staff",
-    actionLabel: "View Details",
-    minutesAgo: 2880,
-  },
-];
+const _ALL_CHANNELS: NotificationChannel[] = ["in_app", "push", "email", "sms"];
 
-const DEFAULT_CHANNELS_BY_ROLE: Record<AppRole, Record<NotificationType, TypeChannelPreferences>> =
+const DEFAULT_CHANNELS_BY_ROLE: Record<AppRole, Record<string, TypeChannelPreferences>> =
   (() => {
     const _allOff: TypeChannelPreferences = { in_app: false, push: false, email: false, sms: false };
     const allOn: TypeChannelPreferences = { in_app: true, push: true, email: true, sms: false };
@@ -153,11 +79,11 @@ const DEFAULT_CHANNELS_BY_ROLE: Record<AppRole, Record<NotificationType, TypeCha
     const inAppEmail: TypeChannelPreferences = { in_app: true, push: false, email: true, sms: false };
     const adminAll: TypeChannelPreferences = { in_app: true, push: true, email: true, sms: true };
 
-    const base: Record<NotificationType, TypeChannelPreferences> =
+    const base: Record<string, TypeChannelPreferences> =
       NOTIFICATION_TYPES.reduce((acc, t) => {
-        acc[t] = { ...inAppOnly };
+        acc[t as string] = { ...inAppOnly };
         return acc;
-      }, {} as Record<NotificationType, TypeChannelPreferences>);
+      }, {} as Record<string, TypeChannelPreferences>);
 
     const employeePrefs = { ...base };
     employeePrefs.shift_assigned = { ...inAppPush };
@@ -199,7 +125,7 @@ const DEFAULT_CHANNELS_BY_ROLE: Record<AppRole, Record<NotificationType, TypeCha
     };
   })();
 
-function defaultPreferencesSync(role: AppRole): NotificationPreferences {
+function defaultPreferencesSync(userId: string, role: AppRole): NotificationPreferences {
   const channels: NotificationPreferences["channels"] = { ...DEFAULT_CHANNELS_BY_ROLE[role] };
   NOTIFICATION_TYPES.forEach((t) => {
     if (!channels[t]) {
@@ -207,7 +133,7 @@ function defaultPreferencesSync(role: AppRole): NotificationPreferences {
     }
   });
   return {
-    userId: "",
+    userId,
     channels,
     dnd: { enabled: false, from: "22:00", to: "07:00" },
     quietWeekends: false,
@@ -215,67 +141,72 @@ function defaultPreferencesSync(role: AppRole): NotificationPreferences {
   };
 }
 
-export async function defaultPreferencesFor(role: AppRole): Promise<NotificationPreferences> {
-  return defaultPreferencesSync(role);
-}
-
-const notificationsStore = new Map<string, Map<string, Notification>>();
-const preferencesStore = new Map<string, NotificationPreferences>();
-const seededUsers = new Set<string>();
-
-function _uid(): string {
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function ensureSeeded(userId: string, role: AppRole) {
-  if (seededUsers.has(userId)) return;
-
-  const userMap = new Map<string, Notification>();
-  const now = Date.now();
-
-  SEED_TEMPLATES.forEach((tpl, idx) => {
-    const created = new Date(now - tpl.minutesAgo * 60 * 1000);
-    const id = `seed-${userId}-${idx}`;
-    const seenAgo = tpl.minutesAgo > 180;
-    const readAgo = tpl.minutesAgo > 720;
-    userMap.set(id, {
-      id,
-      userId,
-      type: tpl.type,
-      title: tpl.title,
-      body: tpl.body,
-      priority: tpl.priority,
-      actionHref: tpl.actionHref ?? null,
-      actionLabel: tpl.actionLabel ?? null,
-      channel: "in_app",
-      createdAt: created,
-      seenAt: seenAgo ? new Date(created.getTime() + (tpl.minutesAgo < 300 ? 60000 : 300000)) : null,
-      readAt: readAgo ? new Date(created.getTime() + 600000) : null,
-      dismissedAt: null,
-    });
-  });
-
-  notificationsStore.set(userId, userMap);
-  seededUsers.add(userId);
-
-  if (!preferencesStore.has(userId)) {
-    preferencesStore.set(userId, {
-      ...defaultPreferencesSync(role),
-      userId,
-    });
+function normaliseChannelsFromDb(raw: unknown, role: AppRole): Record<string, TypeChannelPreferences> {
+  const def = defaultPreferencesSync("", role).channels as Record<string, TypeChannelPreferences>;
+  if (raw && typeof raw === "object") {
+    const obj = raw as Record<string, unknown>;
+    for (const key of Object.keys(def)) {
+      const entry = obj[key];
+      if (entry && typeof entry === "object") {
+        const e = entry as Record<string, unknown>;
+        def[key] = {
+          in_app: typeof e.in_app === "boolean" ? e.in_app : Array.isArray(e) ? (e as unknown[]).includes("in_app") : def[key].in_app,
+          push: typeof e.push === "boolean" ? e.push : Array.isArray(e) ? (e as unknown[]).includes("push") : def[key].push,
+          email: typeof e.email === "boolean" ? e.email : Array.isArray(e) ? (e as unknown[]).includes("email") : def[key].email,
+          sms: typeof e.sms === "boolean" ? e.sms : Array.isArray(e) ? (e as unknown[]).includes("sms") : def[key].sms,
+        };
+      }
+    }
   }
+  return def;
 }
 
-interface _ListOptions {
-  limit?: number;
-  offset?: number;
-  onlyUnread?: boolean;
+export async function defaultPreferencesFor(role: AppRole): Promise<NotificationPreferences> {
+  return defaultPreferencesSync("", role);
+}
+
+function mapNotif(n: NotifDbRow): Notification {
+  const rawType = String(n.type ?? "announcement");
+  const type = (NOTIFICATION_TYPES.includes(rawType as NotificationType)
+    ? (rawType as NotificationType)
+    : "announcement");
+  const rawChannel = String(n.channel ?? "in_app");
+  const channel: NotificationChannel = rawChannel === "sms" || rawChannel === "email" || rawChannel === "push"
+    ? rawChannel
+    : "in_app";
+  const rawPriority = String(n.priority ?? "info");
+  const priority: Notification["priority"] =
+    rawPriority === "warning" || rawPriority === "critical" || rawPriority === "success"
+      ? rawPriority
+      : "info";
+  return {
+    id: String(n.id),
+    userId: String(n.user_id),
+    type,
+    title: String(n.title ?? ""),
+    body: String(n.body ?? ""),
+    channel,
+    priority,
+    actionHref: n.action_href ?? null,
+    actionLabel: null,
+    actorName: n.actor_name ?? null,
+    seenAt: n.seen_at ? new Date(n.seen_at) : null,
+    readAt: n.read_at ? new Date(n.read_at) : null,
+    dismissedAt: n.dismissed_at ? new Date(n.dismissed_at) : null,
+    createdAt: n.created_at ? new Date(n.created_at) : new Date(),
+  };
 }
 
 interface ListResult {
   items: Notification[];
   total: number;
   unreadCount: number;
+}
+
+interface _ListOptions {
+  limit?: number;
+  offset?: number;
+  onlyUnread?: boolean;
 }
 
 export async function listUserNotifications(
@@ -285,26 +216,35 @@ export async function listUserNotifications(
 ): Promise<ListResult> {
   const actor = await getCurrentActor();
   if (!actor?.userId) return { items: [], total: 0, unreadCount: 0 };
+  if (!isUuid(actor.userId)) return { items: [], total: 0, unreadCount: 0 };
 
-  ensureSeeded(actor.userId, actor.role);
-  const userMap = notificationsStore.get(actor.userId)!;
-
-  let items = Array.from(userMap.values()).filter((n) => !n.dismissedAt);
-
-  const unreadCount = items.filter((n) => !n.readAt).length;
-
-  if (onlyUnread) {
-    items = items.filter((n) => !n.readAt);
+  let q = sb()
+    .from("notifications")
+    .select("*", { count: "exact" })
+    .eq("user_id", actor.userId)
+    .is("dismissed_at", null)
+    .order("created_at", { ascending: false });
+  if (onlyUnread) q = q.is("read_at", null);
+  const safeLimit = Math.max(1, Math.min(100, limit));
+  q = q.range(offset, offset + safeLimit - 1);
+  const { data, error, count } = await q;
+  if (error) {
+    return { items: [], total: 0, unreadCount: 0 };
   }
-
-  items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-  const total = items.length;
-  const paginated = items.slice(offset, offset + Math.max(1, limit));
-
+  const items = (data ?? []).map(mapNotif);
+  let unreadCount = count ?? items.length;
+  if (!onlyUnread) {
+    const { count: unreadOnly } = await sb()
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", actor.userId)
+      .is("dismissed_at", null)
+      .is("read_at", null);
+    unreadCount = unreadOnly ?? 0;
+  }
   return {
-    items: paginated.map((n) => ({ ...n })),
-    total,
+    items,
+    total: count ?? items.length,
     unreadCount,
   };
 }
@@ -312,92 +252,66 @@ export async function listUserNotifications(
 export async function markSeen(id: string): Promise<boolean> {
   const actor = await getCurrentActor();
   if (!actor?.userId) return false;
-
-  ensureSeeded(actor.userId, actor.role);
-  const userMap = notificationsStore.get(actor.userId)!;
-  const note = userMap.get(id);
-  if (!note || note.userId !== actor.userId) return false;
-  if (note.seenAt) return true;
-
-  note.seenAt = new Date();
-  userMap.set(id, note);
-  return true;
+  if (!isUuid(actor.userId) || !isUuid(id)) return false;
+  try {
+    const { data } = await sb().rpc("mark_notification_seen", { p_id: id, p_user_id: actor.userId });
+    return data === true;
+  } catch {
+    return false;
+  }
 }
 
 export async function markAllSeen(): Promise<number> {
   const actor = await getCurrentActor();
   if (!actor?.userId) return 0;
-
-  ensureSeeded(actor.userId, actor.role);
-  const userMap = notificationsStore.get(actor.userId)!;
-  let count = 0;
-  const now = new Date();
-
-  userMap.forEach((note) => {
-    if (!note.seenAt && !note.dismissedAt) {
-      note.seenAt = now;
-      userMap.set(note.id, note);
-      count++;
-    }
-  });
-
-  return count;
+  if (!isUuid(actor.userId)) return 0;
+  const now = new Date().toISOString();
+  const { count, error } = await sb()
+    .from("notifications")
+    .update({ seen_at: now })
+    .eq("user_id", actor.userId)
+    .is("seen_at", null)
+    .is("dismissed_at", null);
+  if (error) return 0;
+  return count ?? 0;
 }
 
 export async function markRead(id: string): Promise<boolean> {
   const actor = await getCurrentActor();
   if (!actor?.userId) return false;
-
-  ensureSeeded(actor.userId, actor.role);
-  const userMap = notificationsStore.get(actor.userId)!;
-  const note = userMap.get(id);
-  if (!note || note.userId !== actor.userId) return false;
-  if (note.readAt) return true;
-
-  const now = new Date();
-  note.seenAt = note.seenAt ?? now;
-  note.readAt = now;
-  userMap.set(id, note);
-  return true;
+  if (!isUuid(actor.userId) || !isUuid(id)) return false;
+  try {
+    const { data } = await sb().rpc("mark_notification_read", { p_id: id, p_user_id: actor.userId });
+    return data === true;
+  } catch {
+    return false;
+  }
 }
 
 export async function markAllRead(): Promise<number> {
   const actor = await getCurrentActor();
   if (!actor?.userId) return 0;
-
-  ensureSeeded(actor.userId, actor.role);
-  const userMap = notificationsStore.get(actor.userId)!;
-  let count = 0;
-  const now = new Date();
-
-  userMap.forEach((note) => {
-    if (!note.readAt && !note.dismissedAt) {
-      note.seenAt = note.seenAt ?? now;
-      note.readAt = now;
-      userMap.set(note.id, note);
-      count++;
-    }
-  });
-
-  return count;
+  if (!isUuid(actor.userId)) return 0;
+  try {
+    const { data } = await sb().rpc("mark_all_notifications_read", { p_user_id: actor.userId });
+    return typeof data === "number" ? data : 0;
+  } catch {
+    return 0;
+  }
 }
 
 export async function dismiss(id: string): Promise<boolean> {
   const actor = await getCurrentActor();
   if (!actor?.userId) return false;
-
-  ensureSeeded(actor.userId, actor.role);
-  const userMap = notificationsStore.get(actor.userId)!;
-  const note = userMap.get(id);
-  if (!note || note.userId !== actor.userId) return false;
-  if (note.dismissedAt) return true;
-
-  const now = new Date();
-  note.seenAt = note.seenAt ?? now;
-  note.readAt = note.readAt ?? now;
-  note.dismissedAt = now;
-  userMap.set(id, note);
-  return true;
+  if (!isUuid(actor.userId) || !isUuid(id)) return false;
+  const now = new Date().toISOString();
+  const { count, error } = await sb()
+    .from("notifications")
+    .update({ dismissed_at: now })
+    .eq("id", id)
+    .eq("user_id", actor.userId);
+  if (error) return false;
+  return (count ?? 0) > 0;
 }
 
 export type PreferencesUpdate = Partial<{
@@ -411,59 +325,182 @@ export type PreferencesUpdate = Partial<{
   dailySummary: boolean;
 }>;
 
+async function ensurePrefsRow(userId: string, _role: AppRole): Promise<void> {
+  const { count } = await sb()
+    .from("notification_preferences")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId);
+  if ((count ?? 0) > 0) return;
+  try {
+    await sb()
+      .from("notification_preferences")
+      .insert({ user_id: userId });
+  } catch {
+    /* ignore — may already exist from trigger/race */
+  }
+}
+
 export async function updatePreferences(prefs: PreferencesUpdate): Promise<NotificationPreferences | null> {
   const actor = await getCurrentActor();
   if (!actor?.userId) return null;
+  if (!isUuid(actor.userId)) return defaultPreferencesSync(actor.userId, actor.role);
 
-  ensureSeeded(actor.userId, actor.role);
-  const existing = preferencesStore.get(actor.userId)!;
+  await ensurePrefsRow(actor.userId, actor.role);
+
+  const current = await sb()
+    .from("notification_preferences")
+    .select("*")
+    .eq("user_id", actor.userId)
+    .maybeSingle();
+  const row = (current.data ?? null) as PrefsDbRow;
+  const existingChannels = normaliseChannelsFromDb(row?.channels, actor.role);
+  const dnd: NotificationPreferences["dnd"] = {
+    enabled: row?.dnd_enabled === true,
+    from: typeof row?.dnd_from === "string" ? row.dnd_from : "22:00",
+    to: typeof row?.dnd_to === "string" ? row.dnd_to : "07:00",
+  };
+  let quietWeekends: boolean = row?.quiet_weekends === true;
+  let dailySummary: boolean = row?.summary_daily !== false;
 
   if (prefs.channels) {
-    const updatedChannels = { ...existing.channels } as Record<string, TypeChannelPreferences>;
     for (const [typeKey, channelPrefs] of Object.entries(prefs.channels)) {
       if (!channelPrefs) continue;
-      const base: TypeChannelPreferences = updatedChannels[typeKey] ?? {
+      const base: TypeChannelPreferences = existingChannels[typeKey] ?? {
         in_app: true, push: false, email: false, sms: false,
       };
-      updatedChannels[typeKey] = {
+      existingChannels[typeKey] = {
         in_app: typeof channelPrefs.in_app === "boolean" ? channelPrefs.in_app : base.in_app,
         push: typeof channelPrefs.push === "boolean" ? channelPrefs.push : base.push,
         email: typeof channelPrefs.email === "boolean" ? channelPrefs.email : base.email,
         sms: typeof channelPrefs.sms === "boolean" ? channelPrefs.sms : base.sms,
       };
     }
-    existing.channels = updatedChannels;
   }
 
   if (prefs.dnd) {
-    existing.dnd = { ...existing.dnd, ...prefs.dnd };
+    dnd.enabled = typeof prefs.dnd.enabled === "boolean" ? prefs.dnd.enabled : dnd.enabled;
+    dnd.from = typeof prefs.dnd.from === "string" ? prefs.dnd.from : dnd.from;
+    dnd.to = typeof prefs.dnd.to === "string" ? prefs.dnd.to : dnd.to;
+  }
+  if (typeof prefs.quietWeekends === "boolean") quietWeekends = prefs.quietWeekends;
+  if (typeof prefs.dailySummary === "boolean") dailySummary = prefs.dailySummary;
+
+  const channelsJsonb = Object.keys(existingChannels).reduce((acc, k) => {
+    const pref = existingChannels[k]!;
+    const chs: string[] = [];
+    if (pref.in_app) chs.push("in_app");
+    if (pref.push) chs.push("push");
+    if (pref.email) chs.push("email");
+    if (pref.sms) chs.push("sms");
+    (acc as Record<string, string[]>)[k] = chs;
+    return acc;
+  }, {} as Record<string, string[]>);
+
+  const patch = {
+    channels: channelsJsonb,
+    dnd_enabled: dnd.enabled,
+    dnd_from: dnd.from,
+    dnd_to: dnd.to,
+    quiet_weekends: quietWeekends,
+    summary_daily: dailySummary,
+  };
+  const { error } = await sb()
+    .from("notification_preferences")
+    .update(patch)
+    .eq("user_id", actor.userId);
+  if (error) {
+    return {
+      userId: actor.userId,
+      channels: existingChannels,
+      dnd,
+      quietWeekends,
+      dailySummary,
+      updatedAt: new Date(),
+    };
   }
 
-  if (typeof prefs.quietWeekends === "boolean") {
-    existing.quietWeekends = prefs.quietWeekends;
-  }
-
-  if (typeof prefs.dailySummary === "boolean") {
-    existing.dailySummary = prefs.dailySummary;
-  }
-
-  existing.updatedAt = new Date();
-  preferencesStore.set(actor.userId, existing);
-  return { ...existing };
+  return {
+    userId: actor.userId,
+    channels: existingChannels,
+    dnd,
+    quietWeekends,
+    dailySummary,
+    updatedAt: new Date(),
+  };
 }
 
 export async function getNotificationPreferences(userId: string): Promise<NotificationPreferences | null> {
   const actor = await getCurrentActor();
   if (!actor?.userId) return null;
-  ensureSeeded(actor.userId, actor.role);
-  const prefs = preferencesStore.get(userId);
-  return prefs ? { ...prefs } : null;
+  if (!isUuid(userId)) {
+    return defaultPreferencesSync(userId, actor.role);
+  }
+  await ensurePrefsRow(userId, actor.role);
+  const { data } = await sb()
+    .from("notification_preferences")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+  const row = (data ?? null) as PrefsDbRow;
+  const channels = normaliseChannelsFromDb(row?.channels, actor.role);
+  const dnd: NotificationPreferences["dnd"] = {
+    enabled: row?.dnd_enabled === true,
+    from: typeof row?.dnd_from === "string" ? row.dnd_from : "22:00",
+    to: typeof row?.dnd_to === "string" ? row.dnd_to : "07:00",
+  };
+  return {
+    userId,
+    channels,
+    dnd,
+    quietWeekends: row?.quiet_weekends === true,
+    dailySummary: row?.summary_daily !== false,
+    updatedAt:
+      typeof row?.updated_at === "string" ||
+      typeof row?.updated_at === "number" ||
+      row?.updated_at instanceof Date
+        ? new Date(row.updated_at)
+        : new Date(),
+  };
 }
 
 export async function setNotificationPreferences(userId: string, prefs: NotificationPreferences): Promise<boolean> {
   const actor = await getCurrentActor();
   if (!actor?.userId || actor.userId !== userId) return false;
-  ensureSeeded(actor.userId, actor.role);
-  preferencesStore.set(userId, { ...prefs, userId, updatedAt: new Date() });
-  return true;
+  if (!isUuid(userId)) return false;
+  await ensurePrefsRow(userId, actor.role);
+  const channelsJsonb = Object.keys(prefs.channels ?? {}).reduce((acc, k) => {
+    const pref = (prefs.channels ?? {})[k as NotificationType];
+    if (!pref) return acc;
+    const chs: string[] = [];
+    if (pref.in_app) chs.push("in_app");
+    if (pref.push) chs.push("push");
+    if (pref.email) chs.push("email");
+    if (pref.sms) chs.push("sms");
+    (acc as Record<string, string[]>)[k] = chs;
+    return acc;
+  }, {} as Record<string, string[]>);
+  const patch = {
+    channels: channelsJsonb,
+    dnd_enabled: prefs.dnd?.enabled === true,
+    dnd_from: prefs.dnd?.from ?? "22:00",
+    dnd_to: prefs.dnd?.to ?? "07:00",
+    quiet_weekends: prefs.quietWeekends === true,
+    summary_daily: prefs.dailySummary !== false,
+  };
+  const { error } = await sb()
+    .from("notification_preferences")
+    .update(patch)
+    .eq("user_id", userId);
+  return !error;
+}
+
+export async function unreadNotificationCount(userId: string): Promise<number> {
+  if (!isUuid(userId)) return 0;
+  const { count } = await sb()
+    .from("notifications")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .is("dismissed_at", null)
+    .is("read_at", null);
+  return count ?? 0;
 }

@@ -8,7 +8,7 @@ export function Table({
   ...props
 }: React.HTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="w-full overflow-hidden rounded-3xl border border-white/10 bg-slate-950/30">
+    <div className="w-full overflow-hidden rounded-2xl border border-white/[0.07] bg-gradient-to-b from-white/[0.04] to-transparent">
       <table
         className={cn("w-full border-separate border-spacing-0 text-sm", className)}
         {...props}
@@ -23,7 +23,7 @@ export function THead({
 }: React.HTMLAttributes<HTMLTableSectionElement>) {
   return (
     <thead
-      className={cn("bg-white/5 text-[11px] uppercase tracking-[0.22em]", className)}
+      className={cn("bg-white/[0.04] text-[10px] uppercase tracking-[0.22em]", className)}
       {...props}
     />
   );
@@ -33,7 +33,7 @@ export function TBody({
   className,
   ...props
 }: React.HTMLAttributes<HTMLTableSectionElement>) {
-  return <tbody className={cn("divide-y divide-white/10", className)} {...props} />;
+  return <tbody className={cn("divide-y divide-white/[0.05]", className)} {...props} />;
 }
 
 export function TR({
@@ -43,7 +43,7 @@ export function TR({
   return (
     <tr
       className={cn(
-        "text-slate-200 transition-colors hover:bg-white/5",
+        "text-slate-200 transition-colors hover:bg-white/[0.04]",
         className,
       )}
       {...props}
@@ -57,7 +57,7 @@ export function TH({
 }: React.ThHTMLAttributes<HTMLTableCellElement>) {
   return (
     <th
-      className={cn("px-5 py-3 text-left font-medium text-slate-400", className)}
+      className={cn("px-5 py-3.5 text-left font-semibold text-slate-500", className)}
       {...props}
     />
   );
@@ -67,5 +67,5 @@ export function TD({
   className,
   ...props
 }: React.TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn("px-5 py-4 align-middle", className)} {...props} />;
+  return <td className={cn("px-5 py-4 align-middle text-slate-300", className)} {...props} />;
 }

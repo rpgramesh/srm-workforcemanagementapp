@@ -88,7 +88,7 @@ export interface StaffUpdateInput extends Partial<Omit<StaffCreateInput, "pin" |
 
 export interface VerifiedUser {
   user: User;
-  source: "env_admin" | "env_user" | "supabase";
+  source: "env_admin" | "env_user" | "env_staff" | "supabase";
 }
 
 export interface UserPagination {
@@ -104,6 +104,41 @@ export const ADMIN_DASHBOARD_ROLES: AppRole[] = [
   "manager",
 ];
 
+export const SUPERVISOR_DASHBOARD_ROLES: AppRole[] = [
+  "supervisor",
+];
+
+export const STAFF_PORTAL_ROLES: AppRole[] = [
+  "employee",
+  "supervisor",
+];
+
+export function canLogin(role: AppRole): boolean {
+  return (
+    ADMIN_DASHBOARD_ROLES.includes(role) ||
+    SUPERVISOR_DASHBOARD_ROLES.includes(role) ||
+    STAFF_PORTAL_ROLES.includes(role)
+  );
+}
+
+export function isAdminDashboardRole(role: AppRole): boolean {
+  return ADMIN_DASHBOARD_ROLES.includes(role);
+}
+
+export function isSupervisorDashboardRole(role: AppRole): boolean {
+  return SUPERVISOR_DASHBOARD_ROLES.includes(role);
+}
+
+export function isStaffPortalRole(role: AppRole): boolean {
+  return STAFF_PORTAL_ROLES.includes(role);
+}
+
+export function defaultDashboardRouteForRole(role: AppRole): string {
+  if (ADMIN_DASHBOARD_ROLES.includes(role)) return "/admin/dashboard";
+  if (SUPERVISOR_DASHBOARD_ROLES.includes(role)) return "/admin/schedule";
+  return "/clock-in";
+}
+
 export const STAFF_MANAGER_ROLES: AppRole[] = [
   "super_admin",
   "restaurant_admin",
@@ -114,6 +149,7 @@ export const PAYROLL_MANAGER_ROLES: AppRole[] = [
   "super_admin",
   "restaurant_admin",
   "manager",
+  "supervisor",
 ];
 
 export function canAccessAdminDashboard(role: AppRole): boolean {

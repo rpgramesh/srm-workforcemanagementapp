@@ -9,7 +9,7 @@ import type {
   PayrollPeriod,
   Terminal,
 } from "@/types/domain";
-import { sb, parseDateOnly, parseTimeOnly } from "@/features/data/supabase-utils";
+import { sb, parseDateOnly, parseTimeOnly, normalizeSupabaseError } from "@/features/data/supabase-utils";
 import type { AppRole } from "@/types/app";
 
 interface DepartmentRow {
@@ -218,7 +218,7 @@ export class OperationsRepository {
     let q = sb().from("departments").select("*");
     if (onlyActive) q = q.eq("is_active", true);
     const { data, error } = await q.order("sort_order");
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return (data as DepartmentRow[]).map(mapDepartment);
   }
 
@@ -226,7 +226,7 @@ export class OperationsRepository {
     let q = sb().from("locations").select("*");
     if (onlyActive) q = q.eq("is_active", true);
     const { data, error } = await q.order("sort_order");
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return (data as LocationRow[]).map(mapLocation);
   }
 
@@ -237,7 +237,7 @@ export class OperationsRepository {
       .lte("week_start", new Date().toISOString().slice(0, 10))
       .gte("week_end", new Date().toISOString().slice(0, 10))
       .maybeSingle();
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return data ? mapRosterPeriod(data as RosterPeriodRow) : null;
   }
 
@@ -279,7 +279,7 @@ export class OperationsRepository {
     q = q.order("shift_date").order("start_time");
 
     const { data, error } = await q;
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     const rows = (data ?? []).map((r: any) => {
       const row: ShiftRow = {
         ...r,
@@ -304,18 +304,21 @@ export class OperationsRepository {
       .from("v_live_floor")
       .select("*")
       .order("clocked_in_at", { ascending: false });
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return (data ?? []).map((r: any) => mapAttendance(r as AttendanceRow));
   }
 
   async listTodaysRosterWithStatus() {
-    const { data: shifts } = await sb()
+    const { data: shifts, error: shiftsError } = await sb()
       .from("v_today_active_shifts")
       .select("*")
       .order("start_time");
-    const { data: attendance } = await sb()
+    if (shiftsError) throw normalizeSupabaseError(shiftsError);
+
+    const { data: attendance, error: attError } = await sb()
       .from("v_live_floor")
-      .select("user_id, shift_id, clocked_in_at, attendance_status, seconds_on_shift, in_gps_lat, in_gps_lng");
+      .select("user_id, shift_id, clocked_in_at, status, seconds_on_shift, in_gps_lat, in_gps_lng");
+    if (attError) throw normalizeSupabaseError(attError);
 
     const rows: any[] = (shifts ?? []) as any[];
     const attendMap = new Map<string, any>();
@@ -362,7 +365,7 @@ export class OperationsRepository {
       )
       .order("submitted_at", { ascending: false })
       .limit(limit);
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return (data ?? []).map((r: any) => {
       const row: SwapRow = {
         ...r,
@@ -391,7 +394,7 @@ export class OperationsRepository {
       .lte("period_start", today)
       .gte("period_end", today)
       .maybeSingle();
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return data ? mapPayroll(data as PayrollRow) : null;
   }
 
@@ -401,7 +404,7 @@ export class OperationsRepository {
       .select("*")
       .eq("terminal_code", code)
       .maybeSingle();
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return data ? mapTerminal(data as TerminalRow) : null;
   }
 
@@ -409,38 +412,43 @@ export class OperationsRepository {
     let q = sb().from("terminals").select("*");
     if (onlyActive) q = q.eq("is_active", true);
     const { data, error } = await q.order("terminal_code");
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return (data as TerminalRow[]).map(mapTerminal);
   }
 
   async recordClockIn(
-    args: { userId: string; shiftId?: string | null; terminalCode?: string | null; inLat?: number; inLng?: number },
+    args: { userId: string; shiftId?: string | null; terminalCode?: string | null; inLat?: number; inLng?: number; clockedInAt?: string },
   ): Promise<AttendanceSession> {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(args.userId);
     if (!isUuid) {
       throw new Error("Clock-in requires a real staff user. Sign in as a seeded staff member or use Admin > Staff first.");
     }
+    const insertPayload: Record<string, unknown> = {
+      user_id: args.userId,
+      shift_id: args.shiftId ?? null,
+      terminal_id: args.terminalCode ?? null,
+      in_gps_lat: args.inLat ?? null,
+      in_gps_lng: args.inLng ?? null,
+      status: "clocked_in",
+    };
+    if (args.clockedInAt) {
+      insertPayload.clocked_in_at = args.clockedInAt;
+    }
     const { data, error } = await sb()
       .from("attendance_sessions")
-      .insert({
-        user_id: args.userId,
-        shift_id: args.shiftId ?? null,
-        terminal_id: args.terminalCode ?? null,
-        in_gps_lat: args.inLat ?? null,
-        in_gps_lng: args.inLng ?? null,
-        status: "clocked_in",
-      })
+      .insert(insertPayload)
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return mapAttendance(data as AttendanceRow);
   }
 
-  async recordClockOut(sessionId: string, outLat?: number, outLng?: number): Promise<AttendanceSession> {
+
+  async recordClockOut(sessionId: string, outLat?: number, outLng?: number, clockedOutAt?: string): Promise<AttendanceSession> {
     const { data, error } = await sb()
       .from("attendance_sessions")
       .update({
-        clocked_out_at: new Date().toISOString(),
+        clocked_out_at: clockedOutAt ?? new Date().toISOString(),
         out_gps_lat: outLat ?? null,
         out_gps_lng: outLng ?? null,
         status: "clocked_out",
@@ -448,7 +456,7 @@ export class OperationsRepository {
       .eq("id", sessionId)
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return mapAttendance(data as AttendanceRow);
   }
 
@@ -458,7 +466,7 @@ export class OperationsRepository {
       .select("*")
       .eq("id", id)
       .maybeSingle();
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return data ? mapAttendance(data as AttendanceRow) : null;
   }
 
@@ -478,7 +486,7 @@ export class OperationsRepository {
     if (params.limit) q = q.limit(params.limit);
     if (params.offset && typeof params.limit === "number") q = q.range(params.offset, params.offset + params.limit - 1);
     const { data, error } = await q.order("clocked_in_at", { ascending: false });
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return (data ?? []).map((r: any) => {
       const u = r.user_full && typeof r.user_full === "object" ? r.user_full : null;
       const deptRow = r.dept && typeof r.dept === "object" ? (r.dept as any)?.departments ?? null : null;
@@ -530,7 +538,7 @@ export class OperationsRepository {
       .eq("id", id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
 
     if (edits.length > 0) {
       try {
@@ -566,7 +574,7 @@ export class OperationsRepository {
       .eq("id", id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return mapAttendance(data as AttendanceRow);
   }
 
@@ -581,7 +589,7 @@ export class OperationsRepository {
         approved_at: new Date().toISOString(),
       })
       .in("id", ids);
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return count ?? 0;
   }
 
@@ -593,7 +601,7 @@ export class OperationsRepository {
       .gte("clocked_in_at", `${from}T00:00:00.000Z`)
       .lte("clocked_in_at", `${to}T23:59:59.999Z`)
       .order("clocked_in_at", { ascending: false });
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return (data ?? []).map((r: any) => {
       const u = r.user_simple && typeof r.user_simple === "object" ? r.user_simple : null;
       const row: AttendanceRow = {
@@ -661,7 +669,7 @@ export class OperationsRepository {
     if (params.userId) q = q.eq("user_id", params.userId);
     if (params.status && params.status.length) q = q.in("status", params.status);
     const { data, error } = await q.order("created_at", { ascending: false });
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return (data ?? []).map((r: any) => {
       const u = r.user && typeof r.user === "object" ? r.user : null;
       return {
@@ -709,7 +717,7 @@ export class OperationsRepository {
       })
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
 
     try {
       const linked = await this.listAllAttendance({
@@ -742,7 +750,7 @@ export class OperationsRepository {
       .eq("id", id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return data;
   }
 
@@ -753,8 +761,79 @@ export class OperationsRepository {
     if (roles && roles.length > 0) q = q.in("role", roles);
     if (onlyActive) q = q.eq("is_active", true);
     const { data, error } = await q.order("last_name").order("first_name");
-    if (error) throw error;
+    if (error) throw normalizeSupabaseError(error);
     return data;
+  }
+
+  async createShift(args: {
+    rosterPeriodId?: string | null;
+    userId: string;
+    departmentId: string;
+    locationId?: string | null;
+    shiftDate: string;
+    startTime: string;
+    endTime: string;
+    breakMinutes?: number;
+    stationLabel?: string | null;
+    status?: Shift["status"];
+  }) {
+    const { data, error } = await sb()
+      .from("shifts")
+      .insert({
+        roster_period_id: args.rosterPeriodId ?? null,
+        user_id: args.userId,
+        department_id: args.departmentId,
+        location_id: args.locationId ?? null,
+        shift_date: args.shiftDate,
+        start_time: args.startTime,
+        end_time: args.endTime,
+        break_minutes: args.breakMinutes ?? 0,
+        station_label: args.stationLabel ?? null,
+        status: args.status ?? "scheduled",
+      })
+      .select()
+      .single();
+    if (error) throw normalizeSupabaseError(error);
+    return mapShift(data as unknown as ShiftRow);
+  }
+
+  async updateShift(id: string, args: Partial<{
+    rosterPeriodId: string | null;
+    userId: string;
+    departmentId: string;
+    locationId: string | null;
+    shiftDate: string;
+    startTime: string;
+    endTime: string;
+    breakMinutes: number;
+    stationLabel: string | null;
+    status: Shift["status"];
+  }>) {
+    const updatePayload: Record<string, any> = {};
+    if (args.rosterPeriodId !== undefined) updatePayload.roster_period_id = args.rosterPeriodId;
+    if (args.userId !== undefined) updatePayload.user_id = args.userId;
+    if (args.departmentId !== undefined) updatePayload.department_id = args.departmentId;
+    if (args.locationId !== undefined) updatePayload.location_id = args.locationId;
+    if (args.shiftDate !== undefined) updatePayload.shift_date = args.shiftDate;
+    if (args.startTime !== undefined) updatePayload.start_time = args.startTime;
+    if (args.endTime !== undefined) updatePayload.end_time = args.endTime;
+    if (args.breakMinutes !== undefined) updatePayload.break_minutes = args.breakMinutes;
+    if (args.stationLabel !== undefined) updatePayload.station_label = args.stationLabel;
+    if (args.status !== undefined) updatePayload.status = args.status;
+
+    const { data, error } = await sb()
+      .from("shifts")
+      .update(updatePayload)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw normalizeSupabaseError(error);
+    return mapShift(data as unknown as ShiftRow);
+  }
+
+  async deleteShift(id: string) {
+    const { error } = await sb().from("shifts").delete().eq("id", id);
+    if (error) throw normalizeSupabaseError(error);
   }
 }
 

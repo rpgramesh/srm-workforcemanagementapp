@@ -1,3 +1,22 @@
+export interface AdminSettings {
+  id: number;
+  siteName: string;
+  openHoursStart: string;
+  openHoursEnd: string;
+  defaultTimezone: string;
+  auMobileFormat: boolean;
+  requireHttps: boolean;
+  updatedAt: string;
+  sessionTimeoutMins: number;
+  maxLoginAttempts: number;
+  maxPasswordExpiryDays: number;
+  theme: string;
+  allowNotifications: boolean;
+  currency: string;
+  allowSelfRegistration: boolean;
+  defaultUserRole: string;
+}
+
 export type BadgeVariant = "emerald" | "slate" | "amber" | "rose" | "sky";
 
 export type RosterStatus =
@@ -154,6 +173,7 @@ export interface DashboardMetric {
   hint?: string;
   accent: MetricAccent;
   progressPercent?: number;
+  iconName?: string;
 }
 
 export interface LiveFloorMember {

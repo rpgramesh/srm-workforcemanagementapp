@@ -13,7 +13,7 @@ import {
 import { toast } from "sonner";
 import { clsx } from "clsx";
 import type { User } from "@/types/user";
-import type { DepartmentRow } from "@/features/data/actions/reference-actions.ts";
+import type { DepartmentRow } from "@/features/data/actions/reference-actions";
 import { Button } from "@/components/ui/button";
 import { deactivateStaff } from "@/features/users/actions/staff-actions";
 import type { AppRole } from "@/types/app";
@@ -66,8 +66,8 @@ export const StaffDirectoryEnhanced = memo(function StaffDirectoryEnhanced({
 
   if (!users.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/10 bg-slate-900/40 p-12 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-400">
+      <div className="rounded-3xl border border-dashed border-slate-800 bg-[#181920]/60 backdrop-blur-md p-12 text-center">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 text-slate-400 shadow-inner">
           <MoreHorizontal className="h-6 w-6" />
         </div>
         <h3 className="text-base font-semibold text-white">No staff match your filters</h3>
@@ -88,16 +88,18 @@ export const StaffDirectoryEnhanced = memo(function StaffDirectoryEnhanced({
           <div
             key={u.id}
             className={clsx(
-              "group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-900/50 shadow-xl shadow-slate-950/20 backdrop-blur transition hover:-translate-y-0.5 hover:border-white/15 hover:shadow-2xl",
-              !u.isActive && "opacity-60",
+              "group relative flex flex-col overflow-hidden rounded-3xl border border-slate-800/90 bg-[#181920]/90 shadow-2xl backdrop-blur-md transition-all duration-200 hover:-translate-y-1 hover:border-slate-700/80 hover:shadow-black/50",
+              !u.isActive && "opacity-50 grayscale",
             )}
           >
             {!u.isActive ? (
-              <div className="absolute right-3 top-3 rounded-full bg-rose-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-rose-300 ring-1 ring-rose-400/20">
+              <div className="absolute right-3 top-3 rounded-full bg-rose-500/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-rose-400 ring-1 ring-rose-500/30">
                 Inactive
               </div>
             ) : null}
-            <div className="flex items-start gap-3 p-4">
+
+            {/* Header / Avatar Info */}
+            <div className="flex items-start gap-3 p-5">
               <Avatar
                 firstName={u.firstName}
                 lastName={u.lastName}
@@ -107,65 +109,75 @@ export const StaffDirectoryEnhanced = memo(function StaffDirectoryEnhanced({
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <h4 className="truncate text-sm font-semibold text-white">{displayName}</h4>
+                  <h4 className="truncate text-sm font-bold tracking-tight text-white">{displayName}</h4>
                 </div>
-                <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                <div className="mt-1 flex flex-wrap items-center gap-1.5">
                   <Badge tone={ROLE_TONE[u.role]} size="sm">{ROLE_LABEL[u.role]}</Badge>
                   {dept ? (
-                    <Badge tone="neutral" size="sm" dotColor={dept.color ?? undefined}>
-                      <Building2 className="mr-1 h-3 w-3" />
+                    <Badge tone="neutral" size="sm" dotColor={dept.color ?? undefined} className="bg-slate-900 text-slate-300 border border-slate-800">
+                      <Building2 className="mr-1 h-3 w-3 text-slate-400" />
                       {dept.short_label}
                     </Badge>
                   ) : null}
                 </div>
-                <p className="mt-1 truncate text-xs text-slate-400">{u.jobTitle ?? u.employeeId ?? "No details yet"}</p>
+                <p className="mt-1.5 truncate text-xs font-medium text-slate-400">
+                  {u.jobTitle ?? u.employeeId ?? "No details yet"}
+                </p>
               </div>
             </div>
 
-            <div className="border-t border-white/5 px-4 py-3 text-xs text-slate-400">
+            {/* Contact & Date Details */}
+            <div className="border-t border-slate-800/60 bg-slate-950/20 px-5 py-3 text-xs text-slate-400 font-medium">
               <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                <span>{u.mobile}</span>
+                <span className="text-slate-300">{u.mobile}</span>
                 {u.employmentDate ? (
-                  <span>
+                  <span className="text-slate-500">
                     Since {new Date(u.employmentDate).toLocaleDateString(undefined, { year: "numeric", month: "short" })}
                   </span>
                 ) : null}
               </div>
-              {u.email ? <div className="mt-1 truncate">{u.email}</div> : null}
+              {u.email ? <div className="mt-1 truncate text-slate-400">{u.email}</div> : null}
             </div>
 
-            <div className="mt-auto flex items-stretch gap-1 border-t border-white/5 p-2">
+            {/* Card Action Footer */}
+            <div className="mt-auto flex items-center justify-between gap-1 border-t border-slate-800/80 p-2 bg-[#14151a]/50">
               <Link
                 href={`/admin/messages?recipient=${encodeURIComponent(u.id)}`}
                 onClick={(e) => {
                   e.preventDefault();
                   onMessage(u.id, name);
                 }}
-                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-slate-300 transition hover:bg-white/5 hover:text-white"
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
               >
-                <MessageSquare className="h-3.5 w-3.5" />
+                <MessageSquare className="h-3.5 w-3.5 text-slate-400" />
                 Message
               </Link>
-              <Button
-                variant="ghost"
-                size="sm"
-                icon={<Edit3 className="h-3.5 w-3.5" />}
+
+              <button
+                type="button"
                 onClick={() => onEdit(u.id)}
                 disabled={!canEdit}
                 title={canEdit ? "Edit staff" : "Insufficient permissions"}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors disabled:opacity-40"
               >
+                <Edit3 className="h-3.5 w-3.5 text-slate-400" />
                 Edit
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                icon={deletingId === u.id ? <Ban className="h-3.5 w-3.5 animate-pulse text-rose-300" /> : <Trash2 className="h-3.5 w-3.5 text-rose-300" />}
+              </button>
+
+              <button
+                type="button"
                 onClick={() => handleDeactivate(u)}
                 disabled={!canEdit || deletingId === u.id}
                 title={canEdit ? "Deactivate" : "Insufficient permissions"}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-colors disabled:opacity-40"
               >
-                {deletingId === u.id ? "…" : "Deactivate"}
-              </Button>
+                {deletingId === u.id ? (
+                  <Ban className="h-3.5 w-3.5 animate-spin text-rose-400" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5 text-rose-400/80" />
+                )}
+                <span>{deletingId === u.id ? "…" : "Deactivate"}</span>
+              </button>
             </div>
           </div>
         );

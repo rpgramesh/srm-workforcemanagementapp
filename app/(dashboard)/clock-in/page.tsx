@@ -15,6 +15,24 @@ export const fetchCache = "force-no-store";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+function emptyClockView(): StaffClockView {
+  const today = new Date().toISOString().slice(0, 10);
+  const twoWeeksAgo = new Date();
+  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 13);
+  return {
+    hourlyRate: null,
+    history: [],
+    currentSession: null,
+    todayMinutes: 0,
+    periodStart: twoWeeksAgo.toISOString().slice(0, 10),
+    periodEnd: today,
+    periodMinutes: 0,
+    periodEarnings: 0,
+    periodGrossRate: null,
+    sessionsTotal: 0,
+  };
+}
+
 export default async function ClockInPage(props: { searchParams?: Promise<Record<string, unknown>> }) {
   const actor = await getCurrentActor();
   if (!actor) redirect("/login");
@@ -37,15 +55,19 @@ export default async function ClockInPage(props: { searchParams?: Promise<Record
     // (no real attendance records can be inserted because repo recordClockIn UUID-guards).
   }
 
+  const hasRealTargetUser = UUID_RE.test(targetUserId);
   const [terminal, view, previewShifts] = await Promise.all([
     getTerminalConfig(),
-    getStaffClockView(targetUserId) as Promise<StaffClockView>,
-    UUID_RE.test(targetUserId) ? getUpcomingWeekPreview(targetUserId) : [],
+    hasRealTargetUser ? (getStaffClockView(targetUserId) as Promise<StaffClockView>) : Promise.resolve(emptyClockView()),
+    hasRealTargetUser ? getUpcomingWeekPreview(targetUserId) : Promise.resolve([]),
   ]);
 
-  async function refreshView(): Promise<void> {
+  async function refreshView(): Promise<StaffClockView> {
     "use server";
-    await getStaffClockView(targetUserId);
+    const hasRealTargetUserRefresh = UUID_RE.test(targetUserId);
+    return hasRealTargetUserRefresh
+      ? ((await getStaffClockView(targetUserId)) as StaffClockView)
+      : emptyClockView();
   }
 
   return (

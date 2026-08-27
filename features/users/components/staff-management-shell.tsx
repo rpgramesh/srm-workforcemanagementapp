@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { UserPlus2 } from "lucide-react";
+import { UserPlus2, RotateCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AddStaffModal } from "@/features/users/components/add-staff-modal";
 import { StaffFilterBar } from "@/features/users/components/staff-filter-bar";
@@ -109,41 +108,65 @@ export function StaffManagementShell({ viewerRole }: StaffManagementShellProps) 
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/70 via-slate-900/50 to-emerald-500/5 p-6 shadow-xl shadow-slate-950/30 backdrop-blur">
+      {/* Dark Theme Header Banner Container */}
+      <div className="flex flex-wrap items-start justify-between gap-4 rounded-3xl border border-slate-800 bg-[#181920]/90 backdrop-blur-md p-6 shadow-2xl text-slate-100">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-bold tracking-[-0.02em] text-white">
+            <h1 className="text-2xl font-bold tracking-tight text-white">
               Staff Directory
             </h1>
-            <Badge tone="emerald" size="sm">Database-backed</Badge>
-            <Badge tone="indigo" size="sm">Audit-logged</Badge>
+            <Badge tone="emerald" size="sm" className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              DATABASE-BACKED
+            </Badge>
+            <Badge tone="indigo" size="sm" className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              AUDIT-LOGGED
+            </Badge>
           </div>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1.5 text-sm text-slate-400 max-w-2xl">
             Create, filter, and communicate with your team. All edits are permission-checked and recorded.
           </p>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-400">
-            <span>Showing <span className="font-medium text-slate-200">{visibleCount.showing}</span> of <span className="font-medium text-slate-200">{visibleCount.total}</span> records</span>
-            <span className="text-slate-600">•</span>
+          <div className="mt-3.5 flex flex-wrap items-center gap-2 text-xs text-slate-400 font-medium">
+            <span>
+              Showing <span className="font-bold text-white">{visibleCount.showing}</span> of{" "}
+              <span className="font-bold text-white">{visibleCount.total}</span> records
+            </span>
+            <span className="text-slate-700">•</span>
             <span>{departments.length} departments loaded</span>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="ghost" onClick={() => void refresh()}>Refresh</Button>
-          <Button
-            variant="primary"
-            icon={<UserPlus2 className="h-4 w-4" />}
+
+        {/* Header Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            disabled={loading}
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3.5 py-2.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all active:scale-[0.98] disabled:opacity-50"
+          >
+            <RotateCw className={`h-3.5 w-3.5 ${loading ? "animate-spin text-blue-400" : ""}`} />
+            <span>Refresh</span>
+          </button>
+          <button
+            type="button"
             onClick={() => {
               setEditingId(null);
               setAddOpen(true);
             }}
             disabled={!viewerRole || !(["super_admin", "restaurant_admin", "manager"] as AppRole[]).includes(viewerRole)}
-            title={viewerRole && (["super_admin", "restaurant_admin", "manager"] as AppRole[]).includes(viewerRole) ? "Add a new staff member" : "Staff creation is restricted to managers and above"}
+            title={
+              viewerRole && (["super_admin", "restaurant_admin", "manager"] as AppRole[]).includes(viewerRole)
+                ? "Add a new staff member"
+                : "Staff creation is restricted to managers and above"
+            }
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-500 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-blue-600/20"
           >
-            Add staff
-          </Button>
+            <UserPlus2 className="h-4 w-4" />
+            <span>Add staff</span>
+          </button>
         </div>
       </div>
 
+      {/* Filter Bar */}
       <StaffFilterBar
         filters={filters}
         departments={departments}
@@ -151,14 +174,25 @@ export function StaffManagementShell({ viewerRole }: StaffManagementShellProps) 
         onRefreshRequest={() => void refresh()}
       />
 
+      {/* Grid Content or Skeleton Loader */}
       {loading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="h-44 animate-pulse rounded-2xl border border-white/10 bg-slate-900/50"
+              className="h-48 animate-pulse rounded-3xl border border-slate-800/80 bg-slate-900/40 p-5 space-y-4"
               aria-hidden
-            />
+            >
+              <div className="flex items-center gap-3">
+                <div className="size-12 rounded-full bg-slate-800" />
+                <div className="space-y-2 flex-1">
+                  <div className="h-4 w-2/3 rounded bg-slate-800" />
+                  <div className="h-3 w-1/3 rounded bg-slate-800/60" />
+                </div>
+              </div>
+              <div className="h-3 w-full rounded bg-slate-800/40" />
+              <div className="h-8 w-full rounded-xl bg-slate-800/50" />
+            </div>
           ))}
         </div>
       ) : (
@@ -172,6 +206,7 @@ export function StaffManagementShell({ viewerRole }: StaffManagementShellProps) 
         />
       )}
 
+      {/* Modal Container */}
       <AddStaffModal
         open={addOpen}
         editingStaffId={editingId}

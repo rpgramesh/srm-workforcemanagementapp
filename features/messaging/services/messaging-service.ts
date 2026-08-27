@@ -181,9 +181,13 @@ export class MessagingService {
     if (!actor.userId) return 0;
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     if (!UUID_RE.test(actor.userId)) return 0;
+    const timeout = new Promise<number>((resolve) => setTimeout(() => resolve(0), 6000));
     try {
-      const summaries = await this.messages.listThreadSummaries(actor.userId);
-      return summaries.reduce((sum, s) => sum + (s.unreadCount ?? 0), 0);
+      const result = await Promise.race([
+        this.messages.countUnreadMessages(actor.userId),
+        timeout,
+      ]);
+      return typeof result === "number" && Number.isFinite(result) ? result : 0;
     } catch {
       return 0;
     }

@@ -57,15 +57,15 @@ export function FoundationOverview() {
         {platformMetrics.map((metric) => (
           <article
             key={metric.label}
-            className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur"
+            className="rounded-3xl border border-slate-200 bg-white/5 p-5 backdrop-blur"
           >
-            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">
               {metric.label}
             </p>
-            <p className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-white">
+            <p className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-slate-900">
               {metric.value}
             </p>
-            <p className="mt-3 max-w-sm text-sm leading-6 text-slate-300">
+            <p className="mt-3 max-w-sm text-sm leading-6 text-slate-700">
               {metric.hint}
             </p>
           </article>

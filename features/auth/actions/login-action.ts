@@ -6,7 +6,12 @@ import { userService } from "@/features/users/services/user-service";
 import type { AdminLoginResult } from "@/features/users/services/user-service";
 import { auditLogRepository } from "@/features/audit/repositories/supabase-audit-log-repository";
 import { setActorSession, clearActorSession, getCurrentActor } from "@/lib/server-session";
-import { canAccessAdminDashboard } from "@/types/user";
+import {
+  canLogin,
+  defaultDashboardRouteForRole,
+  isAdminDashboardRole,
+  isSupervisorDashboardRole,
+} from "@/types/user";
 import { normalizeAustralianMobile } from "@/features/auth/services/au-mobile";
 import { staffManagementService } from "@/features/users/services/staff-management-service";
 import type { AppRole } from "@/types/app";
@@ -90,10 +95,22 @@ export type DashboardAccessResult =
   | { readonly allowed: false; readonly role: AppRole; readonly reason: "role_denied" };
 
 export async function canAccessDashboard(role: AppRole): Promise<DashboardAccessResult> {
-  const ok = canAccessAdminDashboard(role);
+  const ok = canLogin(role);
   return ok
     ? { allowed: true, role, reason: "role_allowed" }
     : { allowed: false, role, reason: "role_denied" };
+}
+
+export async function canAccessAdminPages(role: AppRole): Promise<boolean> {
+  return isAdminDashboardRole(role);
+}
+
+export async function canAccessSchedulePage(role: AppRole): Promise<boolean> {
+  return isAdminDashboardRole(role) || isSupervisorDashboardRole(role);
+}
+
+export async function dashboardRouteForActor(role: AppRole): Promise<string> {
+  return defaultDashboardRouteForRole(role);
 }
 
 export async function adminLogin(

@@ -2,13 +2,13 @@ import { redirect } from "next/navigation";
 import { DashboardChrome } from "@/components/layout/dashboard-chrome";
 import { Button } from "@/components/ui/button";
 import { RosterSummaryCards } from "@/features/roster/components/roster-summary-cards";
-import { WeeklyRosterGrid } from "@/features/roster/components/weekly-roster-grid";
+import { Calendar } from "./calendar";
 import { CalendarDays, PencilLine } from "lucide-react";
-import {
-  getRosterSummaryCards,
-  getWeeklyRoster,
-} from "@/features/data/actions/dashboard-actions";
+import { getRosterSummaryCards } from "@/features/data/actions/dashboard-actions";
 import { currentActorInfo } from "@/features/auth/actions/login-action";
+import { isAdminDashboardRole, isSupervisorDashboardRole } from "@/types/user";
+import { operationsRepository } from "@/features/data/repositories/operations-repository";
+import { getOpeningHours } from "@/features/settings/services/opening-hours-service";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -16,19 +16,21 @@ export const fetchCache = "force-no-store";
 export default async function AdminSchedulePage() {
   const actor = await currentActorInfo();
   if (!actor) redirect("/login");
-  const [summary, roster] = await Promise.all([
+  if (!isAdminDashboardRole(actor.role) && !isSupervisorDashboardRole(actor.role)) {
+    redirect("/schedule");
+  }
+  
+  const [summary, openingHours, departments, users] = await Promise.all([
     getRosterSummaryCards(),
-    getWeeklyRoster(null, 5),
+    getOpeningHours(),
+    operationsRepository.listDepartments(),
+    operationsRepository.getUsers(["employee", "manager", "supervisor"]),
   ]);
 
-  const startLabel = new Date(`${roster.weekStart}T00:00:00Z`).toLocaleDateString(
-    "en-AU",
-    { month: "short", day: "numeric", year: "numeric" },
-  );
-  const endLabel = new Date(`${roster.weekEnd}T00:00:00Z`).toLocaleDateString(
-    "en-AU",
-    { month: "short", day: "numeric", year: "numeric" },
-  );
+  const today = new Date();
+  const startLabel = today.toLocaleDateString("en-AU", { month: "short", day: "numeric", year: "numeric" });
+  // Just dummy label for now to keep the layout, actual date range will be managed by calendar view
+  const endLabel = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString("en-AU", { month: "short", day: "numeric", year: "numeric" });
 
   return (
     <DashboardChrome
@@ -37,24 +39,16 @@ export default async function AdminSchedulePage() {
       actor={actor}
     >
       <div className="space-y-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap items-center gap-3">
-            <button className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10">
-              <CalendarDays className="size-4" />
-              Weekly
-            </button>
-            <button className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-transparent px-4 py-2 text-xs font-semibold text-slate-400 hover:bg-white/5 hover:text-slate-200">
-              Daily
-            </button>
-          </div>
-          <Button variant="primary" className="w-full justify-center lg:w-auto">
-            <PencilLine className="size-4" />
-            Modify Schedule
-          </Button>
-        </div>
-
         <RosterSummaryCards summary={summary} />
-        <WeeklyRosterGrid data={roster} />
+        
+        <div className="mt-8">
+          <Calendar
+            initialDate={today.toISOString()}
+            openingHours={openingHours}
+            departments={departments}
+            users={users || []}
+          />
+        </div>
       </div>
     </DashboardChrome>
   );

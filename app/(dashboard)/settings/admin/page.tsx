@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentActor } from "@/lib/server-session";
 import { listStaff } from "@/features/users/actions/staff-actions";
+import { getAdminSettings } from "@/features/settings/actions/admin-settings-actions";
 import type { AppRole } from "@/types/app";
 import { AdminSettingsPanel } from "./_components/admin-settings-panel";
 
@@ -14,7 +15,10 @@ export default async function AdminSettingsPage() {
   if (!actor) redirect("/login");
   if (!ADMIN_ROLES.includes(actor.role)) redirect("/settings/user");
 
-  const staffResult = await listStaff({ limit: 200 });
+  const [staffResult, settings] = await Promise.all([
+    listStaff({ limit: 200 }),
+    getAdminSettings()
+  ]);
 
   const roleDistribution: Record<string, number> = {};
   for (const row of staffResult.rows) {
@@ -26,6 +30,7 @@ export default async function AdminSettingsPage() {
       actorRole={actor.role}
       staffCount={staffResult.total}
       roleDistribution={roleDistribution}
+      initialSettings={settings}
     />
   );
 }

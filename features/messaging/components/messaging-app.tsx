@@ -342,18 +342,18 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
   };
 
   return (
-    <div className="flex h-[calc(100vh-9rem)] min-h-[640px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 shadow-2xl shadow-slate-950/40 backdrop-blur lg:flex-row">
+    <div className="flex h-[calc(100vh-9rem)] min-h-[640px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/60 shadow-2xl shadow-slate-950/40 backdrop-blur lg:flex-row">
       {/* Sidebar */}
       <aside
         className={clsx(
-          "flex min-h-0 w-full flex-col border-b border-white/10 lg:w-80 lg:border-b-0 lg:border-r lg:border-white/10",
+          "flex min-h-0 w-full flex-col border-b border-slate-200 lg:w-80 lg:border-b-0 lg:border-r lg:border-slate-200",
           !sidebarOpen && "hidden lg:flex",
         )}
       >
         <div className="flex items-center justify-between border-b border-white/5 p-4">
           <div>
-            <h3 className="text-sm font-semibold text-white">Messages</h3>
-            <p className="text-xs text-slate-400">Internal secure communications</p>
+            <h3 className="text-sm font-semibold text-slate-900">Messages</h3>
+            <p className="text-xs text-slate-500">Internal secure communications</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -393,7 +393,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
               Loading conversations…
             </div>
           ) : threads.length === 0 ? (
-            <div className="p-8 text-center text-sm text-slate-400">
+            <div className="p-8 text-center text-sm text-slate-500">
               <Inbox className="mx-auto mb-3 h-8 w-8 text-slate-600" />
               No conversations yet
               <div className="mt-3 text-xs text-slate-500">
@@ -417,7 +417,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                     >
                       <div className="relative">
                         {t.kind === "department" ? (
-                          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/70 to-violet-500/70 text-white ring-1 ring-white/10" style={{ backgroundColor: info?.accent ?? undefined }}>
+                          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/70 to-violet-500/70 text-slate-900 ring-1 ring-white/10" style={{ backgroundColor: info?.accent ?? undefined }}>
                             <Hash className="h-5 w-5" />
                           </div>
                         ) : info ? (
@@ -428,12 +428,12 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                             accent={info.accent}
                           />
                         ) : (
-                          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/5 text-xs text-slate-300">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/5 text-xs text-slate-700">
                             {initialsFromName(t.title ?? "?")}
                           </div>
                         )}
                         {(t.unreadCount ?? 0) > 0 ? (
-                          <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white shadow ring-2 ring-slate-900">
+                          <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-slate-900 shadow ring-2 ring-slate-900">
                             {t.unreadCount}
                           </span>
                         ) : null}
@@ -446,7 +446,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                                 <Megaphone className="h-3 w-3" />
                               </span>
                             ) : null}
-                            <p className="truncate text-sm font-semibold text-white">
+                            <p className="truncate text-sm font-semibold text-slate-900">
                               {participantLabel(t)}
                             </p>
                           </div>
@@ -454,7 +454,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                             {t.lastMessageAt ? timeAgo(t.lastMessageAt) : ""}
                           </span>
                         </div>
-                        <p className="mt-1 truncate text-xs text-slate-400">
+                        <p className="mt-1 truncate text-xs text-slate-500">
                           {t.lastPreview || "No messages yet"}
                         </p>
                       </div>
@@ -467,9 +467,9 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
         </div>
 
         <div className="border-t border-white/5 p-3">
-          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-            <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-slate-300">
-              <Users2 className="h-3.5 w-3.5 text-emerald-400" />
+          <div className="rounded-xl border border-slate-200 bg-white/5 p-3">
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <Users2 className="h-3.5 w-3.5 text-blue-500" />
               Quick message
             </div>
             <div className="flex max-h-44 flex-wrap gap-1.5 overflow-y-auto">
@@ -478,9 +478,9 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                   key={s.id}
                   type="button"
                     onClick={() => void openOrCreateDirect(s.id)}
-                  className="group inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-slate-900/60 px-2 py-1 text-[11px] text-slate-300 transition hover:border-sky-400/30 hover:bg-sky-500/10 hover:text-white"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/60 px-2 py-1 text-[11px] text-slate-700 transition hover:border-sky-400/30 hover:bg-sky-500/10 hover:text-slate-900"
                 >
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/5 text-[9px] font-bold text-slate-300">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/5 text-[9px] font-bold text-slate-700">
                     {initialsFromName({ firstName: s.firstName, lastName: s.lastName })}
                   </span>
                   {formatUserLabel(s)}
@@ -493,12 +493,12 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
 
       {/* Thread view */}
       <section className="flex min-h-0 flex-1 flex-col">
-        <div className="flex items-center justify-between gap-2 border-b border-white/10 p-4">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-200 p-4">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setSidebarOpen((s) => !s)}
-              className="lg:hidden rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white"
+              className="lg:hidden rounded-lg p-2 text-slate-500 hover:bg-white/5 hover:text-slate-900"
               aria-label="Toggle sidebar"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -506,7 +506,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
             {currentThread ? (
               <>
                 {currentThread.kind === "department" ? (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/70 to-violet-500/70 text-white ring-1 ring-white/10"
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/70 to-violet-500/70 text-slate-900 ring-1 ring-white/10"
                     style={(() => {
                       const d = deptById.get(currentThread.departmentId ?? "");
                       return d?.color ? { backgroundColor: d.color } : undefined;
@@ -527,7 +527,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                 )}
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-sm font-semibold text-white">
+                    <h2 className="text-sm font-semibold text-slate-900">
                       {participantLabel(currentThread)}
                     </h2>
                     {currentThread.kind === "department" ? (
@@ -539,7 +539,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                       <Badge tone="emerald" size="sm">1:1</Badge>
                     )}
                   </div>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500">
                     {currentThread.kind === "department"
                       ? "Message delivered to the entire department"
                       : "End-to-end auditable conversation"}
@@ -548,8 +548,8 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
               </>
             ) : (
               <div>
-                <h2 className="text-sm font-semibold text-white">No conversation selected</h2>
-                <p className="text-xs text-slate-400">
+                <h2 className="text-sm font-semibold text-slate-900">No conversation selected</h2>
+                <p className="text-xs text-slate-500">
                   Pick a thread on the left, or create a new message.
                 </p>
               </div>
@@ -564,9 +564,9 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
 
         <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6">
           {!selectedThread ? (
-            <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center text-center text-sm text-slate-400">
+            <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center text-center text-sm text-slate-500">
               <MessageCircleMore className="mb-4 h-12 w-12 text-slate-600" />
-              <h3 className="text-base font-semibold text-white">Stay in sync with your team</h3>
+              <h3 className="text-base font-semibold text-slate-900">Stay in sync with your team</h3>
               <p className="mt-2 text-xs">
                 All messages are stored with read receipts, timestamps, and a tamper-proof audit log for compliance.
               </p>
@@ -595,7 +595,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                     {showDate ? (
                       <div className="my-3 flex items-center gap-3">
                         <div className="h-px flex-1 bg-white/5" />
-                        <span className="rounded-full border border-white/10 bg-slate-950/60 px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-slate-400">
+                        <span className="rounded-full border border-slate-200 bg-slate-50/60 px-2.5 py-0.5 text-[10px] uppercase tracking-wider text-slate-500">
                           {new Date(m.createdAt).toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}
                         </span>
                         <div className="h-px flex-1 bg-white/5" />
@@ -613,8 +613,8 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                         className={clsx(
                           "group relative max-w-[82%] rounded-2xl px-4 py-2.5 text-sm shadow-lg",
                           isMine
-                            ? "rounded-br-sm bg-gradient-to-br from-sky-500 to-indigo-500 text-white"
-                            : "rounded-bl-sm border border-white/10 bg-slate-800/80 text-slate-100",
+                            ? "rounded-br-sm bg-gradient-to-br from-sky-500 to-indigo-500 text-slate-900"
+                            : "rounded-bl-sm border border-slate-200 bg-slate-800/80 text-slate-100",
                         )}
                       >
                         <p className="whitespace-pre-wrap break-words leading-relaxed">{m.body}</p>
@@ -639,7 +639,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
                           </span>
                           {isMine ? (
                             readByAll ? (
-                              <CheckCheck className="h-3 w-3 text-emerald-300" />
+                              <CheckCheck className="h-3 w-3 text-blue-600" />
                             ) : (
                               <Check className="h-3 w-3 opacity-80" />
                             )
@@ -715,13 +715,13 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
         }
       >
         <div className="space-y-5">
-          <div className="flex gap-2 rounded-xl border border-white/10 bg-white/5 p-1">
+          <div className="flex gap-2 rounded-xl border border-slate-200 bg-white/5 p-1">
             <button
               type="button"
               onClick={() => setNewTargetKind("direct")}
               className={clsx(
                 "flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition",
-                newTargetKind === "direct" ? "bg-slate-800 text-white shadow" : "text-slate-400 hover:text-white",
+                newTargetKind === "direct" ? "bg-slate-800 text-slate-900 shadow" : "text-slate-500 hover:text-slate-900",
               )}
             >
               <MessageCircleMore className="h-4 w-4" />
@@ -734,7 +734,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
               title={canBroadcast ? undefined : "Managers and above can broadcast to departments"}
               className={clsx(
                 "flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40",
-                newTargetKind === "department" ? "bg-slate-800 text-white shadow" : "text-slate-400 hover:text-white",
+                newTargetKind === "department" ? "bg-slate-800 text-slate-900 shadow" : "text-slate-500 hover:text-slate-900",
               )}
             >
               <Megaphone className="h-4 w-4" />
