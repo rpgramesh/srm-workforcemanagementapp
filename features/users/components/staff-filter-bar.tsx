@@ -158,7 +158,7 @@ export function StaffFilterBar({ filters, departments, onChange, onRefreshReques
 
         {/* Dropdowns Grid */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4 xl:w-[720px]">
-          <Field label="Department" className="text-slate-400 font-medium text-xs">
+          <Field label="Department">
             <Select
               className="w-full rounded-xl border border-slate-800 bg-slate-900/90 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
               value={filters.departmentId ?? ""}
@@ -171,7 +171,7 @@ export function StaffFilterBar({ filters, departments, onChange, onRefreshReques
             </Select>
           </Field>
 
-          <Field label="Role" className="text-slate-400 font-medium text-xs">
+          <Field label="Role">
             <Select
               className="w-full rounded-xl border border-slate-800 bg-slate-900/90 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
               value={filters.role ?? ""}
@@ -186,7 +186,7 @@ export function StaffFilterBar({ filters, departments, onChange, onRefreshReques
             </Select>
           </Field>
 
-          <Field label="Status" className="text-slate-400 font-medium text-xs">
+          <Field label="Status">
             <Select
               className="w-full rounded-xl border border-slate-800 bg-slate-900/90 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
               value={filters.status ?? "all"}
@@ -198,7 +198,7 @@ export function StaffFilterBar({ filters, departments, onChange, onRefreshReques
             </Select>
           </Field>
 
-          <Field label="Employee ID" className="text-slate-400 font-medium text-xs">
+          <Field label="Employee ID">
             <Input
               className="w-full rounded-xl border border-slate-800 bg-slate-900/90 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
               placeholder="EMP-0042"
@@ -273,7 +273,7 @@ export function StaffFilterBar({ filters, departments, onChange, onRefreshReques
       {/* Expanded Sort Panel */}
       {open ? (
         <div className="mt-4 grid grid-cols-1 gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:grid-cols-3">
-          <Field label="Sort by" className="text-slate-400 font-medium text-xs">
+          <Field label="Sort by">
             <Select
               className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white"
               value={filters.sortBy ?? "name"}
@@ -284,7 +284,7 @@ export function StaffFilterBar({ filters, departments, onChange, onRefreshReques
               ))}
             </Select>
           </Field>
-          <Field label="Direction" className="text-slate-400 font-medium text-xs">
+          <Field label="Direction">
             <Select
               className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white"
               value={filters.sortDir ?? "asc"}
