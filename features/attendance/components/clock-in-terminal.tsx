@@ -187,11 +187,11 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
   const periodEnd = view.periodEnd;
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[0.95fr_1.15fr]">
+    <div className="grid min-w-0 gap-6 xl:grid-cols-[0.95fr_1.15fr]">
       {/* Keypad & Terminal Container */}
-      <div className="space-y-6">
+      <div className="min-w-0 space-y-6">
         <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
-          <CardContent className="p-8">
+          <CardContent className="min-w-0 p-4 sm:p-8">
             <div className="space-y-6">
 
               {/* ── Mode header ── */}
@@ -407,8 +407,8 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
       </div>
 
       {/* Stats & History Container */}
-      <div className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2">
+      <div className="min-w-0 space-y-6">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
           {/* Current Status */}
           <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-800/60">

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Settings } from "lucide-react";
+import { Menu, Search, Settings } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { AppRole } from "@/types/app";
 import { formatUserLabel, initialsFromName } from "@/lib/user-labels";
@@ -20,27 +20,38 @@ interface TopbarProps {
   subtitle?: string;
   actor?: ActorIdentity;
   onSearchOpen?: () => void;
+  onMenuOpen?: () => void;
 }
 
-export function Topbar({ title, subtitle, actor, onSearchOpen }: TopbarProps) {
+export function Topbar({ title, subtitle, actor, onSearchOpen, onMenuOpen }: TopbarProps) {
   const fullLabel = actor ? formatUserLabel(actor) : "Admin User (Floor Manager)";
   const initials = actor ? initialsFromName(actor) : "AU";
 
   return (
-    <header className="flex flex-col gap-0 border-b border-white/[0.07] bg-[#060d1f]/80 px-8 py-0 backdrop-blur-xl">
+    <header className="flex flex-col gap-0 border-b border-white/[0.07] bg-[#060d1f]/80 px-4 py-0 backdrop-blur-xl sm:px-6 lg:px-8">
       <div className="flex items-center justify-between gap-4 py-4">
         {/* Title */}
-        <div className="min-w-0">
+        <div className="flex min-w-0 items-center gap-3">
+          <button
+            type="button"
+            onClick={onMenuOpen}
+            className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-slate-400 hover:border-white/[0.14] hover:bg-white/[0.07] hover:text-slate-200 lg:hidden"
+            aria-label="Open navigation"
+          >
+            <Menu className="size-4" />
+          </button>
+          <div className="min-w-0">
           <h1 className="text-xl font-bold tracking-[-0.04em] text-white truncate">
             {title}
           </h1>
           {subtitle ? (
             <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
           ) : null}
+          </div>
         </div>
 
         {/* Right controls */}
-        <div className="flex flex-shrink-0 items-center gap-2.5">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2.5">
           {/* Search bar (desktop) */}
           <button
             type="button"
@@ -81,7 +92,7 @@ export function Topbar({ title, subtitle, actor, onSearchOpen }: TopbarProps) {
           </Link>
 
           {/* User pill */}
-          <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 transition-all hover:border-white/[0.14] hover:bg-white/[0.07]">
+          <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-2 py-1.5 transition-all hover:border-white/[0.14] hover:bg-white/[0.07] sm:px-3">
             <Avatar className="size-7 rounded-lg">
               <AvatarFallback className="rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 text-[10px] font-bold text-white">
                 {initials}

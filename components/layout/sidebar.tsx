@@ -10,7 +10,6 @@ import {
   CircleHelp,
   LayoutGrid,
   LogOut,
-  MessageSquare,
   Timer,
   Users,
 } from "lucide-react";
@@ -28,6 +27,7 @@ import {
 
 export interface SidebarProps {
   role?: AppRole | null;
+  onNavigate?: () => void;
 }
 
 function buildNavigation(role: AppRole | null | undefined) {
@@ -56,7 +56,7 @@ function buildNavigation(role: AppRole | null | undefined) {
   return r;
 }
 
-export function Sidebar({ role }: SidebarProps) {
+export function Sidebar({ role, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [messagesUnread, setMessagesUnread] = useState(0);
@@ -101,8 +101,7 @@ export function Sidebar({ role }: SidebarProps) {
           </div>
           <div>
             <p className="text-[15px] font-bold tracking-[-0.03em] text-white">
-              SRM Workforce
-            </p>
+            Noodle Box</p>
             <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-slate-500">
               Management
             </p>
@@ -126,6 +125,7 @@ export function Sidebar({ role }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               className={clsx(
                 "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                 active
@@ -157,6 +157,7 @@ export function Sidebar({ role }: SidebarProps) {
         <div className="space-y-3">
           <Link
             href="/clock-in"
+            onClick={onNavigate}
             className={clsx(
               buttonVariants({ variant: "primary", size: "md" }),
               "w-full justify-between rounded-xl",

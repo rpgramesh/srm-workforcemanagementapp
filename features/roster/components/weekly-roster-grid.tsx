@@ -23,20 +23,20 @@ export function WeeklyRosterGrid({ data }: WeeklyRosterGridProps) {
         </a>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
-        <div className="grid min-w-[900px] grid-cols-[1.4fr_repeat(5,1fr)] text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-          <div className="border-b border-slate-800/60 px-6 py-4">Employee</div>
-          {dayHeaders.map((h) => (
-            <div key={h.isoDate} className="border-b border-l border-slate-800/60 px-4 py-4 text-right">
-              {h.weekDay}
-              <span className="ml-2 text-base font-semibold tracking-normal text-white">
-                {String(h.dayNum).padStart(2, "0")}
-              </span>
-            </div>
-          ))}
-        </div>
-
+      <div className="overflow-x-auto rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
         <div className="min-w-[900px]">
+          <div className="grid grid-cols-[1.4fr_repeat(5,1fr)] text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+            <div className="border-b border-slate-800/60 px-6 py-4">Employee</div>
+            {dayHeaders.map((h) => (
+              <div key={h.isoDate} className="border-b border-l border-slate-800/60 px-4 py-4 text-right">
+                {h.weekDay}
+                <span className="ml-2 text-base font-semibold tracking-normal text-white">
+                  {String(h.dayNum).padStart(2, "0")}
+                </span>
+              </div>
+            ))}
+          </div>
+
           {employees.length === 0 ? (
             <div className="p-6 text-center text-sm font-medium text-slate-500">
               No roster published for this week yet.
