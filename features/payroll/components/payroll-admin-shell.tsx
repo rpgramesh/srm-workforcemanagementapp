@@ -395,7 +395,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
                 className="bg-slate-800 border-slate-700 text-white focus:border-blue-500"
               />
             </Field>
-            <Field label="Staff member" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <Field label="Staff member">
               <Select
                 value={userIdFilter}
                 onChange={(e) => setUserIdFilter(e.target.value)}
@@ -409,7 +409,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
                 ))}
               </Select>
             </Field>
-            <Field label="Filters" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <Field label="Filters">
               <div className="flex flex-wrap items-center gap-1.5 pt-1">
                 {(["pending", "approved", "rejected"] as AttendanceApprovalStatus[]).map((s) => (
                   <button
