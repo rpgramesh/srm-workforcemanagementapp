@@ -184,24 +184,24 @@ export function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit(submit)}
-      className="w-full max-w-sm rounded-3xl border border-slate-800 bg-[#181920] shadow-2xl backdrop-blur-md text-slate-100"
+      className="w-full max-w-sm sm:max-w-md rounded-3xl border border-slate-800 bg-[white] shadow-2xl backdrop-blur-md text-slate-100"
       aria-busy={isAnyLoading}
     >
-      <div className="border-b border-slate-800 px-6 py-5 text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-white">
+      <div className="border-b border-slate-200/80 px-4 py-4 sm:px-6 sm:py-5 text-center">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#3C3F45]">
           Sign In
         </h1>
-        <p className="mt-1 text-xs text-slate-400">
-          Restaurant &amp; Operations Team &middot; Australian Mobile + PIN
+        <p className="mt-1 text-sm sm:text-base text-[#3C3F45]">
+          Restaurant &amp; Operations Team &middot; AU Mobile + PIN
         </p>
       </div>
 
-      <div className="space-y-5 px-6 py-6">
+      <div className="space-y-4 sm:space-y-5 px-4 py-5 sm:px-6 sm:py-6">
         {/* Mobile Number Input */}
         <div className="space-y-2">
           <label
             htmlFor="login-mobile"
-            className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-slate-400"
+            className="flex items-center justify-between text-[15px] font-semibold uppercase tracking-wider text-slate-400"
           >
             <span>Mobile Number</span>
             {mobileOk ? (
@@ -243,8 +243,8 @@ export function LoginForm() {
               disabled={isAnyLoading}
             />
           </div>
-          <p className="text-[11px] text-slate-500">
-            Accepts <code className="text-slate-400 font-mono">04xx xxx xxx</code> or <code className="text-slate-400 font-mono">+61 4xx xxx xxx</code>
+          <p className="text-[12px] text-[#646464]">
+            Accepts <code className="text-[#646464] font-mono">04xx xxx xxx</code> or <code className="text-[#646464] font-mono">+61 4xx xxx xxx</code>
           </p>
           {errors.mobile ? (
             <p className="text-xs text-rose-400">{errors.mobile.message}</p>
@@ -256,14 +256,14 @@ export function LoginForm() {
           <div className="flex items-center justify-between">
             <label
               htmlFor="login-pin"
-              className="text-[11px] font-semibold uppercase tracking-wider text-slate-400"
+              className="text-[15px] font-semibold uppercase tracking-wider text-slate-400"
             >
               Security PIN
             </label>
             <button
               type="button"
               onClick={() => setPinRevealed((v) => !v)}
-              className="text-[11px] font-semibold uppercase tracking-wider text-blue-400 hover:text-blue-300 transition-colors"
+              className="text-[15px] font-semibold uppercase tracking-wider text-blue-400 hover:text-blue-300 transition-colors"
             >
               {pinRevealed ? "Hide" : "Show"}
             </button>
@@ -290,7 +290,7 @@ export function LoginForm() {
                 "w-full rounded-xl border border-slate-800 bg-slate-900/90 py-2.5 pl-10 pr-4 font-mono text-white placeholder-slate-600 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500",
                 pinRevealed ? "tracking-[0.4em]" : "tracking-[0.5em]",
                 pinFieldState.invalid && "border-rose-500/50 focus:border-rose-500 focus:ring-rose-500",
-                pinOk && "border-blue-500/50",
+                pinOk && "border-blue-500/50sa",
               )}
               onKeyDown={(event) => {
                 if (event.ctrlKey || event.metaKey) return;
@@ -340,7 +340,7 @@ export function LoginForm() {
                 )}
               />
             ))}
-            <div className="ml-auto flex items-center gap-2 text-[11px]">
+            <div className="ml-auto flex font-sans text-[12px] text-white items-center gap-2 ">
               {pinOk && !isAnyLoading ? (
                 <span className="flex items-center gap-1 text-blue-400">
                   <CheckCircle2 className="size-3" /> Format OK — verifying
@@ -373,7 +373,7 @@ export function LoginForm() {
               type="button"
               onClick={() => appendDigit(digit)}
               disabled={isAnyLoading}
-              className="flex h-12 items-center justify-center rounded-xl border border-slate-800/80 bg-slate-900/80 text-lg font-semibold text-white transition-all hover:bg-slate-800 hover:border-slate-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-12 items-center justify-center rounded-xl border border-slate-800/80 bg-slate-900 text-lg font-semibold text-white transition-all hover:bg-slate-800 hover:border-slate-700 active:scale-95"
             >
               {digit}
             </button>
@@ -384,7 +384,7 @@ export function LoginForm() {
             onClick={pinValue.length ? removeDigit : clearPin}
             disabled={isAnyLoading}
             aria-label={pinValue.length ? "Remove last PIN digit" : "Clear PIN"}
-            className="flex h-12 items-center justify-center rounded-xl border border-slate-800/80 bg-slate-900/40 text-slate-400 transition-all hover:bg-slate-800 hover:text-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-12 items-center justify-center rounded-xl border border-slate-800/80 bg-slate-900 text-slate-400 transition-all hover:bg-slate-800 hover:text-white active:scale-95"
           >
             <Delete className="size-5" />
           </button>
@@ -402,7 +402,7 @@ export function LoginForm() {
             type="submit"
             disabled={isAnyLoading || !formLikelyValid}
             className={cn(
-              "flex h-12 items-center justify-center rounded-xl transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40",
+              "flex h-12 items-center justify-center rounded-xl transition-all active:scale-95",
               formLikelyValid
                 ? "bg-blue-600 text-white hover:bg-blue-500 shadow-md shadow-blue-600/20"
                 : "border border-blue-500/20 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20",
@@ -420,7 +420,7 @@ export function LoginForm() {
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full justify-center gap-2 rounded-xl bg-blue-600 py-6 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-500 disabled:opacity-40"
+          className="w-full justify-center gap-2 rounded-full bg-blue-600 py-6 text-smd font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 disabled:opacity-100"
           disabled={isAnyLoading || !isDirty || !isValid}
         >
           {isAnyLoading ? (
@@ -436,7 +436,7 @@ export function LoginForm() {
           )}
         </Button>
 
-        <p className="pt-1 text-center text-[11px] leading-relaxed text-slate-500">
+        <p className="pt-1 text-center text-[12px] leading-relaxed text-slate-400">
           After a valid 4-digit PIN is entered, authentication runs automatically.
           Transmission is over HTTPS only, and repeated invalid attempts are rate-limited.
         </p>

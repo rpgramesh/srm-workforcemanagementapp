@@ -149,63 +149,67 @@ export function Calendar({ initialDate, openingHours, departments, users }: Cale
   return (
     <div className="space-y-4">
       {/* Calendar Navigation Toolbar */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              const api = calendarRef.current?.getApi();
-              api?.changeView("timeGridWeek");
-              setActiveView("timeGridWeek");
-            }}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold border transition-all ${activeView === "timeGridWeek"
-                ? "border-blue-500 bg-blue-500/20 text-white"
-                : "border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
+      <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-wrap items-center justify-between sm:justify-start gap-2">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                const api = calendarRef.current?.getApi();
+                api?.changeView("timeGridWeek");
+                setActiveView("timeGridWeek");
+              }}
+              className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 text-xs font-semibold border transition-all ${
+                activeView === "timeGridWeek"
+                  ? "border-blue-500 bg-blue-500/20 text-white"
+                  : "border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
               }`}
-          >
-            <CalendarIcon className="size-3.5" />
-            Weekly
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              const api = calendarRef.current?.getApi();
-              api?.changeView("timeGridDay");
-              setActiveView("timeGridDay");
-            }}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold border transition-all ${activeView === "timeGridDay"
-                ? "border-blue-500 bg-blue-500/20 text-white"
-                : "border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
+            >
+              <CalendarIcon className="size-3.5" />
+              Weekly
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const api = calendarRef.current?.getApi();
+                api?.changeView("timeGridDay");
+                setActiveView("timeGridDay");
+              }}
+              className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 text-xs font-semibold border transition-all ${
+                activeView === "timeGridDay"
+                  ? "border-blue-500 bg-blue-500/20 text-white"
+                  : "border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
               }`}
-          >
-            Daily
-          </button>
-        </div>
+            >
+              Daily
+            </button>
+          </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => calendarRef.current?.getApi()?.prev()}
-            className="rounded-full border border-slate-800 bg-slate-900 p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
-            aria-label="Previous Period"
-          >
-            <ChevronLeft className="size-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => calendarRef.current?.getApi()?.today()}
-            className="rounded-full border border-slate-800 bg-slate-900 px-4 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
-          >
-            Today
-          </button>
-          <button
-            type="button"
-            onClick={() => calendarRef.current?.getApi()?.next()}
-            className="rounded-full border border-slate-800 bg-slate-900 p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
-            aria-label="Next Period"
-          >
-            <ChevronRight className="size-4" />
-          </button>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <button
+              type="button"
+              onClick={() => calendarRef.current?.getApi()?.prev()}
+              className="rounded-full border border-slate-800 bg-slate-900 p-1.5 sm:p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+              aria-label="Previous Period"
+            >
+              <ChevronLeft className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => calendarRef.current?.getApi()?.today()}
+              className="rounded-full border border-slate-800 bg-slate-900 px-3 sm:px-4 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+            >
+              Today
+            </button>
+            <button
+              type="button"
+              onClick={() => calendarRef.current?.getApi()?.next()}
+              className="rounded-full border border-slate-800 bg-slate-900 p-1.5 sm:p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+              aria-label="Next Period"
+            >
+              <ChevronRight className="size-4" />
+            </button>
+          </div>
         </div>
 
         <Button
@@ -214,18 +218,18 @@ export function Calendar({ initialDate, openingHours, departments, users }: Cale
             setSelectedRange(null);
             setIsModalOpen(true);
           }}
-          className="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs px-5 py-2 rounded-full shadow-md flex items-center justify-center gap-2"
+          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs px-5 py-2.5 rounded-full shadow-md flex items-center justify-center gap-2"
         >
           <Edit3 className="size-3.5" />
-          Create / Modify Schedule
+          <span>Create / Modify Schedule</span>
         </Button>
       </div>
 
       {/* Calendar Card Viewport */}
-      <Card className="bg-[#181920] border-slate-800 shadow-xl p-4 text-slate-100 overflow-hidden">
+      <Card className="rounded-3xl border border-slate-800 bg-[#181920]/95 shadow-2xl backdrop-blur-md p-2 sm:p-4 text-slate-100 overflow-x-auto touch-scroll">
         <style>{`
           .fc-header-toolbar { display: none !important; }
-          .fc { --fc-border-color: #272A37; --fc-page-bg-color: transparent; }
+          .fc { --fc-border-color: #272A37; --fc-page-bg-color: transparent; min-width: 600px; }
           .fc-theme-standard td, .fc-theme-standard th { border-color: #272A37 !important; }
           .fc-col-header-cell { background-color: #111218; padding: 10px 0 !important; }
           .fc-col-header-cell-cushion { color: #94A3B8 !important; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; text-decoration: none !important; }

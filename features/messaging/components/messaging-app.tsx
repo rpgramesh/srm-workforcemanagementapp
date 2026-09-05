@@ -229,7 +229,7 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
       }
     } finally {
       setLoadingThread(false);
-      if (window.innerWidth < 768) setSidebarOpen(false);
+      if (typeof window !== "undefined" && window.innerWidth < 1024) setSidebarOpen(false);
     }
   };
 
@@ -492,14 +492,19 @@ export function MessagingApp({ currentUserId, currentRole, initialRecipientId, o
       </aside>
 
       {/* Thread view */}
-      <section className="flex min-h-0 flex-1 flex-col">
+      <section
+        className={clsx(
+          "flex min-h-0 flex-1 flex-col",
+          sidebarOpen && "hidden lg:flex",
+        )}
+      >
         <div className="flex items-center justify-between gap-2 border-b border-slate-200 p-4">
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setSidebarOpen((s) => !s)}
+              onClick={() => setSidebarOpen(true)}
               className="lg:hidden rounded-lg p-2 text-slate-500 hover:bg-white/5 hover:text-slate-900"
-              aria-label="Toggle sidebar"
+              aria-label="Back to conversations"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>

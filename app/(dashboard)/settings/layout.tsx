@@ -77,22 +77,24 @@ export default async function SettingsLayout({
       subtitle="Role-specific account, platform & operational configuration"
       actor={actor}
     >
-      <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
-        <div className="space-y-2.5">
+      <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[240px_1fr] lg:gap-8">
+        {/* Mobile Horizontal Pill Tabs / Desktop Vertical Sidebar */}
+        <div className="flex flex-row overflow-x-auto touch-scroll gap-2 pb-2 lg:flex-col lg:overflow-visible lg:pb-0 lg:space-y-2.5">
           {visibleTabs.map((tab) => {
             const isActive = currentPath.includes(`/settings/${tab.id}`);
             return (
-              <Link key={tab.id} href={tab.href} className="block">
+              <Link key={tab.id} href={tab.href} className="shrink-0 lg:w-full">
                 <div
-                  className={`w-full cursor-pointer rounded-2xl border p-4 text-left backdrop-blur-md transition-all duration-200 ${isActive
-                      ? "border-blue-500/40 bg-blue-600/15 shadow-lg shadow-blue-500/5"
-                      : "border-slate-800/80 bg-[#181920]/80 hover:border-slate-700 hover:bg-slate-800/50"
-                    }`}
+                  className={`rounded-2xl border px-4 py-2.5 lg:p-4 text-left backdrop-blur-md transition-all duration-200 ${
+                    isActive
+                      ? "border-blue-500/40 bg-blue-600/15 shadow-lg shadow-blue-500/5 text-blue-400"
+                      : "border-slate-800/80 bg-[#181920]/80 hover:border-slate-700 hover:bg-slate-800/50 text-slate-300"
+                  }`}
                 >
-                  <div className={`text-sm font-bold ${isActive ? "text-blue-400" : "text-white"}`}>
+                  <div className={`text-xs sm:text-sm font-bold ${isActive ? "text-blue-400" : "text-white"}`}>
                     {tab.label}
                   </div>
-                  <div className="mt-1 text-xs text-slate-400">{tab.description}</div>
+                  <div className="hidden lg:block mt-1 text-xs text-slate-400">{tab.description}</div>
                 </div>
               </Link>
             );

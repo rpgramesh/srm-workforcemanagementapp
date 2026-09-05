@@ -10,21 +10,21 @@ export function WeeklyRosterGrid({ data }: WeeklyRosterGridProps) {
   const { employees, dayHeaders } = data;
   return (
     <section>
-      <div className="mb-4 flex items-center justify-between px-1">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 px-1">
         <div>
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">Weekly Roster</h2>
-          <p className="mt-1 text-sm text-slate-400">Upcoming shifts for this week</p>
+          <h2 className="text-lg sm:text-xl font-semibold tracking-[-0.03em] text-white">Weekly Roster</h2>
+          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-slate-400">Upcoming shifts for this week</p>
         </div>
         <a
           href="/admin/schedule"
-          className="text-sm font-semibold text-slate-400 hover:text-white transition-colors"
+          className="text-xs sm:text-sm font-semibold text-blue-400 sm:text-slate-400 hover:text-white transition-colors"
         >
-          View Full Month
+          View Full Month &rarr;
         </a>
       </div>
 
-      <div className="overflow-x-auto rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
-        <div className="min-w-[900px]">
+      <div className="overflow-x-auto touch-scroll rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
+        <div className="min-w-[860px]">
           <div className="grid grid-cols-[1.4fr_repeat(5,1fr)] text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
             <div className="border-b border-slate-800/60 px-6 py-4">Employee</div>
             {dayHeaders.map((h) => (

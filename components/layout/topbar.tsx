@@ -28,25 +28,25 @@ export function Topbar({ title, subtitle, actor, onSearchOpen, onMenuOpen }: Top
   const initials = actor ? initialsFromName(actor) : "AU";
 
   return (
-    <header className="flex flex-col gap-0 border-b border-white/[0.07] bg-[#060d1f]/80 px-4 py-0 backdrop-blur-xl sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between gap-4 py-4">
+    <header className="sticky top-0 z-30 flex flex-col gap-0 border-b border-white/[0.07] bg-[#060d1f]/85 px-3 sm:px-6 lg:px-8 backdrop-blur-xl">
+      <div className="flex items-center justify-between gap-2.5 sm:gap-4 py-3 sm:py-4">
         {/* Title */}
-        <div className="flex min-w-0 items-center gap-3">
+        <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={onMenuOpen}
-            className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-slate-400 hover:border-white/[0.14] hover:bg-white/[0.07] hover:text-slate-200 lg:hidden"
+            className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-slate-300 hover:border-white/[0.14] hover:bg-white/[0.07] hover:text-white lg:hidden active:scale-95"
             aria-label="Open navigation"
           >
             <Menu className="size-4" />
           </button>
           <div className="min-w-0">
-          <h1 className="text-xl font-bold tracking-[-0.04em] text-white truncate">
-            {title}
-          </h1>
-          {subtitle ? (
-            <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
-          ) : null}
+            <h1 className="text-base sm:text-xl font-bold tracking-[-0.03em] text-white truncate">
+              {title}
+            </h1>
+            {subtitle ? (
+              <p className="text-[11px] sm:text-xs text-slate-400 truncate max-w-[200px] sm:max-w-md mt-0.5">{subtitle}</p>
+            ) : null}
           </div>
         </div>
 

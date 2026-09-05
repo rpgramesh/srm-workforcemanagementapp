@@ -12,6 +12,7 @@ import {
   LogOut,
   Timer,
   Users,
+  X,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { buttonVariants } from "@/components/ui/button";
@@ -92,21 +93,33 @@ export function Sidebar({ role, onNavigate }: SidebarProps) {
   };
 
   return (
-    <aside className="flex h-full w-72 flex-col gap-8 border-r border-white/[0.07] bg-[#070e1c]/95 px-5 py-8 backdrop-blur-xl">
-      {/* Logo */}
-      <div className="space-y-1 px-1">
+    <aside className="flex h-full w-full lg:w-72 flex-col gap-6 lg:gap-8 border-r border-white/[0.07] bg-[#070e1c]/95 px-5 py-6 lg:py-8 backdrop-blur-xl overflow-y-auto touch-scroll">
+      {/* Logo and Mobile Close */}
+      <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-[0_4px_12px_rgba(59,130,246,0.4)] text-white">
             <Timer className="size-5" />
           </div>
           <div>
             <p className="text-[15px] font-bold tracking-[-0.03em] text-white">
-            Noodle Box</p>
+              Noodle Box
+            </p>
             <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-slate-500">
               Management
             </p>
           </div>
         </div>
+
+        {onNavigate ? (
+          <button
+            type="button"
+            onClick={onNavigate}
+            className="flex size-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-slate-400 hover:text-white lg:hidden"
+            aria-label="Close menu"
+          >
+            <X className="size-4" />
+          </button>
+        ) : null}
       </div>
 
       {/* Divider */}

@@ -342,7 +342,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                       type="button"
                       onClick={() => handleDigit(digit)}
                       disabled={isPending}
-                      className="flex h-20 items-center justify-center rounded-3xl border border-slate-800 bg-slate-900/80 text-lg font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
+                      className="flex h-14 sm:h-18 items-center justify-center rounded-2xl sm:rounded-3xl border border-slate-800 bg-slate-900/80 text-base sm:text-lg font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
                     >
                       {digit}
                     </button>
@@ -351,7 +351,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                     type="button"
                     onClick={handleBackspace}
                     disabled={isPending}
-                    className="flex h-20 items-center justify-center rounded-3xl border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
+                    className="flex h-14 sm:h-18 items-center justify-center rounded-2xl sm:rounded-3xl border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
                   >
                     <Delete className="size-5" />
                   </button>
@@ -359,7 +359,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                     type="button"
                     onClick={() => handleDigit("0")}
                     disabled={isPending}
-                    className="flex h-20 items-center justify-center rounded-3xl border border-slate-800 bg-slate-900/80 text-lg font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
+                    className="flex h-14 sm:h-18 items-center justify-center rounded-2xl sm:rounded-3xl border border-slate-800 bg-slate-900/80 text-base sm:text-lg font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
                   >
                     0
                   </button>
@@ -367,7 +367,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                     type="button"
                     onClick={handleSubmit}
                     disabled={isPending}
-                    className="flex h-20 items-center justify-center rounded-3xl bg-blue-600 text-white transition hover:bg-blue-500 active:scale-[0.98] disabled:opacity-60 shadow-lg shadow-blue-600/30"
+                    className="flex h-14 sm:h-18 items-center justify-center rounded-2xl sm:rounded-3xl bg-blue-600 text-white transition hover:bg-blue-500 active:scale-[0.98] disabled:opacity-60 shadow-lg shadow-blue-600/30"
                   >
                     {isPending ? <Clock8 className="size-5 animate-pulse" /> : <ArrowRight className="size-5" />}
                   </button>

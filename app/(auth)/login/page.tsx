@@ -19,28 +19,17 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.12),transparent_24%),radial-gradient(circle_at_top_left,rgba(59,130,246,0.18),transparent_26%)]" />
 
       <div className="relative z-10 flex min-h-screen flex-col">
-        <header className="flex items-center justify-center border-b border-slate-200 px-5 py-4 lg:px-8">
+        <header className="flex items-center justify-center border-b border-slate-200/20 px-4 py-3.5 sm:px-6 sm:py-4 lg:px-8">
           <div>
-            <p className="text-4xl font-semibold tracking-[-0.04em] text-blue-600">
+            <p className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-[-0.03em] text-blue-500 text-center">
               Noodle Box Time Sheet
             </p>
           </div>
-          {/* <div className="flex items-center gap-3">
-            <button className="flex size-10 items-center justify-center rounded-2xl border border-slate-200 bg-white/5 text-slate-900 hover:bg-white/10">
-              <CircleHelp className="size-4" />
-            </button>
-            <button className="flex size-10 items-center justify-center rounded-2xl border border-slate-200 bg-white/5 text-slate-900 hover:bg-white/10">
-              <Settings className="size-4" />
-            </button>
-          </div> */}
         </header>
 
-        <div className="flex flex-1 items-center justify-center px-6 py-10">
-          <div className="flex w-full max-w-6xl flex-col items-center gap-8">
+        <div className="flex flex-1 items-center justify-center px-3 py-6 sm:px-6 sm:py-10">
+          <div className="flex w-full max-w-lg flex-col items-center gap-6">
             <LoginForm />
-            {/* <p className="text-sm text-slate-700">
-              Trusted by 2,000+ establishments worldwide
-            </p> */}
           </div>
         </div>
 

@@ -81,7 +81,6 @@ export async function adminSetAttendanceApproval(
   }
   if (!UUID_RE.test(id)) return { ok: false as const, error: "Invalid id" };
   if (!["pending","approved","rejected"].includes(status)) return { ok: false as const, error: "Invalid status" };
-  if (!isUuid(actor.userId)) return { ok: false as const, error: "Admin approver must be a real user account" };
   try {
     const updated = await operationsRepository.setAttendanceApproval(id, status, actor.userId);
     return { ok: true as const, session: updated };
@@ -97,7 +96,7 @@ export async function adminBulkApproveAttendance(ids: string[]) {
     return { ok: false as const, error: "Not authorised" };
   }
   const validIds = ids.filter((i) => UUID_RE.test(i));
-  if (!isUuid(actor.userId)) return { ok: false as const, error: "Admin approver must be a real user account" };
+  if (validIds.length === 0) return { ok: false as const, error: "No valid session IDs provided" };
   try {
     const count = await operationsRepository.bulkApproveAttendance(validIds, actor.userId);
     return { ok: true as const, count };

@@ -18,24 +18,26 @@ function fmtDayAndDate(isoDate: string): { day: string; dateNum: string } {
 
 export function WeeklyRosterPreview({ shifts, fullMonthHref }: WeeklyRosterPreviewProps) {
   return (
-    <section className="space-y-4 bg-blue-950">
-      <div className="flex items-center justify-between px-1">
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-1">
         <div>
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">Weekly Roster</h2>
-          <p className="mt-1 text-sm text-slate-400">Upcoming shifts for this week</p>
+          <h2 className="text-lg sm:text-xl font-semibold tracking-[-0.03em] text-white">Weekly Roster</h2>
+          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-slate-400">Upcoming shifts for this week</p>
         </div>
-        <button
-          type="button"
-          onClick={fullMonthHref ? () => (window.location.href = fullMonthHref) : undefined}
-          className="rounded-md bg-red/15 px-2 py-0.5 text-[12px] font-bold uppercase tracking-[0.15em] text-red-400 hover:text-red-200 hover:bg-red/20 transition-colors"
-        >
-          View Full Month
-        </button>
+        {fullMonthHref ? (
+          <button
+            type="button"
+            onClick={() => (window.location.href = fullMonthHref)}
+            className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-400 hover:bg-blue-500/20 transition-colors"
+          >
+            View Full Month &rarr;
+          </button>
+        ) : null}
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         {shifts.length === 0 ? (
-          <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md md:col-span-2 xl:col-span-4">
+          <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md grid-cols-1 sm:col-span-2 xl:col-span-4">
             <CardContent className="p-6 text-center text-sm font-medium text-slate-500">
               No upcoming shifts assigned for this week yet.
             </CardContent>

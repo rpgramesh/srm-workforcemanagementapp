@@ -10,13 +10,13 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-blue-600 text-white shadow-[0_2px_16px_rgba(59,130,246,0.35)] hover:bg-blue-500 hover:shadow-[0_4px_20px_rgba(59,130,246,0.45)] active:scale-[0.98]",
+          "bg-blue-600 text-white shadow-lg shadow-blue-600/20 hover:bg-blue-500 hover:shadow-blue-600/30 active:scale-95",
         subtle:
-          "border border-white/10 bg-white/8 text-slate-200 hover:bg-white/12 hover:border-white/16 active:scale-[0.98]",
+          "border border-slate-800 bg-slate-900/90 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-700 active:scale-95",
         ghost:
-          "text-slate-300 hover:bg-white/8 hover:text-slate-100 border border-transparent active:scale-[0.98]",
+          "text-slate-300 hover:bg-slate-800/60 hover:text-white border border-transparent active:scale-95",
         danger:
-          "bg-rose-600/20 border border-rose-500/30 text-rose-300 hover:bg-rose-600/30 hover:border-rose-400/50 active:scale-[0.98]",
+          "bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 hover:border-rose-400/50 active:scale-95",
       },
       size: {
         sm: "h-8 px-4 text-xs",

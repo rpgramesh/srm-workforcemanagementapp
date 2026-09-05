@@ -33,35 +33,39 @@ export function StaffDirectoryGrid({ staff, onAddStaff, onFilter, onMessageStaff
     <section className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-slate-900">Staff Directory</h2>
-          <p className="mt-1 text-sm text-slate-500">
+          <h2 className="text-lg sm:text-xl font-semibold tracking-[-0.03em] text-white">Staff Directory</h2>
+          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-slate-400">
             Manage team roles and schedule compliance.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onFilter}
-            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-white/10"
-          >
-            <Filter className="size-4" />
-            Filter
-          </button>
-          <button
-            type="button"
-            onClick={onAddStaff}
-            className="inline-flex items-center gap-2 rounded-2xl bg-blue-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-blue-600"
-          >
-            <Plus className="size-4" />
-            Add Staff
-          </button>
+          {onFilter ? (
+            <button
+              type="button"
+              onClick={onFilter}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+            >
+              <Filter className="size-4" />
+              Filter
+            </button>
+          ) : null}
+          {onAddStaff ? (
+            <button
+              type="button"
+              onClick={onAddStaff}
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-blue-500 shadow-lg shadow-blue-600/20 transition-all"
+            >
+              <Plus className="size-4" />
+              Add Staff
+            </button>
+          ) : null}
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         {staff.length === 0 ? (
-          <Card className="bg-slate-50/35 sm:col-span-2 xl:col-span-4">
-            <CardContent className="p-10 text-center text-sm text-slate-500">
+          <Card className="border-slate-800 bg-[#181920]/90 grid-cols-1 sm:col-span-2 xl:col-span-4">
+            <CardContent className="p-10 text-center text-sm text-slate-400">
               No staff members are set up yet. Click &quot;Add Staff&quot; to create the first record.
             </CardContent>
           </Card>

@@ -109,10 +109,10 @@ export function StaffManagementShell({ viewerRole }: StaffManagementShellProps) 
   return (
     <div className="space-y-6">
       {/* Dark Theme Header Banner Container */}
-      <div className="flex flex-wrap items-start justify-between gap-4 rounded-3xl border border-slate-800 bg-[#181920]/90 backdrop-blur-md p-6 shadow-2xl text-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 rounded-3xl border border-slate-800 bg-[#181920]/90 backdrop-blur-md p-4 sm:p-6 shadow-2xl text-slate-100">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-white">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
               Staff Directory
             </h1>
             <Badge tone="emerald" size="sm" className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -122,10 +122,10 @@ export function StaffManagementShell({ viewerRole }: StaffManagementShellProps) 
               AUDIT-LOGGED
             </Badge>
           </div>
-          <p className="mt-1.5 text-sm text-slate-400 max-w-2xl">
+          <p className="mt-1 sm:mt-1.5 text-xs sm:text-sm text-slate-400 max-w-2xl">
             Create, filter, and communicate with your team. All edits are permission-checked and recorded.
           </p>
-          <div className="mt-3.5 flex flex-wrap items-center gap-2 text-xs text-slate-400 font-medium">
+          <div className="mt-2.5 sm:mt-3.5 flex flex-wrap items-center gap-2 text-xs text-slate-400 font-medium">
             <span>
               Showing <span className="font-bold text-white">{visibleCount.showing}</span> of{" "}
               <span className="font-bold text-white">{visibleCount.total}</span> records
@@ -136,12 +136,12 @@ export function StaffManagementShell({ viewerRole }: StaffManagementShellProps) 
         </div>
 
         {/* Header Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5 self-stretch sm:self-auto">
           <button
             type="button"
             onClick={() => void refresh()}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3.5 py-2.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all active:scale-[0.98] disabled:opacity-50"
+            className="flex-1 sm:flex-none justify-center inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3 sm:px-3.5 py-2.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all active:scale-[0.98] disabled:opacity-50"
           >
             <RotateCw className={`h-3.5 w-3.5 ${loading ? "animate-spin text-blue-400" : ""}`} />
             <span>Refresh</span>
@@ -158,7 +158,7 @@ export function StaffManagementShell({ viewerRole }: StaffManagementShellProps) 
                 ? "Add a new staff member"
                 : "Staff creation is restricted to managers and above"
             }
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-500 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-blue-600/20"
+            className="flex-1 sm:flex-none justify-center inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3.5 sm:px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-500 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-blue-600/20"
           >
             <UserPlus2 className="h-4 w-4" />
             <span>Add staff</span>

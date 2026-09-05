@@ -8,9 +8,9 @@ type TextAreaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & { inval
 type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & { invalid?: boolean };
 
 const base =
-  "block w-full rounded-xl border border-slate-200 bg-white/5 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 shadow-inner shadow-slate-950/40 transition outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20 disabled:cursor-not-allowed disabled:opacity-50";
+  "block w-full rounded-xl border border-slate-800 bg-slate-900/90 px-4 py-2.5 text-sm font-medium text-white placeholder:text-slate-500 shadow-inner shadow-slate-950/40 transition outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50";
 
-const invalidClass = "border-rose-400/40 focus:border-rose-400/60 focus:ring-rose-400/20";
+const invalidClass = "border-rose-500/50 focus:border-rose-500 focus:ring-rose-500";
 
 export function Field({
   id,
@@ -30,7 +30,7 @@ export function Field({
       {label ? (
         <label
           htmlFor={id}
-          className="block text-xs font-medium uppercase tracking-wider text-slate-500"
+          className="block text-xs font-semibold uppercase tracking-wider text-slate-400"
         >
           {label}
         </label>

@@ -145,12 +145,12 @@ export function ShiftEditorModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
-      <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-[#181920] p-6 shadow-2xl max-h-[90vh] overflow-y-auto text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-3 sm:p-4">
+      <div className="w-full max-w-lg rounded-3xl border border-slate-800 bg-[#181920] p-4 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto touch-scroll text-slate-100">
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-5">
-          <h2 className="text-xl font-bold tracking-tight text-white">
+        <div className="flex items-center justify-between border-b border-slate-800/80 pb-3 sm:pb-4 mb-4 sm:mb-5">
+          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-white">
             {shift ? "Edit Shift" : "Create Shifts"}
           </h2>
           <button

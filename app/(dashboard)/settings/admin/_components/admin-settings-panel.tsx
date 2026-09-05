@@ -533,8 +533,8 @@ export function AdminSettingsPanel({ actorRole: _actorRole, staffCount, roleDist
           </div>
         </CardHeader>
         <CardContent className="pt-6">
-          <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/40">
-            <table className="w-full min-w-[720px] border-collapse text-xs">
+          <div className="overflow-x-auto touch-scroll rounded-2xl border border-slate-800 bg-slate-900/40">
+            <table className="w-full min-w-[680px] border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-800 bg-slate-900/80">
                   <th className="py-3 px-4 text-left font-semibold uppercase tracking-wider text-slate-400">Permission</th>

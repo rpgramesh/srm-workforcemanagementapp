@@ -24,10 +24,14 @@
   --border-strong: rgba(255, 255, 255, 0.14);
 
   --panel: #ffffff;
-  --panel-border: rgba(255, 255, 255, 0.08);
+  --panel-border: rgba(238, 202, 202, 0.08);
 
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
   --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.25);
+}
+
+.border-slate-800 {
+  border-color: var(--color-slate-800);
 }
 
 @theme inline {
@@ -73,7 +77,7 @@ button {
 
 /* ===== FullCalendar Dark Theme Overrides ===== */
 .fc {
-  --fc-border-color: rgba(255, 255, 255, 0.08);
+  --fc-border-color: rgba(229, 235, 238, 0.129);
   --fc-today-bg-color: rgba(59, 130, 246, 0.06);
   --fc-now-indicator-color: #3b82f6;
   --fc-highlight-color: rgba(59, 130, 246, 0.12);
@@ -84,7 +88,7 @@ button {
 .fc-theme-standard td,
 .fc-theme-standard th,
 .fc-theme-standard .fc-scrollgrid {
-  border-color: rgba(255, 255, 255, 0.07) !important;
+  border-color: rgba(145, 208, 210, 0.912) !important;
 }
 
 .fc-col-header-cell {
@@ -232,64 +236,49 @@ button {
   }
 
   .shift-row .day-label {
-    display: none; /* Hide date labels inside rows on desktop */
+    display: none;
+    /* Hide date labels inside rows on desktop */
   }
 }
 
 /* Mobile View Only */
 @media (max-width: 767px) {
   .roster-header {
-    display: none; /* Hide top table header on mobile */
+    display: none;
+    /* Hide top table header on mobile */
   }
 }
 
-/* Sidebar default desktop styling */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 256px;
-  background-color: #0f172a;
-  border-right: 1px solid #1e293b;
-  transition: transform 0.3s ease-in-out;
-  z-index: 50;
+/* Mobile smooth touch scrolling & safe area utilities */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
-/* Hide mobile header on desktop */
-.mobile-header {
-  display: none;
+/* Custom subtle scrollbar for mobile overflow containers */
+.touch-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
 }
 
-/* Mobile Screen Breakpoint (< 1024px) */
-@media (max-width: 1023px) {
-  .mobile-header {
-    display: flex;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 64px;
-    background-color: #0f172a;
-    border-bottom: 1px solid #1e293b;
-    padding: 0 16px;
-    align-items: center;
-    justify-content: space-between;
-    z-index: 40;
-  }
+.touch-scroll::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 9999px;
+}
 
-  /* Slide sidebar off-screen by default on mobile */
-  .sidebar {
-    transform: translateX(-100%);
-  }
+.touch-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+}
 
-  /* Add class .open via JavaScript to slide in */
-  .sidebar.open {
-    transform: translateX(0);
-  }
+.touch-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
+}
 
-  .main-content {
-    padding-top: 64px; /* Push content below top mobile bar */
-    padding-left: 0;
-  }
+/* Safe area padding utilities for modern mobile notches / home bars */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0rem);
 }

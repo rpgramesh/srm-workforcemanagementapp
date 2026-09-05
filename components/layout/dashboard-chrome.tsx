@@ -55,12 +55,14 @@ export function DashboardChrome({ title, subtitle, children, actor }: DashboardC
       />
       {/* <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-md pointer-events-none" /> */}
       <div className="mx-auto flex min-h-screen max-w-[1440px]">
-        <div className="hidden lg:block">
+        <div className="hidden lg:block shrink-0">
           <Sidebar role={actor?.role} />
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar title={title} subtitle={subtitle} actor={actor} onSearchOpen={openSearch} onMenuOpen={() => setMobileNavOpen(true)} />
-          <div className="min-h-[calc(100vh-4rem)] flex-1 border-r border-slate-800/80 px-4 py-6 sm:px-6 sm:py-8 lg:px-10">{children}</div>
+          <main className="min-h-[calc(100vh-4rem)] flex-1 px-3 py-4 sm:px-6 sm:py-8 lg:px-10 pb-safe">
+            {children}
+          </main>
         </div>
       </div>
 
@@ -68,11 +70,11 @@ export function DashboardChrome({ title, subtitle, children, actor }: DashboardC
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
           <button
             type="button"
-            className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
             onClick={() => setMobileNavOpen(false)}
             aria-label="Close navigation"
           />
-          <div className="relative h-full w-[min(18rem,86vw)] shadow-2xl shadow-black/50">
+          <div className="relative h-full w-[min(19rem,88vw)] max-w-sm shadow-2xl shadow-black/80 animate-in slide-in-from-left duration-250">
             <Sidebar role={actor?.role} onNavigate={() => setMobileNavOpen(false)} />
           </div>
         </div>

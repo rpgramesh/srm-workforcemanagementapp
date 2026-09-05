@@ -41,10 +41,10 @@ export function Modal({ open, onClose, title, subtitle, children, size = "md", f
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:p-8">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto touch-scroll p-2 sm:p-6">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-md"
+        className="fixed inset-0 bg-black/70 backdrop-blur-md"
         onClick={onClose}
         aria-hidden
       />
@@ -54,12 +54,12 @@ export function Modal({ open, onClose, title, subtitle, children, size = "md", f
         aria-modal="true"
         aria-label={title}
         className={clsx(
-          "relative z-10 w-full my-8 rounded-2xl border border-white/[0.08] bg-[#0d1526] shadow-[0_24px_80px_rgba(0,0,0,0.7)] ring-1 ring-white/[0.04]",
+          "relative z-10 w-full my-3 sm:my-8 rounded-2xl border border-white/[0.08] bg-[#0d1526] shadow-[0_24px_80px_rgba(0,0,0,0.7)] ring-1 ring-white/[0.04] max-h-[92vh] flex flex-col",
           SIZE_CLASS[size],
         )}
       >
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] px-6 py-5">
+        <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] px-4 py-4 sm:px-6 sm:py-5">
           <div className="min-w-0 flex-1">
             <h2 className="text-lg font-semibold tracking-[-0.02em] text-slate-100">{title}</h2>
             {subtitle ? (
@@ -76,10 +76,10 @@ export function Modal({ open, onClose, title, subtitle, children, size = "md", f
           </button>
         </div>
         {/* Body */}
-        <div className="max-h-[calc(100vh-200px)] overflow-y-auto px-6 py-5">{children}</div>
+        <div className="flex-1 overflow-y-auto touch-scroll px-4 py-4 sm:px-6 sm:py-5">{children}</div>
         {/* Footer */}
         {footer ? (
-          <div className="flex items-center justify-end gap-3 border-t border-white/[0.07] bg-white/[0.02] px-6 py-4 rounded-b-2xl">
+          <div className="flex flex-wrap items-center justify-end gap-2.5 sm:gap-3 border-t border-white/[0.07] bg-white/[0.02] px-4 py-3 sm:px-6 sm:py-4 rounded-b-2xl">
             {footer}
           </div>
         ) : null}

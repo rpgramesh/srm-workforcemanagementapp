@@ -11,7 +11,7 @@ interface RosterSummaryCardsProps {
 
 export function RosterSummaryCards({ summary }: RosterSummaryCardsProps) {
   return (
-    <section className="grid gap-4 lg:grid-cols-4">
+    <section className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       {summary.map((metric) => {
         // High-contrast, vibrant text colors suited for the dark surface (#181920)
         const accentClass =
