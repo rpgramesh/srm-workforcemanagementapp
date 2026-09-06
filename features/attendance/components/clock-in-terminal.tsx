@@ -48,11 +48,9 @@ function fmtDateTime(iso: string) {
     const weekday = DAYS[d.getDay()];
     const month = MONTHS[d.getMonth()];
     const day = d.getDate();
-    const hours = d.getHours();
+    const hours = String(d.getHours()).padStart(2, "0");
     const minutes = String(d.getMinutes()).padStart(2, "0");
-    const ampm = hours < 12 ? "am" : "pm";
-    const h12 = hours % 12 || 12;
-    return `${weekday}, ${day} ${month} at ${h12}:${minutes} ${ampm}`;
+    return `${weekday}, ${day} ${month} at ${hours}:${minutes}`;
   } catch {
     return iso;
   }
@@ -60,7 +58,13 @@ function fmtDateTime(iso: string) {
 
 function fmtDate(iso: string) {
   try {
-    return new Date(iso).toLocaleDateString("en-AU", { year: "numeric", month: "short", day: "numeric" });
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const day = d.getDate();
+    const month = MONTHS[d.getMonth()];
+    const year = d.getFullYear();
+    return `${day} ${month} ${year}`;
   } catch {
     return iso;
   }
@@ -82,7 +86,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
   const [manualNote, setManualNote] = useState("");
   const [isPendingManual, startManualTransition] = useTransition();
 
-  // Populate date default once on client (avoids SSR mismatch)
+  // Populate date and time defaults once on client (avoids SSR mismatch)
   useEffect(() => {
     if (manualDate === "") {
       const d = new Date();
@@ -90,8 +94,10 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
       const mm = String(d.getMonth() + 1).padStart(2, "0");
       const dd = String(d.getDate()).padStart(2, "0");
       setManualDate(`${yyyy}-${mm}-${dd}`);
+      if (!manualIn) setManualIn("09:00");
+      if (!manualOut) setManualOut("17:00");
     }
-  }, [manualDate]);
+  }, [manualDate, manualIn, manualOut]);
 
   useEffect(() => {
     if (initialUserId) {
@@ -143,11 +149,28 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
       return;
     }
     startManualTransition(async () => {
-      const inDate = new Date(`${manualDate}T${manualIn}:00`);
-      const outDate = new Date(`${manualDate}T${manualOut}:00`);
+      // Ensure HH:mm formatting with 2-digit padding
+      const padTime = (t: string, defaultVal: string) => {
+        const parts = (t || defaultVal).split(":");
+        const h = (parts[0] || "00").padStart(2, "0");
+        const m = (parts[1] || "00").padStart(2, "0");
+        return `${h}:${m}`;
+      };
 
-      const inStr = inDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-      const outStr = outDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+      const cleanIn = padTime(manualIn, "09:00");
+      const cleanOut = padTime(manualOut, "17:00");
+
+      const inDate = new Date(`${manualDate}T${cleanIn}:00`);
+      let outDate = new Date(`${manualDate}T${cleanOut}:00`);
+
+      // If clock-out is earlier than or equal to clock-in on the same date,
+      // it is an overnight shift crossing midnight into the next day.
+      if (outDate <= inDate) {
+        outDate = new Date(outDate.getTime() + 24 * 60 * 60 * 1000);
+      }
+
+      const inStr = inDate.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+      const outStr = outDate.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
       const dStr = inDate.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
 
       const result = await logShiftManually({
@@ -190,14 +213,14 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
     <div className="grid min-w-0 gap-6 xl:grid-cols-[0.95fr_1.15fr]">
       {/* Keypad & Terminal Container */}
       <div className="min-w-0 space-y-6">
-        <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
+        <Card className="rounded-3xl border-2 border-primary/80 bg-white shadow-2xl backdrop-blur-md">
           <CardContent className="min-w-0 p-4 sm:p-8">
             <div className="space-y-6">
 
               {/* ── Mode header ── */}
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-sm font-semibold text-black">
                     {manualMode ? "Log Shift Manually" : "Enter PIN"}
                   </p>
                   <p className="text-xs text-slate-400">
@@ -208,10 +231,10 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                   type="button"
                   onClick={() => setManualMode((v) => !v)}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition",
+                    "flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition cursor-pointer",
                     manualMode
                       ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
-                      : "border-slate-800 bg-slate-900/80 text-slate-400 hover:bg-slate-800 hover:text-white",
+                      : "border-primary bg-primary text-white ",
                   )}
                 >
                   {manualMode ? <><X className="size-3" /> Cancel</> : <><Pencil className="size-3" /> Log Manually</>}
@@ -244,7 +267,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                         type="button"
                         onClick={() => handleDigit(digit)}
                         disabled={isPendingManual}
-                        className="flex h-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 text-base font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
+                        className="flex h-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 text-base font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
                       >
                         {digit}
                       </button>
@@ -253,7 +276,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                       type="button"
                       onClick={handleBackspace}
                       disabled={isPendingManual}
-                      className="flex h-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
+                      className="flex h-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
                     >
                       <Delete className="size-4" />
                     </button>
@@ -261,7 +284,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                       type="button"
                       onClick={() => handleDigit("0")}
                       disabled={isPendingManual}
-                      className="flex h-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 text-base font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
+                      className="flex h-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 text-base font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
                     >
                       0
                     </button>
@@ -278,29 +301,139 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                         max={new Date().toISOString().slice(0, 10)}
                         onChange={(e) => setManualDate(e.target.value)}
                         disabled={isPendingManual}
-                        className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 disabled:opacity-60 [color-scheme:dark]"
+                        className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 disabled:opacity-60 [color-scheme:dark] cursor-pointer"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Clock In</label>
-                        <input
-                          type="time"
-                          value={manualIn}
-                          onChange={(e) => setManualIn(e.target.value)}
-                          disabled={isPendingManual}
-                          className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 disabled:opacity-60 [color-scheme:dark]"
-                        />
+                        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                          Clock In <span className="text-slate-500 font-normal lowercase">(24h - HH:mm)</span>
+                        </label>
+                        <div className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white focus-within:border-blue-500">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={2}
+                            placeholder="09"
+                            value={manualIn ? manualIn.split(":")[0] : ""}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, "");
+                              if (val === "") {
+                                const min = manualIn ? manualIn.split(":")[1] || "00" : "00";
+                                setManualIn(`:${min}`);
+                                return;
+                              }
+                              const num = parseInt(val, 10);
+                              if (num >= 0 && num <= 23) {
+                                const min = manualIn ? manualIn.split(":")[1] || "00" : "00";
+                                setManualIn(`${val}:${min}`);
+                              }
+                            }}
+                            onBlur={() => {
+                              const parts = (manualIn || "").split(":");
+                              const h = parts[0] ? parts[0].padStart(2, "0") : "09";
+                              const m = parts[1] ? parts[1].padStart(2, "0") : "00";
+                              setManualIn(`${h}:${m}`);
+                            }}
+                            disabled={isPendingManual}
+                            className="w-8 bg-transparent text-center font-mono font-medium outline-none placeholder:text-slate-600 disabled:opacity-60"
+                          />
+                          <span className="text-slate-500 font-bold">:</span>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={2}
+                            placeholder="00"
+                            value={manualIn && manualIn.includes(":") ? manualIn.split(":")[1] : ""}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, "");
+                              if (val === "") {
+                                const hr = manualIn ? manualIn.split(":")[0] || "09" : "09";
+                                setManualIn(`${hr}:`);
+                                return;
+                              }
+                              const num = parseInt(val, 10);
+                              if (num >= 0 && num <= 59) {
+                                const hr = manualIn ? manualIn.split(":")[0] || "09" : "09";
+                                setManualIn(`${hr}:${val}`);
+                              }
+                            }}
+                            onBlur={() => {
+                              const parts = (manualIn || "").split(":");
+                              const h = parts[0] ? parts[0].padStart(2, "0") : "09";
+                              const m = parts[1] ? parts[1].padStart(2, "0") : "00";
+                              setManualIn(`${h}:${m}`);
+                            }}
+                            disabled={isPendingManual}
+                            className="w-8 bg-transparent text-center font-mono font-medium outline-none placeholder:text-slate-600 disabled:opacity-60"
+                          />
+                          <span className="ml-auto text-[10px] font-semibold uppercase text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">24H</span>
+                        </div>
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Clock Out</label>
-                        <input
-                          type="time"
-                          value={manualOut}
-                          onChange={(e) => setManualOut(e.target.value)}
-                          disabled={isPendingManual}
-                          className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 disabled:opacity-60 [color-scheme:dark]"
-                        />
+                        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                          Clock Out <span className="text-slate-500 font-normal lowercase">(24h - HH:mm)</span>
+                        </label>
+                        <div className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white focus-within:border-blue-500">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={2}
+                            placeholder="17"
+                            value={manualOut ? manualOut.split(":")[0] : ""}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, "");
+                              if (val === "") {
+                                const min = manualOut ? manualOut.split(":")[1] || "00" : "00";
+                                setManualOut(`:${min}`);
+                                return;
+                              }
+                              const num = parseInt(val, 10);
+                              if (num >= 0 && num <= 23) {
+                                const min = manualOut ? manualOut.split(":")[1] || "00" : "00";
+                                setManualOut(`${val}:${min}`);
+                              }
+                            }}
+                            onBlur={() => {
+                              const parts = (manualOut || "").split(":");
+                              const h = parts[0] ? parts[0].padStart(2, "0") : "17";
+                              const m = parts[1] ? parts[1].padStart(2, "0") : "00";
+                              setManualOut(`${h}:${m}`);
+                            }}
+                            disabled={isPendingManual}
+                            className="w-8 bg-transparent text-center font-mono font-medium outline-none placeholder:text-slate-600 disabled:opacity-60"
+                          />
+                          <span className="text-slate-500 font-bold">:</span>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={2}
+                            placeholder="00"
+                            value={manualOut && manualOut.includes(":") ? manualOut.split(":")[1] : ""}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, "");
+                              if (val === "") {
+                                const hr = manualOut ? manualOut.split(":")[0] || "17" : "17";
+                                setManualOut(`${hr}:`);
+                                return;
+                              }
+                              const num = parseInt(val, 10);
+                              if (num >= 0 && num <= 59) {
+                                const hr = manualOut ? manualOut.split(":")[0] || "17" : "17";
+                                setManualOut(`${hr}:${val}`);
+                              }
+                            }}
+                            onBlur={() => {
+                              const parts = (manualOut || "").split(":");
+                              const h = parts[0] ? parts[0].padStart(2, "0") : "17";
+                              const m = parts[1] ? parts[1].padStart(2, "0") : "00";
+                              setManualOut(`${h}:${m}`);
+                            }}
+                            disabled={isPendingManual}
+                            className="w-8 bg-transparent text-center font-mono font-medium outline-none placeholder:text-slate-600 disabled:opacity-60"
+                          />
+                          <span className="ml-auto text-[10px] font-semibold uppercase text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">24H</span>
+                        </div>
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -410,7 +543,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
       <div className="min-w-0 space-y-6">
         <div className="grid min-w-0 gap-4 sm:grid-cols-2">
           {/* Current Status */}
-          <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
+          <Card className="rounded-3xl border border-slate-800 bg-white shadow-2xl backdrop-blur-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-800/60">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Current Status</p>
               {currentSession ? (
@@ -435,7 +568,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
           </Card>
 
           {/* Today's Earnings */}
-          <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
+          <Card className="rounded-3xl border border-slate-800  bg-white shadow-2xl backdrop-blur-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-800/60">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Today&apos;s Earnings</p>
               <TrendingUp className="size-4 text-blue-400" />
@@ -456,12 +589,12 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
         </div>
 
         {/* Pay Period Summary */}
-        <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
+        <Card className="rounded-3xl border border-slate-800  bg-white shadow-2xl backdrop-blur-md">
           <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-slate-800/60">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Pay Period</p>
               <p className="text-sm font-medium text-slate-300">
-                {fmtDate(periodStart)} → {fmtDate(periodEnd)}
+                {`${fmtDate(periodStart)} → ${fmtDate(periodEnd)}`}
               </p>
             </div>
             <div className="text-right">
@@ -490,7 +623,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
         </Card>
 
         {/* Clock History */}
-        <Card className="rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
+        <Card className="rounded-3xl border border-slate-800  bg-white shadow-2xl backdrop-blur-md">
           <CardHeader className="flex items-center justify-between pb-2 border-b border-slate-800/60">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Clock History</p>

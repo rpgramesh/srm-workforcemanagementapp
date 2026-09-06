@@ -5,7 +5,7 @@ import { AppProviders } from "@/components/providers/app-providers";
 
 const inter = Inter({
   variable: "--font-inter",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -25,7 +25,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: "cover",
-  themeColor: "#020617",
+  themeColor: "#cfd4eaff",
 };
 
 export default function RootLayout({
