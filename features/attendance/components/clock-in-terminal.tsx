@@ -220,7 +220,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
               {/* ── Mode header ── */}
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <p className="text-sm font-semibold text-black">
+                  <p className="text-sm font-semibold text-slate-900">
                     {manualMode ? "Log Shift Manually" : "Enter PIN"}
                   </p>
                   <p className="text-xs text-slate-400">
@@ -267,7 +267,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                         type="button"
                         onClick={() => handleDigit(digit)}
                         disabled={isPendingManual}
-                        className="flex h-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 text-base font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                        className="flex h-14 items-center justify-center rounded-2xl border border-primary/80 bg-slate-900/80 text-base font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
                       >
                         {digit}
                       </button>
@@ -276,7 +276,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                       type="button"
                       onClick={handleBackspace}
                       disabled={isPendingManual}
-                      className="flex h-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                      className="flex h-14 items-center justify-center rounded-2xl border border-primary/80 bg-slate-900/80 text-slate-400 hover:text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
                     >
                       <Delete className="size-4" />
                     </button>
@@ -284,7 +284,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                       type="button"
                       onClick={() => handleDigit("0")}
                       disabled={isPendingManual}
-                      className="flex h-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/80 text-base font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                      className="flex h-14 items-center justify-center rounded-2xl border border-primary/80 bg-slate-900/80 text-base font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
                     >
                       0
                     </button>
@@ -292,24 +292,24 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                   </div>
 
                   {/* Shift date/time fields */}
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
+                  <div className="rounded-2xl border border-primary/80 bg-slate-900/60 p-4 space-y-3 text-black bg-white">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Date</label>
+                      <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-700">Date</label>
                       <input
                         type="date"
                         value={manualDate}
                         max={new Date().toISOString().slice(0, 10)}
                         onChange={(e) => setManualDate(e.target.value)}
                         disabled={isPendingManual}
-                        className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 disabled:opacity-60 [color-scheme:dark] cursor-pointer"
+                        className="w-full rounded-xl border border-primary/80 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-blue-500 disabled:opacity-60 [color-scheme:dark] cursor-pointer"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3" >
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-700">
                           Clock In <span className="text-slate-500 font-normal lowercase">(24h - HH:mm)</span>
                         </label>
-                        <div className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white focus-within:border-blue-500">
+                        <div className="flex items-center gap-1.5 rounded-xl border border-primary/80 bg-slate-900 px-3 py-2 text-sm text-white focus-within:border-blue-500">
                           <input
                             type="text"
                             inputMode="numeric"
@@ -338,7 +338,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                             disabled={isPendingManual}
                             className="w-8 bg-transparent text-center font-mono font-medium outline-none placeholder:text-slate-600 disabled:opacity-60"
                           />
-                          <span className="text-slate-500 font-bold">:</span>
+                          <span className="text-slate-700 font-bold">:</span>
                           <input
                             type="text"
                             inputMode="numeric"
@@ -365,16 +365,16 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                               setManualIn(`${h}:${m}`);
                             }}
                             disabled={isPendingManual}
-                            className="w-8 bg-transparent text-center font-mono font-medium outline-none placeholder:text-slate-600 disabled:opacity-60"
+                            className="w-8 bg-transparent text-center font-mono font-medium outline-none placeholder:text-slate-700 disabled:opacity-60"
                           />
                           <span className="ml-auto text-[10px] font-semibold uppercase text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">24H</span>
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                        <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-700">
                           Clock Out <span className="text-slate-500 font-normal lowercase">(24h - HH:mm)</span>
                         </label>
-                        <div className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white focus-within:border-blue-500">
+                        <div className="flex items-center gap-1.5 rounded-xl border border-primary/80 bg-slate-900 px-3 py-2 text-sm text-white focus-within:border-blue-500">
                           <input
                             type="text"
                             inputMode="numeric"
@@ -445,7 +445,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                         placeholder="e.g. forgot to clock in"
                         onChange={(e) => setManualNote(e.target.value)}
                         disabled={isPendingManual}
-                        className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500 disabled:opacity-60"
+                        className="w-full rounded-xl border border-primary/80 bg-slate-900 px-3 py-2 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500 disabled:opacity-60"
                       />
                     </div>
                   </div>
@@ -475,7 +475,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                       type="button"
                       onClick={() => handleDigit(digit)}
                       disabled={isPending}
-                      className="flex h-14 sm:h-18 items-center justify-center rounded-2xl sm:rounded-3xl border border-slate-800 bg-slate-900/80 text-base sm:text-lg font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
+                      className="flex h-14 sm:h-18 items-center justify-center rounded-2xl sm:rounded-3xl border border-primary/80 bg-slate-900/80 text-base sm:text-lg font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
                     >
                       {digit}
                     </button>
@@ -484,7 +484,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                     type="button"
                     onClick={handleBackspace}
                     disabled={isPending}
-                    className="flex h-14 sm:h-18 items-center justify-center rounded-2xl sm:rounded-3xl border border-slate-800 bg-slate-900/80 text-slate-400 hover:text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
+                    className="flex h-14 sm:h-18 items-center justify-center rounded-2xl sm:rounded-3xl border border-primary/80 bg-slate-900/80 text-slate-400 hover:text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
                   >
                     <Delete className="size-5" />
                   </button>
@@ -492,7 +492,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                     type="button"
                     onClick={() => handleDigit("0")}
                     disabled={isPending}
-                    className="flex h-14 sm:h-18 items-center justify-center rounded-2xl sm:rounded-3xl border border-slate-800 bg-slate-900/80 text-base sm:text-lg font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
+                    className="flex h-14 sm:h-18 items-center justify-center rounded-2xl sm:rounded-3xl border border-primary/80 bg-slate-900/80 text-base sm:text-lg font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60"
                   >
                     0
                   </button>
@@ -543,15 +543,15 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
       <div className="min-w-0 space-y-6">
         <div className="grid min-w-0 gap-4 sm:grid-cols-2">
           {/* Current Status */}
-          <Card className="rounded-3xl border border-slate-800 bg-white shadow-2xl backdrop-blur-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-800/60">
+          <Card className="rounded-3xl border border-primary/80 bg-white shadow-2xl backdrop-blur-md">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-primary/80/60">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Current Status</p>
               {currentSession ? (
                 <Badge tone="emerald" size="sm">
                   On Duty
                 </Badge>
               ) : (
-                <Badge tone="neutral" size="sm" className="bg-slate-800 text-slate-400 border border-slate-700">
+                <Badge tone="neutral" size="sm" className="bg-red-500/30 text-red-500/90 border border-red-500/60">
                   Off Duty
                 </Badge>
               )}
@@ -559,26 +559,26 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
             <CardContent className="space-y-3 pt-4">
               <div className="flex items-center gap-2">
                 <Clock10 className="size-5 text-slate-400" />
-                <p className="text-sm font-medium text-slate-400">Shift Started</p>
+                <p className="text-lg font-semibold text-slate-400">Shift Started</p>
               </div>
-              <p className="text-lg font-bold text-white">
+              <p className="text-lg text-right text-slate-600 font-semibold">
                 {currentSession ? fmtDateTime(currentSession.clockedInAt) : "—"}
               </p>
             </CardContent>
           </Card>
 
           {/* Today's Earnings */}
-          <Card className="rounded-3xl border border-slate-800  bg-white shadow-2xl backdrop-blur-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-800/60">
+          <Card className="rounded-3xl border border-primary/80  bg-white shadow-2xl backdrop-blur-md">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-primary/80/60">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Today&apos;s Earnings</p>
               <TrendingUp className="size-4 text-blue-400" />
             </CardHeader>
             <CardContent className="space-y-3 pt-4">
-              <p className="text-3xl font-bold text-white">{formatCurrency(todayEarnings)}</p>
+              <p className="text-3xl font-bold text-slate-600">{formatCurrency(todayEarnings)}</p>
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-slate-400 font-medium">Hours Worked</p>
-                  <p className="text-sm font-semibold text-slate-200">{fmtHM(todayMin)}</p>
+                  <p className="text-xs uppercase tracking-wider text-slate-600 font-medium">Hours Worked</p>
+                  <p className="text-sm font-semibold text-slate-600">{fmtHM(todayMin)}</p>
                 </div>
                 <Badge tone="emerald" size="sm">
                   {rate != null ? `${formatCurrency(rate)}/hr` : "No rate"}
@@ -589,8 +589,8 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
         </div>
 
         {/* Pay Period Summary */}
-        <Card className="rounded-3xl border border-slate-800  bg-white shadow-2xl backdrop-blur-md">
-          <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-slate-800/60">
+        <Card className="rounded-3xl border border-primary/80  bg-white shadow-2xl backdrop-blur-md">
+          <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-primary/80/60">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Pay Period</p>
               <p className="text-sm font-medium text-slate-300">
@@ -604,17 +604,17 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
           </CardHeader>
           <CardContent className="pt-4">
             <dl className="grid grid-cols-3 gap-4 text-center">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-3">
+              <div className="rounded-2xl border border-primary/80 bg-slate-900/60 p-3">
                 <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Hours</dt>
                 <dd className="mt-1 text-lg font-bold text-white">{fmtHM(periodMinutes)}</dd>
               </div>
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-3">
+              <div className="rounded-2xl border border-primary/80 bg-slate-900/60 p-3">
                 <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Sessions</dt>
                 <dd className="mt-1 text-lg font-bold text-white">{history.length}</dd>
               </div>
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-3">
+              <div className="rounded-2xl border border-primary/80 bg-slate-900/60 p-3">
                 <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Hourly Rate</dt>
-                <dd className="mt-1 text-lg font-bold text-white">
+                <dd className="mt-1 text-lg font-bold">
                   {rate != null ? formatCurrency(rate) : "—"}
                 </dd>
               </div>
@@ -622,9 +622,9 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
           </CardContent>
         </Card>
 
-        {/* Clock History */}
-        <Card className="rounded-3xl border border-slate-800  bg-white shadow-2xl backdrop-blur-md">
-          <CardHeader className="flex items-center justify-between pb-2 border-b border-slate-800/60">
+        {/* Clock ristory */}
+        <Card className="rounded-3xl border border-primary/80  bg-white shadow-2xl backdrop-blur-md">
+          <CardHeader className="flex items-center justify-between pb-2 border-b border-primary/80/60">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Clock History</p>
               <p className="text-sm font-medium text-slate-300">Your recent clock-in / clock-out records</p>
@@ -650,14 +650,14 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                           "flex size-10 shrink-0 items-center justify-center rounded-2xl border",
                           isOpen
                             ? "border-blue-500/30 bg-blue-500/10 text-blue-400"
-                            : "border-slate-800 bg-slate-900 text-slate-400",
+                            : "border-primary/80 bg-slate-900 text-slate-400",
                         )}
                       >
                         {isOpen ? <Clock8 className="size-4" /> : <CheckCircle2 className="size-4" />}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-semibold text-white">{fmtDateTime(s.clockedInAt)}</p>
+                          <p className="truncate text-sm font-semibold text-slate-600">{fmtDateTime(s.clockedInAt)}</p>
                           {s.approvalStatus === "approved" ? (
                             <Badge tone="emerald" size="sm">Approved</Badge>
                           ) : s.approvalStatus === "rejected" ? (
@@ -673,7 +673,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                       </div>
                       <div className="text-right">
                         {gross != null ? (
-                          <p className="text-sm font-bold text-white">{formatCurrency(gross)}</p>
+                          <p className="text-sm font-bold text-slate-600">{formatCurrency(gross)}</p>
                         ) : (
                           <p className="text-xs font-medium text-slate-500">{isOpen ? "In progress" : "No rate"}</p>
                         )}
