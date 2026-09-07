@@ -19,7 +19,7 @@ export default async function AdminSchedulePage() {
   if (!isAdminDashboardRole(actor.role) && !isSupervisorDashboardRole(actor.role)) {
     redirect("/schedule");
   }
-  
+
   const [summary, openingHours, departments, users] = await Promise.all([
     getRosterSummaryCards(),
     getOpeningHours(),
@@ -39,8 +39,8 @@ export default async function AdminSchedulePage() {
       actor={actor}
     >
       <div className="space-y-8">
-        <RosterSummaryCards summary={summary} />
-        
+        {/* <RosterSummaryCards summary={summary} /> */}
+
         <div className="mt-8">
           <Calendar
             initialDate={today.toISOString()}

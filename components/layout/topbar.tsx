@@ -24,7 +24,8 @@ interface TopbarProps {
 }
 
 export function Topbar({ title, subtitle, actor, onSearchOpen, onMenuOpen }: TopbarProps) {
-  const fullLabel = actor ? formatUserLabel(actor) : "Admin User (Floor Manager)";
+  // const fullLabel = actor ? formatUserLabel(actor) : "Admin User (Floor Manager)";
+  const fullLabel = "User";
   const initials = actor ? initialsFromName(actor) : "AU";
 
   return (
@@ -79,9 +80,9 @@ export function Topbar({ title, subtitle, actor, onSearchOpen, onMenuOpen }: Top
           </button>
 
           {/* Notifications */}
-          <div className="flex size-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-slate-400 transition-all hover:border-white/[0.14] hover:bg-white/[0.07] hover:text-slate-200">
+          {/* <div className="flex size-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-slate-400 transition-all hover:border-white/[0.14] hover:bg-white/[0.07] hover:text-slate-200">
             <NotificationBell actorUserId={actor?.userId ?? undefined} />
-          </div>
+          </div> */}
 
           {/* Settings */}
           <Link
@@ -93,11 +94,11 @@ export function Topbar({ title, subtitle, actor, onSearchOpen, onMenuOpen }: Top
 
           {/* User pill */}
           <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-2 py-1.5 transition-all hover:border-white/[0.14] hover:bg-white/[0.07] sm:px-3">
-            <Avatar className="size-7 rounded-lg">
+            {/* <Avatar className="size-7 rounded-lg">
               <AvatarFallback className="rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 text-[10px] font-bold text-white">
                 {initials}
               </AvatarFallback>
-            </Avatar>
+            </Avatar> */}
             <div className="hidden sm:block">
               <p className="text-xs font-semibold text-slate-200 leading-tight">{fullLabel}</p>
             </div>

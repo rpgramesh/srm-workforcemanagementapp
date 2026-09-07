@@ -19,13 +19,13 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.12),transparent_24%),radial-gradient(circle_at_top_left,rgba(59,130,246,0.18),transparent_26%)]" />
 
       <div className="relative z-10 flex min-h-screen flex-col">
-        <header className="flex items-center justify-center border-b border-slate-200/20 px-4 py-3.5 sm:px-6 sm:py-4 lg:px-8">
+        {/* <header className="flex items-center justify-center border-b border-slate-200/20 px-4 py-3.5 sm:px-6 sm:py-4 lg:px-8">
           <div>
             <p className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-[-0.03em] text-blue-500 text-center">
               Noodle Box Time Sheet
             </p>
           </div>
-        </header>
+        </header> */}
 
         <div className="flex flex-1 items-center justify-center px-3 py-6 sm:px-6 sm:py-10">
           <div className="flex w-full max-w-lg flex-col items-center gap-6">
@@ -33,14 +33,14 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <footer className="flex flex-col gap-3 border-t border-slate-200 px-6 py-4 text-xs text-slate-500 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          {/* <p>© 2024 ShiftMaster Pro. Supporting high-pressure hospitality environments.</p>
+        {/* <footer className="flex flex-col gap-3 border-t border-slate-200 px-6 py-4 text-xs text-slate-500 lg:flex-row lg:items-center lg:justify-between lg:px-8"> */}
+        {/* <p>© 2024 ShiftMaster Pro. Supporting high-pressure hospitality environments.</p>
           <div className="flex flex-wrap items-center gap-4">
             <span>Privacy Policy</span>
             <span>Terms of Service</span>
             <span>Contact Support</span>
           </div> */}
-        </footer>
+        {/* </footer> */}
       </div>
     </main>
   );

@@ -574,15 +574,15 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
               <TrendingUp className="size-4 text-blue-400" />
             </CardHeader>
             <CardContent className="space-y-3 pt-4">
-              <p className="text-3xl font-bold text-slate-600">{formatCurrency(todayEarnings)}</p>
+              {/* <p className="text-3xl font-bold text-slate-600">{formatCurrency(todayEarnings)}</p> */}
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-wider text-slate-600 font-medium">Hours Worked</p>
                   <p className="text-sm font-semibold text-slate-600">{fmtHM(todayMin)}</p>
                 </div>
-                <Badge tone="emerald" size="sm">
-                  {rate != null ? `${formatCurrency(rate)}/hr` : "No rate"}
-                </Badge>
+                {/* <Badge tone="emerald" size="sm"> */}
+                {/* {rate != null ? `${formatCurrency(rate)}/hr` : "No rate"} */}
+                {/* </Badge> */}
               </div>
             </CardContent>
           </Card>
@@ -597,10 +597,10 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                 {`${fmtDate(periodStart)} → ${fmtDate(periodEnd)}`}
               </p>
             </div>
-            <div className="text-right">
+            {/* <div className="text-right">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Approved Earnings</p>
               <p className="text-2xl font-bold text-white">{formatCurrency(periodEarnings)}</p>
-            </div>
+            </div> */}
           </CardHeader>
           <CardContent className="pt-4">
             <dl className="grid grid-cols-3 gap-4 text-center">
@@ -612,12 +612,12 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                 <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Sessions</dt>
                 <dd className="mt-1 text-lg font-bold text-white">{history.length}</dd>
               </div>
-              <div className="rounded-2xl border border-primary/80 bg-slate-900/60 p-3">
+              {/* <div className="rounded-2xl border border-primary/80 bg-slate-900/60 p-3">
                 <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Hourly Rate</dt>
                 <dd className="mt-1 text-lg font-bold">
                   {rate != null ? formatCurrency(rate) : "—"}
                 </dd>
-              </div>
+              </div> */}
             </dl>
           </CardContent>
         </Card>
@@ -671,7 +671,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                           {s.workMinutes != null ? ` · ${fmtHM(s.workMinutes)}` : ""}
                         </p>
                       </div>
-                      <div className="text-right">
+                      {/* <div className="text-right">
                         {gross != null ? (
                           <p className="text-sm font-bold text-slate-600">{formatCurrency(gross)}</p>
                         ) : (
@@ -682,7 +682,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                             {s.departmentName}
                           </p>
                         ) : null}
-                      </div>
+                      </div> */}
                     </div>
                   );
                 })

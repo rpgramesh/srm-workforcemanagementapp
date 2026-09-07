@@ -36,7 +36,7 @@ export default async function AdminDashboardPage() {
       <div className="space-y-10">
         {/* <MetricGrid metrics={metrics} /> */}
         {/* <LiveFloorStrip members={liveMembers} /> */}
-        <div className="grid gap-6 text-slate-200">
+        <div className="grid gap-6 text-slate-600">
           <WeeklyRosterGrid data={weeklyRoster} />
           {/* <ShiftSwapsPanel requests={swaps} /> */}
         </div>
