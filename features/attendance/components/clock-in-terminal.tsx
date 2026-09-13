@@ -14,6 +14,9 @@ import { initialsFromName } from "@/lib/user-labels";
 
 const keypad = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
+
+
+
 export interface StaffClockView {
   hourlyRate: number | null;
   history: AttendanceSession[];
@@ -220,10 +223,10 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
               {/* ── Mode header ── */}
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <p className="text-sm font-semibold text-slate-900">
-                    {manualMode ? "Log Shift Manually" : "Enter PIN"}
+                  <p className="text-[20px] font-semibold text-slate-900">
+                    {manualMode ? "Log Shift Manually" : "Enter Your PIN"}
                   </p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-[16px] text-slate-400">
                     {manualMode ? "Enter your PIN + shift times" : "Access your shift terminal"}
                   </p>
                 </div>
@@ -231,13 +234,13 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                   type="button"
                   onClick={() => setManualMode((v) => !v)}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition cursor-pointer",
+                    "flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[16px] font-semibold transition cursor-pointer",
                     manualMode
                       ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
                       : "border-primary bg-primary text-white ",
                   )}
                 >
-                  {manualMode ? <><X className="size-3" /> Cancel</> : <><Pencil className="size-3" /> Log Manually</>}
+                  {manualMode ? <><X className="size-10" /> Cancel</> : <><Pencil className="size-10" /> Log Manually</>}
                 </button>
               </div>
 
@@ -247,7 +250,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                   <span
                     key={index}
                     className={cn(
-                      "size-3 rounded-full border transition-colors",
+                      "size-10 rounded-full border transition-colors",
                       index < pin.length
                         ? "border-blue-500 bg-blue-500 shadow-md shadow-blue-500/50"
                         : "border-slate-700 bg-slate-900",
@@ -267,7 +270,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                         type="button"
                         onClick={() => handleDigit(digit)}
                         disabled={isPendingManual}
-                        className="flex h-14 items-center justify-center rounded-2xl border border-primary/80 bg-slate-900/80 text-base font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                        className="flex h-14 text-[24px] items-center justify-center rounded-2xl border border-primary/80 bg-slate-900/80 text-base font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
                       >
                         {digit}
                       </button>
@@ -276,7 +279,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                       type="button"
                       onClick={handleBackspace}
                       disabled={isPendingManual}
-                      className="flex h-14 items-center justify-center rounded-2xl border border-primary/80 bg-slate-900/80 text-slate-400 hover:text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                      className="flex h-14 items-center justify-center rounded-2xl border border-primary/80 bg-slate-900/80 text-[24px] text-slate-400 hover:text-white transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 cursor-pointer"
                     >
                       <Delete className="size-4" />
                     </button>
@@ -532,9 +535,9 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                 </div>
               ) : null}
 
-              <div className="flex items-center justify-center gap-2 text-[11px] font-medium text-slate-500">
+              {/* <div className="flex items-center justify-center gap-2 text-[11px] font-medium text-slate-500">
                 <ShieldCheck className="size-4 text-slate-400" /> Secure terminal session
-              </div>
+              </div> */}
             </div>
           </CardContent>
         </Card>
@@ -542,36 +545,37 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
 
       {/* Stats & History Container */}
       <div className="min-w-0 space-y-6">
-        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-1">
           {/* Current Status */}
           <Card className="rounded-3xl border border-primary/80 bg-white shadow-2xl backdrop-blur-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-primary/80/60">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Current Status</p>
+              <p className="text-[16px] font-bold uppercase tracking-[0.24em] text-slate-400">Current Status</p>
               {currentSession ? (
-                <Badge tone="emerald" size="sm">
+                <Badge tone="emerald" size="lg" className="bg-emerald-500/30 text-emerald-500/90 border border-emerald-500/60 w-fit">
                   On Duty
                 </Badge>
               ) : (
-                <Badge tone="neutral" size="sm" className="bg-red-500/30 text-red-500/90 border border-red-500/60">
+                <Badge tone="neutral" size="lg" className="bg-red-500/30 text-red-500/90 border border-red-500/60 w-fit">
                   Off Duty
                 </Badge>
               )}
             </CardHeader>
             <CardContent className="space-y-3 pt-4">
-              <p className="text-sm font-medium text-slate-300">
+              <p className="text-[16px] font-semibold  text-slate-400">
                 {`${fmtDate(periodStart)} → ${fmtDate(periodEnd)}`}
               </p>
-              <div className="flex items-center gap-2">
-                <Clock10 className="size-5 text-slate-400" />
-                <p className="text-lg font-semibold text-slate-400">Shift Started</p>
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-slate-600 font-medium">Hours Worked</p>
-                  <p className="text-sm font-semibold text-slate-600">{fmtHM(todayMin)}</p>
+              <div className="flex items-center gap-2 justify-between">
+                <div className="flex flex-row justify-center items-center gap-2"><Clock10 className="size-5 text-slate-400" />
+                  <p className="text-[16px] font-semibold text-slate-400">Shift Started</p></div>
+                <div className="flex flex-row justify-center items-center gap-2">
+                  <p className="text-sm uppercase tracking-wider text-slate-600 font-medium">Hours Worked</p>
+                  <p className="text-lg font-semibold text-slate-600">{fmtHM(todayMin)}</p>
                 </div>
               </div>
-              <p className="text-lg text-center text-slate-600 font-semibold">
+              <Badge tone="emerald" size="lg" className="text-[16px] w-fit font-semibold">{currentSession ? fmtDateTime(currentSession.clockedInAt) : "—"}  <CheckCircle2 className="size-15 text-blue-400" /></Badge>
+              {/* <p className="text-[18px] text-center text-slate-600 font-semibold">
                 {currentSession ? fmtDateTime(currentSession.clockedInAt) : "—"}
-              </p>
+              </p> */}
             </CardContent>
           </Card>
 
@@ -660,11 +664,11 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                             : "border-primary/80 bg-slate-900 text-slate-400",
                         )}
                       >
-                        {isOpen ? <Clock8 className="size-4" /> : <CheckCircle2 className="size-4" />}
+                        {isOpen ? <Clock8 className="size-6" /> : <CheckCircle2 className="size-16" />}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-semibold text-slate-600">{fmtDateTime(s.clockedInAt)}</p>
+                          <p className="truncate text-[16px] font-semibold">{fmtDateTime(s.clockedInAt)}</p>
                           {s.approvalStatus === "approved" ? (
                             <Badge tone="emerald" size="sm">Approved</Badge>
                           ) : s.approvalStatus === "rejected" ? (
@@ -673,7 +677,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                             <Badge tone="amber" size="sm">Pending</Badge>
                           )}
                         </div>
-                        <p className="mt-0.5 text-xs font-medium text-slate-400 truncate">
+                        <p className="mt-0.5 text[20px] font-medium text-slate-400 truncate">
                           {s.clockedOutAt ? `Until ${fmtDateTime(s.clockedOutAt)}` : "Clocked in now"}
                           {s.workMinutes != null ? ` · ${fmtHM(s.workMinutes)}` : ""}
                         </p>
@@ -698,6 +702,6 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
           </CardContent>
         </Card>
       </div>
-    </div>
+    </div >
   );
 }
