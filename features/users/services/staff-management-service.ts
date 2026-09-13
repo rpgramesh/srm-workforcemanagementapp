@@ -1,4 +1,3 @@
-import { normalizeAustralianMobile } from "@/features/auth/services/au-mobile";
 import { userRepository } from "@/features/users/repositories/supabase-user-repository";
 import type { UserRepository } from "@/features/users/repositories/user-repository";
 import type { AppRole } from "@/types/app";
@@ -61,7 +60,7 @@ export class StaffManagementService {
     private readonly users: UserRepository = userRepository,
     private readonly presets: FilterPresetRepository = filterPresetRepository,
     private readonly audit: AuditLogServiceLike = auditLogService,
-  ) {}
+  ) { }
 
   private async tryAudit(action: Parameters<AuditLogServiceLike["append"]>[0], opts: Parameters<AuditLogServiceLike["append"]>[1]) {
     try { await this.audit.append(action, opts); } catch { /* audit is non-blocking — never break core staff ops */ }
@@ -95,9 +94,6 @@ export class StaffManagementService {
 
     if (!input.lastName?.trim()) push("lastName", "Last name is required");
     else if (input.lastName.trim().length < 2) push("lastName", "Last name must be at least 2 characters");
-
-    const normalized = normalizeAustralianMobile(input.mobile);
-    if (!normalized) push("mobile", "Enter a valid Australian mobile number (e.g. 04XX XXX XXX)");
 
     if (!input.role) push("role", "Role is required");
     if (typeof input.pin !== "string" || !PIN_FORMAT.test(input.pin)) {
@@ -154,13 +150,12 @@ export class StaffManagementService {
       return { success: false, message: "Please fix the highlighted fields", issues };
     }
 
-    const normalizedMobile = normalizeAustralianMobile(input.mobile)!;
     const permissions = StaffManagementService.mergePermissions(input.role, input.permissions);
 
     try {
       const created = await this.users.create({
         ...input,
-        mobile: normalizedMobile,
+        mobile: input.mobile ?? null,
         firstName: input.firstName.trim(),
         lastName: input.lastName.trim(),
         email: input.email ? input.email.trim() : null,
@@ -208,11 +203,6 @@ export class StaffManagementService {
     if (!before) return { success: false, message: "Staff member not found" };
 
     const issues: Record<string, string[]> = {};
-    let normalizedMobile: string | undefined;
-    if (typeof input.mobile === "string" && input.mobile.length > 0) {
-      normalizedMobile = normalizeAustralianMobile(input.mobile) ?? undefined;
-      if (!normalizedMobile) issues["mobile"] = ["Enter a valid Australian mobile number"];
-    }
     if (typeof input.pin === "string" && input.pin.length > 0) {
       if (!PIN_FORMAT.test(input.pin)) issues["pin"] = ["PIN must be exactly 4 digits"];
       else if (/^(\d)\1{3}$/.test(input.pin)) issues["pin"] = ["PIN cannot be 4 identical digits"];
@@ -233,7 +223,7 @@ export class StaffManagementService {
     try {
       const updated = await this.users.update({
         ...input,
-        mobile: normalizedMobile ?? null,
+        mobile: input.mobile ?? null,
         email: typeof input.email === "string" ? (input.email.trim() || null) : undefined,
         permissions,
       });
@@ -250,7 +240,7 @@ export class StaffManagementService {
         return { success: false, message: "PIN already in use", issues: { pin: ["PIN already in use by another staff member"] } };
       }
       if (message.toLowerCase().includes("mobile") && message.includes("already")) {
-        return { success: false, message: "Mobile number already in use", issues: { mobile: ["Mobile already assigned"] } };
+        return { success: false, message: "Mobile number already in use", issues: { mobile: ["Mobile already assigned ... "] } };
       }
       if (message.toLowerCase().includes("employee id")) {
         return { success: false, message: "Employee ID already in use", issues: { employeeId: ["Employee ID already assigned"] } };

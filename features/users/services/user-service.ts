@@ -44,11 +44,11 @@ export class UserService {
   async adminLogin({ mobile, pin }: LoginAttempt): Promise<AdminLoginResult> {
     const normalized = normalizeAustralianMobile(mobile);
 
-    if (!normalized) {
+    if (!normalized || normalized.trim().length === 0) {
       return {
         success: false,
-        message: "Invalid mobile format",
-        description: "Please enter a valid Australian mobile number.",
+        message: "Mobile number required",
+        description: "Please enter your mobile number.",
       };
     }
 
@@ -89,7 +89,7 @@ export class UserService {
         return {
           success: true,
           message: "Signed in successfully",
-          description: `Welcome back, ${envUser.fullName}.`,
+          description: `Welcome back, ${envUser.mobile}.`,
           verified: { user: envUser, source: "env_admin" },
           redirectTo: defaultDashboardRouteForRole(envUser.role),
           role: envUser.role,
@@ -131,7 +131,7 @@ export class UserService {
         return {
           success: true,
           message: "Signed in successfully",
-          description: `Welcome back, ${envStaff.fullName}. Use the Clock-In terminal to start your shift.`,
+          description: `Welcome back, ${envStaff.mobile}. Use the Clock-In terminal to start your shift.`,
           verified: { user: envStaff, source: "env_staff" },
           redirectTo: defaultDashboardRouteForRole(envStaff.role),
           role: envStaff.role,
@@ -168,7 +168,7 @@ export class UserService {
     return {
       success: true,
       message: "Signed in successfully",
-      description: `Welcome back, ${verified.fullName}.`,
+      description: `Welcome back, ${verified.mobile}.`,
       verified: { user: verified, source: "supabase" },
       redirectTo: defaultDashboardRouteForRole(verified.role),
       role: verified.role,
@@ -223,8 +223,8 @@ export class UserService {
           success: true,
           message:
             action === "clocked_in"
-              ? `Clocked in — ${user.fullName}`
-              : `Clocked out — ${user.fullName}`,
+              ? `Clocked in — ${user.mobile}`
+              : `Clocked out — ${user.mobile}`,
           description: `${user.jobTitle ?? "Staff"} · ${new Date().toLocaleTimeString("en-AU", {
             hour: "2-digit",
             minute: "2-digit",
@@ -245,7 +245,7 @@ export class UserService {
         if (msg.includes("real staff user")) {
           return {
             success: true,
-            message: `PIN recognised — ${user.fullName}`,
+            message: `PIN recognised — ${user.mobile}`,
             description: `${user.jobTitle ?? "Staff"} · Demo mode — no clock record written (sign in as a seeded staff member to write records).`,
             user,
             action: undefined,

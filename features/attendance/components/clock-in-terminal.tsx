@@ -508,26 +508,27 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
               )}
 
               {latestUser ? (
-                <div className="flex items-center gap-4 rounded-2xl border border-blue-500/30 bg-blue-500/10 p-4">
+                <div className="flex items-center gap-4 rounded-2xl border border-blue-500/30 bg-blue-500/30 p-4">
                   <div
-                    className="flex size-12 items-center justify-center rounded-full text-sm font-bold text-slate-950 shadow-inner"
-                    style={{ backgroundColor: latestUser.color ?? "#34D399" }}
+                    className="flex size-18 items-center justify-center rounded-full text-center text-xl font-bold text-slate-950 shadow-inner"
+                    style={{ backgroundColor: latestUser.color ?? "#343cd3ff" }}
                   >
-                    {initialsFromName(latestUser)}
+                    {/* {initialsFromName(latestUser)} */}
+                    {latestUser.employeeId}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-semibold text-white">{latestUser.fullName}</p>
-                      <Badge tone="emerald" size="sm">
+                      {/* <p className="truncate text-sm font-semibold text-white">{latestUser.fullName}</p> */}
+                      <Badge tone="rose" size="sm">
                         {latestUser.jobTitle ?? latestUser.role}
                       </Badge>
                     </div>
                     <p className="mt-0.5 text-xs text-slate-400">
                       {latestUser.employeeId ? `${latestUser.employeeId} · ` : ""}
-                      {rate != null ? `Rate ${formatCurrency(rate)}/hr` : "No rate assigned"}
+                      {/* {rate != null ? `Rate ${formatCurrency(rate)}/hr` : "No rate assigned"} */}
                     </p>
                   </div>
-                  <CheckCircle2 className="size-5 text-blue-400" />
+                  <CheckCircle2 className="size-15 text-blue-400" />
                 </div>
               ) : null}
 
@@ -557,39 +558,45 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
               )}
             </CardHeader>
             <CardContent className="space-y-3 pt-4">
+              <p className="text-sm font-medium text-slate-300">
+                {`${fmtDate(periodStart)} → ${fmtDate(periodEnd)}`}
+              </p>
               <div className="flex items-center gap-2">
                 <Clock10 className="size-5 text-slate-400" />
                 <p className="text-lg font-semibold text-slate-400">Shift Started</p>
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-slate-600 font-medium">Hours Worked</p>
+                  <p className="text-sm font-semibold text-slate-600">{fmtHM(todayMin)}</p>
+                </div>
               </div>
-              <p className="text-lg text-right text-slate-600 font-semibold">
+              <p className="text-lg text-center text-slate-600 font-semibold">
                 {currentSession ? fmtDateTime(currentSession.clockedInAt) : "—"}
               </p>
             </CardContent>
           </Card>
 
-          {/* Today's Earnings */}
+          {/* Today's Earnings
           <Card className="rounded-3xl border border-primary/80  bg-white shadow-2xl backdrop-blur-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-primary/80/60">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Today&apos;s Earnings</p>
               <TrendingUp className="size-4 text-blue-400" />
             </CardHeader>
             <CardContent className="space-y-3 pt-4">
-              {/* <p className="text-3xl font-bold text-slate-600">{formatCurrency(todayEarnings)}</p> */}
+              <p className="text-3xl font-bold text-slate-600">{formatCurrency(todayEarnings)}</p>
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-wider text-slate-600 font-medium">Hours Worked</p>
                   <p className="text-sm font-semibold text-slate-600">{fmtHM(todayMin)}</p>
                 </div>
-                {/* <Badge tone="emerald" size="sm"> */}
-                {/* {rate != null ? `${formatCurrency(rate)}/hr` : "No rate"} */}
-                {/* </Badge> */}
+                <Badge tone="emerald" size="sm">
+                {rate != null ? `${formatCurrency(rate)}/hr` : "No rate"}
+                </Badge>
               </div>
             </CardContent>
-          </Card>
+          </Card>*/}
         </div>
-
         {/* Pay Period Summary */}
-        <Card className="rounded-3xl border border-primary/80  bg-white shadow-2xl backdrop-blur-md">
+        {/* <Card className="rounded-3xl border border-primary/80  bg-white shadow-2xl backdrop-blur-md">
           <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-primary/80/60">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Pay Period</p>
@@ -597,10 +604,10 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                 {`${fmtDate(periodStart)} → ${fmtDate(periodEnd)}`}
               </p>
             </div>
-            {/* <div className="text-right">
+            <div className="text-right">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">Approved Earnings</p>
               <p className="text-2xl font-bold text-white">{formatCurrency(periodEarnings)}</p>
-            </div> */}
+            </div>
           </CardHeader>
           <CardContent className="pt-4">
             <dl className="grid grid-cols-3 gap-4 text-center">
@@ -612,15 +619,15 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                 <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Sessions</dt>
                 <dd className="mt-1 text-lg font-bold text-white">{history.length}</dd>
               </div>
-              {/* <div className="rounded-2xl border border-primary/80 bg-slate-900/60 p-3">
+              <div className="rounded-2xl border border-primary/80 bg-slate-900/60 p-3">
                 <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Hourly Rate</dt>
                 <dd className="mt-1 text-lg font-bold">
                   {rate != null ? formatCurrency(rate) : "—"}
                 </dd>
-              </div> */}
+              </div>
             </dl>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Clock ristory */}
         <Card className="rounded-3xl border border-primary/80  bg-white shadow-2xl backdrop-blur-md">

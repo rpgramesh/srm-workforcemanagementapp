@@ -17,7 +17,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Noodle Box",
   description:
-    "Enterprise restaurant workforce management platform built with Next.js and Supabase.",
+    "",
 };
 
 export const viewport: Viewport = {
@@ -34,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" className="light" suppressHydrationWarning>
       <body className={`${inter.variable} ${ibmPlexMono.variable} antialiased`}>
         <AppProviders>{children}</AppProviders>
       </body>

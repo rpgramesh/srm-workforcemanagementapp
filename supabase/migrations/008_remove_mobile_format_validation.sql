@@ -1,63 +1,22 @@
 -- =====================================================================
--- ShiftMaster Pro — Migration 006
--- Staff Management: Extended users schema + CRUD RPCs
+-- Migration 008: Remove Mobile Format Restriction (+614XXXXXXXX)
+-- Allows standard numbers, international numbers, and arbitrary mobile formats
+-- across Add Staff, Edit Staff, Settings, and Auth.
 -- =====================================================================
 
--- ---------------------------------------------------------------------
--- 1. Add new columns to users table (only if they don't already exist)
--- ---------------------------------------------------------------------
+-- 1. Drop the check constraint on public.users table if it exists
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_mobile_format;
 
-ALTER TABLE public.users
-    ADD COLUMN IF NOT EXISTS email TEXT,
-    ADD COLUMN IF NOT EXISTS employment_date DATE,
-    ADD COLUMN IF NOT EXISTS address TEXT,
-    ADD COLUMN IF NOT EXISTS emergency_contact_name TEXT,
-    ADD COLUMN IF NOT EXISTS emergency_contact_phone TEXT,
-    ADD COLUMN IF NOT EXISTS notes TEXT,
-    ADD COLUMN IF NOT EXISTS permissions JSONB NOT NULL DEFAULT '{}'::JSONB;
-
--- Re-add department_id FK just in case it's missing (migration 004 adds it, but safe)
-ALTER TABLE public.users
-    ADD COLUMN IF NOT EXISTS department_id UUID
-    REFERENCES public.departments(id) ON DELETE SET NULL;
-
--- Add CHECK constraint for email if present (valid-format regex, per RFC 5322 simplified)
-DO $$ BEGIN
-    ALTER TABLE public.users
-        ADD CONSTRAINT users_email_format
-        CHECK (email IS NULL OR email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
-EXCEPTION
-    WHEN duplicate_object THEN NULL;
-END $$;
-
--- Indexes for filtering
-CREATE INDEX IF NOT EXISTS users_department_idx     ON public.users(department_id);
-CREATE INDEX IF NOT EXISTS users_employment_date_idx ON public.users(employment_date);
-CREATE INDEX IF NOT EXISTS users_email_idx          ON public.users(email) WHERE email IS NOT NULL;
-CREATE INDEX IF NOT EXISTS users_first_name_trgm_idx ON public.users USING gin (first_name gin_trgm_ops);
-CREATE INDEX IF NOT EXISTS users_last_name_trgm_idx  ON public.users USING gin (last_name gin_trgm_ops);
-CREATE INDEX IF NOT EXISTS users_full_name_idx       ON public.users((first_name || ' ' || last_name));
-
--- Re-attach updated_at trigger just in case (001 already does, idempotent)
-DROP TRIGGER IF EXISTS users_set_updated_at ON public.users;
-CREATE TRIGGER users_set_updated_at
-BEFORE UPDATE ON public.users
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
--- ---------------------------------------------------------------------
--- 2. create_staff_user SECURITY DEFINER RPC
---    Creates a user with bcrypt PIN, enforces unique mobile & employee_id
--- ---------------------------------------------------------------------
-
-CREATE OR REPLACE FUNCTION create_staff_user(
+-- 2. Update create_staff_user to remove +614 regex validation
+CREATE OR REPLACE FUNCTION public.create_staff_user(
     p_first_name          TEXT,
     p_last_name           TEXT,
     p_mobile              TEXT,
-    p_role                app_role,
+    p_role                public.app_role,
     p_pin                 TEXT,
     p_employee_id         TEXT DEFAULT NULL,
     p_job_title           TEXT DEFAULT NULL,
-    p_hourly_rate         NUMERIC(10,2) DEFAULT NULL,
+    p_hourly_rate         NUMERIC DEFAULT NULL,
     p_avatar_url          TEXT DEFAULT NULL,
     p_color               TEXT DEFAULT NULL,
     p_department_id       UUID DEFAULT NULL,
@@ -86,7 +45,7 @@ BEGIN
         RAISE EXCEPTION 'PIN must be exactly 4 digits';
     END IF;
 
-    -- Validate required fields
+    -- Validate required name fields
     IF p_first_name IS NULL OR length(trim(p_first_name)) = 0 THEN
         RAISE EXCEPTION 'first_name is required';
     END IF;
@@ -94,10 +53,10 @@ BEGIN
         RAISE EXCEPTION 'last_name is required';
     END IF;
 
-    -- Unique mobile check (active users only — matches existing index)
+    -- Unique mobile check (active users only)
     SELECT COUNT(*) INTO existing_mobile
       FROM public.users u
-     WHERE u.mobile = p_mobile AND u.is_active = TRUE;
+     WHERE u.mobile = trim(p_mobile) AND u.is_active = TRUE;
     IF existing_mobile > 0 THEN
         RAISE EXCEPTION 'An active user with that mobile number already exists';
     END IF;
@@ -106,19 +65,19 @@ BEGIN
     IF p_employee_id IS NOT NULL THEN
         SELECT COUNT(*) INTO existing_empid
           FROM public.users u
-         WHERE u.employee_id = p_employee_id;
+         WHERE u.employee_id = trim(p_employee_id);
         IF existing_empid > 0 THEN
             RAISE EXCEPTION 'Employee ID % is already in use', p_employee_id;
         END IF;
     END IF;
 
-    -- PIN uniqueness check (required for verify_clock_in_pin() to stay deterministic)
+    -- PIN uniqueness check
     DECLARE
         r RECORD;
         matched BOOLEAN := FALSE;
     BEGIN
         FOR r IN SELECT u.pin_hash FROM public.users u WHERE u.is_active = TRUE LOOP
-            IF r.pin_hash = crypt(p_pin, r.pin_hash) THEN
+            IF r.pin_hash = extensions.crypt(p_pin, r.pin_hash) THEN
                 matched := TRUE;
                 EXIT;
             END IF;
@@ -135,7 +94,7 @@ BEGIN
         emergency_contact_name, emergency_contact_phone,
         notes, permissions, is_active
     ) VALUES (
-        btrim(p_first_name), btrim(p_last_name), p_mobile, p_role,
+        btrim(p_first_name), btrim(p_last_name), trim(p_mobile), p_role,
         extensions.crypt(p_pin, extensions.gen_salt('bf', 10)),
         NULLIF(btrim(p_employee_id), ''), NULLIF(btrim(p_job_title), ''),
         p_hourly_rate, NULLIF(btrim(p_avatar_url), ''), NULLIF(btrim(p_color), ''),
@@ -150,20 +109,16 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER VOLATILE
    SET search_path = public, pg_temp;
 
-REVOKE ALL ON FUNCTION create_staff_user(TEXT,TEXT,TEXT,app_role,TEXT,TEXT,TEXT,NUMERIC,TEXT,TEXT,UUID,TEXT,DATE,TEXT,TEXT,TEXT,TEXT,JSONB,BOOLEAN) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION create_staff_user(TEXT,TEXT,TEXT,app_role,TEXT,TEXT,TEXT,NUMERIC,TEXT,TEXT,UUID,TEXT,DATE,TEXT,TEXT,TEXT,TEXT,JSONB,BOOLEAN) TO service_role;
+REVOKE ALL ON FUNCTION public.create_staff_user(TEXT,TEXT,TEXT,public.app_role,TEXT,TEXT,TEXT,NUMERIC,TEXT,TEXT,UUID,TEXT,DATE,TEXT,TEXT,TEXT,TEXT,JSONB,BOOLEAN) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.create_staff_user(TEXT,TEXT,TEXT,public.app_role,TEXT,TEXT,TEXT,NUMERIC,TEXT,TEXT,UUID,TEXT,DATE,TEXT,TEXT,TEXT,TEXT,JSONB,BOOLEAN) TO service_role;
 
--- ---------------------------------------------------------------------
--- 3. update_staff_user SECURITY DEFINER RPC
---    Allowed to change every mutable field. PIN re-locked with bcrypt when given.
--- ---------------------------------------------------------------------
-
-CREATE OR REPLACE FUNCTION update_staff_user(
+-- 3. Update update_staff_user to remove +614 regex validation
+CREATE OR REPLACE FUNCTION public.update_staff_user(
     p_user_id             UUID,
     p_first_name          TEXT DEFAULT NULL,
     p_last_name           TEXT DEFAULT NULL,
     p_mobile              TEXT DEFAULT NULL,
-    p_role                app_role DEFAULT NULL,
+    p_role                public.app_role DEFAULT NULL,
     p_pin                 TEXT DEFAULT NULL,
     p_employee_id         TEXT DEFAULT NULL,
     p_job_title           TEXT DEFAULT NULL,
@@ -206,7 +161,7 @@ BEGIN
                  WHERE u.is_active = TRUE
                    AND u.id <> p_user_id
             LOOP
-                IF r.pin_hash = crypt(p_pin, r.pin_hash) THEN
+                IF r.pin_hash = extensions.crypt(p_pin, r.pin_hash) THEN
                     matched := TRUE;
                     EXIT;
                 END IF;
@@ -221,7 +176,7 @@ BEGIN
     IF p_mobile IS NOT NULL THEN
         PERFORM 1
           FROM public.users u
-         WHERE u.mobile = p_mobile
+         WHERE u.mobile = trim(p_mobile)
            AND u.is_active = TRUE
            AND u.id <> p_user_id;
         IF FOUND THEN
@@ -243,8 +198,8 @@ BEGIN
     UPDATE public.users u SET
         first_name                = COALESCE(NULLIF(btrim(p_first_name), ''),        u.first_name),
         last_name                 = COALESCE(NULLIF(btrim(p_last_name), ''),         u.last_name),
-        mobile                    = COALESCE(p_mobile,                                 u.mobile),
-        role                      = COALESCE(p_role,                                   u.role),
+        mobile                    = COALESCE(trim(p_mobile),                         u.mobile),
+        role                      = COALESCE(p_role,                                 u.role),
         pin_hash                  = CASE WHEN p_pin IS NOT NULL
                                          THEN extensions.crypt(p_pin, extensions.gen_salt('bf', 10))
                                          ELSE u.pin_hash END,
@@ -290,28 +245,5 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER VOLATILE
    SET search_path = public, pg_temp;
 
-REVOKE ALL ON FUNCTION update_staff_user(UUID,TEXT,TEXT,TEXT,app_role,TEXT,TEXT,TEXT,NUMERIC,TEXT,TEXT,UUID,TEXT,DATE,TEXT,TEXT,TEXT,TEXT,JSONB,BOOLEAN) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION update_staff_user(UUID,TEXT,TEXT,TEXT,app_role,TEXT,TEXT,TEXT,NUMERIC,TEXT,TEXT,UUID,TEXT,DATE,TEXT,TEXT,TEXT,TEXT,JSONB,BOOLEAN) TO service_role;
-
--- ---------------------------------------------------------------------
--- 4. soft_delete_staff_user SECURITY DEFINER RPC (sets is_active=FALSE)
--- ---------------------------------------------------------------------
-
-CREATE OR REPLACE FUNCTION soft_delete_staff_user(p_user_id UUID)
-RETURNS VOID AS $$
-DECLARE
-    rows_affected INTEGER;
-BEGIN
-    UPDATE public.users u
-       SET is_active = FALSE
-     WHERE u.id = p_user_id;
-    GET DIAGNOSTICS rows_affected = ROW_COUNT;
-    IF rows_affected = 0 THEN
-        RAISE EXCEPTION 'User not found';
-    END IF;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER VOLATILE
-   SET search_path = public, pg_temp;
-
-REVOKE ALL ON FUNCTION soft_delete_staff_user(UUID) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION soft_delete_staff_user(UUID) TO service_role;
+REVOKE ALL ON FUNCTION public.update_staff_user(UUID,TEXT,TEXT,TEXT,public.app_role,TEXT,TEXT,TEXT,NUMERIC,TEXT,TEXT,UUID,TEXT,DATE,TEXT,TEXT,TEXT,TEXT,JSONB,BOOLEAN) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.update_staff_user(UUID,TEXT,TEXT,TEXT,public.app_role,TEXT,TEXT,TEXT,NUMERIC,TEXT,TEXT,UUID,TEXT,DATE,TEXT,TEXT,TEXT,TEXT,JSONB,BOOLEAN) TO service_role;

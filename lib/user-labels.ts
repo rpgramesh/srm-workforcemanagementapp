@@ -40,6 +40,7 @@ export function formatUserLabel(u: UserIdentityLike, variant: "inline" | "twoLin
   const name = plainName(u);
   const role = roleLabel((u.role as AppRole) ?? undefined);
   if (variant === "twoLine") return `${name}\n${role.toUpperCase()}`;
+
   return `${name} (${role})`;
 }
 

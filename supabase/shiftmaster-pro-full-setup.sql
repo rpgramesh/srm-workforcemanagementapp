@@ -89,9 +89,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   id                     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   first_name             TEXT NOT NULL,
   last_name              TEXT NOT NULL,
-  mobile                 TEXT NOT NULL
-                         CONSTRAINT users_mobile_format
-                         CHECK (mobile ~ '^\+614\d{8}$'),
+  mobile                 TEXT NOT NULL,
   role                   app_role NOT NULL DEFAULT 'employee',
   pin_hash               TEXT NOT NULL,
   employee_id            TEXT UNIQUE,
@@ -433,8 +431,8 @@ DECLARE
   r               RECORD;
   matched         BOOLEAN := FALSE;
 BEGIN
-  IF p_mobile !~ '^\+614\d{8}$' THEN
-    RAISE EXCEPTION 'Invalid mobile format — must be canonical Australian +614XXXXXXXX'; END IF;
+  IF p_mobile IS NULL OR length(trim(p_mobile)) = 0 THEN
+    RAISE EXCEPTION 'mobile is required'; END IF;
   IF p_pin !~ '^\d{4}$' THEN
     RAISE EXCEPTION 'PIN must be exactly 4 digits'; END IF;
   IF p_first_name IS NULL OR length(trim(p_first_name)) = 0 THEN
@@ -510,8 +508,8 @@ DECLARE rows_affected INTEGER;
         r             RECORD;
         matched       BOOLEAN := FALSE;
 BEGIN
-  IF p_mobile IS NOT NULL AND p_mobile !~ '^\+614\d{8}$' THEN
-    RAISE EXCEPTION 'Invalid mobile format — must be canonical Australian +614XXXXXXXX'; END IF;
+  IF p_mobile IS NOT NULL AND length(trim(p_mobile)) = 0 THEN
+    RAISE EXCEPTION 'mobile cannot be empty'; END IF;
   IF p_pin IS NOT NULL AND p_pin !~ '^\d{4}$' THEN
     RAISE EXCEPTION 'PIN must be exactly 4 digits'; END IF;
 

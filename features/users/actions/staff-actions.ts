@@ -6,7 +6,6 @@ import type { StaffServiceOperationResult } from "@/features/users/services/staf
 import { getCurrentActor } from "@/lib/server-session";
 import type { StaffListFilters, User, StaffCreateInput, StaffUpdateInput } from "@/types/user";
 import type { FilterPreset } from "@/types/preset";
-import { normalizeAustralianMobile } from "@/features/auth/services/au-mobile";
 import type { AppRole } from "@/types/app";
 
 const AppRoleSchema = z.enum(["super_admin", "restaurant_admin", "manager", "supervisor", "employee"]) satisfies z.ZodSchema<AppRole>;
@@ -18,7 +17,7 @@ const StaffSortKeySchema = z.enum([
 const StaffCreateSchema = z.object({
   firstName: z.string().trim().min(2, "First name must be at least 2 characters").max(64),
   lastName: z.string().trim().min(2, "Last name must be at least 2 characters").max(64),
-  mobile: z.string().trim().refine((v) => !!normalizeAustralianMobile(v), "Enter a valid Australian mobile number"),
+  mobile: z.string().trim().min(1, "Mobile number is required"),
   role: AppRoleSchema,
   pin: z.string().regex(/^\d{4}$/, "PIN must be exactly 4 digits"),
   employeeId: z.union([z.string().trim().max(32), z.null()]).optional(),
@@ -40,7 +39,7 @@ const StaffCreateSchema = z.object({
 const StaffUpdateSchema = StaffCreateSchema.partial().extend({
   id: z.string().uuid("Staff id is required"),
   pin: z.union([z.string().regex(/^\d{4}$/, "PIN must be 4 digits"), z.null()]).optional(),
-  mobile: z.union([z.string().refine((v) => !!normalizeAustralianMobile(v), "Enter a valid Australian mobile number"), z.null()]).optional(),
+  mobile: z.union([z.string().trim().min(1, "Mobile number cannot be empty"), z.null()]).optional(),
 });
 
 const StaffFiltersSchema = z.object({

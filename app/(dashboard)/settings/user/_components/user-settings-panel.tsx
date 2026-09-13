@@ -182,7 +182,7 @@ export function UserSettingsPanel({ actor, profile }: UserSettingsPanelProps) {
                 className="bg-slate-900 border-slate-800 text-white focus:border-blue-500"
               />
             </Field>
-            <Field id="mobile" label="Mobile Number" hint="Australian format e.g. 0412 345 678">
+            <Field id="mobile" label="Mobile Number" hint="Staff contact number">
               <Input
                 id="mobile"
                 value={mobile}

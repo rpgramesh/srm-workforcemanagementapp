@@ -13,6 +13,7 @@ interface ActorIdentity {
   lastName?: string | null;
   role?: AppRole | null;
   userId?: string | null;
+  mobile?: string | null; // added
 }
 
 interface TopbarProps {
@@ -21,18 +22,23 @@ interface TopbarProps {
   actor?: ActorIdentity;
   onSearchOpen?: () => void;
   onMenuOpen?: () => void;
+
 }
 
 export function Topbar({ title, subtitle, actor, onSearchOpen, onMenuOpen }: TopbarProps) {
-  // const fullLabel = actor ? formatUserLabel(actor) : "Admin User (Floor Manager)";
-  const fullLabel = "User";
+  const fullLabel = actor ? formatUserLabel(actor) : "Admin User (Floor Manager)";
+
   const initials = actor ? initialsFromName(actor) : "AU";
 
+  // const initials = actor ? actor.mobile : "AU";
+
   return (
-    <header className="sticky top-0 z-30 flex flex-col gap-0 border-b border-white/[0.07] bg-[#060d1f]/85 px-3 sm:px-6 lg:px-8 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 flex flex-col gap-0 border-b border-white/[0.07] bg-primary px-3 sm:px-6 lg:px-8 backdrop-blur-xl">
       <div className="flex items-center justify-between gap-2.5 sm:gap-4 py-3 sm:py-4">
         {/* Title */}
         <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+
+
           <button
             type="button"
             onClick={onMenuOpen}
@@ -93,16 +99,17 @@ export function Topbar({ title, subtitle, actor, onSearchOpen, onMenuOpen }: Top
           </Link>
 
           {/* User pill */}
-          <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-2 py-1.5 transition-all hover:border-white/[0.14] hover:bg-white/[0.07] sm:px-3">
-            {/* <Avatar className="size-7 rounded-lg">
+          {/* <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-2 py-1.5 transition-all hover:border-white/[0.14] hover:bg-white/[0.07] sm:px-3">
+            <Avatar className="size-7 rounded-lg">
               <AvatarFallback className="rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 text-[10px] font-bold text-white">
                 {initials}
               </AvatarFallback>
-            </Avatar> */}
-            <div className="hidden sm:block">
+            </Avatar>
+           
+            {/* <div className="hidden sm:block">
               <p className="text-xs font-semibold text-slate-200 leading-tight">{fullLabel}</p>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </header>

@@ -68,7 +68,7 @@ const schema = z.discriminatedUnion("mode", [
     mode: z.literal("create"),
     firstName: z.string().trim().min(2).max(64),
     lastName: z.string().trim().min(2).max(64),
-    mobile: z.string().trim().min(6, "Enter a valid mobile number"),
+    mobile: z.string().optional().nullable(),
     role: AppRoleZ,
     pin: z
       .string()
@@ -98,7 +98,7 @@ const schema = z.discriminatedUnion("mode", [
     id: z.string().uuid(),
     firstName: z.string().trim().min(2).max(64),
     lastName: z.string().trim().min(2).max(64),
-    mobile: z.string().trim().min(6),
+    mobile: z.string().optional().nullable(),
     role: AppRoleZ,
     pin: z.union([z.string().regex(/^\d{4}$/), z.null()]).optional(),
     employeeId: z.union([z.string().trim().max(32), z.null(), z.literal("")]).transform((v) => (v === "" ? null : v)),
@@ -216,7 +216,7 @@ export function AddStaffModal({ open, onClose, editingStaffId, onSaved, viewerRo
           id: u.id,
           firstName: u.firstName,
           lastName: u.lastName,
-          mobile: u.mobile,
+          mobile: u.mobile ?? "",
           role: u.role,
           pin: null,
           employeeId: u.employeeId ?? null,
@@ -307,26 +307,26 @@ export function AddStaffModal({ open, onClose, editingStaffId, onSaved, viewerRo
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={submitting}>Cancel</Button>
-            <Button type="submit" form="staff-form" disabled={submitting || !canEdit}>
+          <Button type="submit" form="staff-form" disabled={submitting || !canEdit}>
             {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : mode === "edit" ? <Save className="mr-2 h-4 w-4" /> : <UserPlus2 className="mr-2 h-4 w-4" />}
             {mode === "edit" ? "Save changes" : "Create staff"}
           </Button>
         </>
       }
     >
-        <form id="staff-form" onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <form id="staff-form" onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Field label="First name" error={fieldError(errors.firstName?.message)}>
-              <Input autoFocus {...register("firstName")} invalid={!!errors.firstName} placeholder="Jamie" />
+          <Field label="First name" error={fieldError(errors.firstName?.message)}>
+            <Input autoFocus {...register("firstName")} invalid={!!errors.firstName} placeholder="Jamie" />
           </Field>
-            <Field label="Last name" error={fieldError(errors.lastName?.message)}>
-              <Input {...register("lastName")} invalid={!!errors.lastName} placeholder="Okafor" />
+          <Field label="Last name" error={fieldError(errors.lastName?.message)}>
+            <Input {...register("lastName")} invalid={!!errors.lastName} placeholder="Okafor" />
           </Field>
-            <Field label="Mobile (AU)" hint="e.g. 0412 345 678 — normalised to +61" error={fieldError(errors.mobile?.message)}>
-              <Input {...register("mobile")} invalid={!!errors.mobile} inputMode="tel" placeholder="0412 345 678" />
+          <Field label="Mobile" error={fieldError(errors.mobile?.message)}>
+            <Input {...register("mobile")} invalid={!!errors.mobile} placeholder="Mobile number" />
           </Field>
-            <Field label="Role" error={fieldError(errors.role?.message)}>
-              <Select {...register("role")} invalid={!!errors.role}>
+          <Field label="Role" error={fieldError(errors.role?.message)}>
+            <Select {...register("role")} invalid={!!errors.role}>
               <option value="employee">Employee</option>
               <option value="supervisor">Supervisor</option>
               <option value="manager">Manager</option>
@@ -339,63 +339,63 @@ export function AddStaffModal({ open, onClose, editingStaffId, onSaved, viewerRo
               <span className="inline-flex items-center gap-1.5">
                 {mode === "edit" ? "New PIN (optional)" : "4-digit PIN"}
                 <ShieldCheck className="h-3.5 w-3.5 text-blue-500" />
-                </span>
+              </span>
             }
             hint={mode === "edit" ? "Leave blank to keep the current PIN" : "Never use 1234, 0000 or similar"}
-              error={fieldError(errors.pin?.message)}
+            error={fieldError(errors.pin?.message)}
           >
-              <Input {...register("pin")} invalid={!!errors.pin} inputMode="numeric" maxLength={4} placeholder="••••" />
+            <Input {...register("pin")} invalid={!!errors.pin} inputMode="numeric" maxLength={4} placeholder="••••" />
           </Field>
-            <Field label="Employee ID" error={fieldError(errors.employeeId?.message)}>
-              <Input {...register("employeeId")} invalid={!!errors.employeeId} placeholder="EMP-0042" />
+          <Field label="Employee ID" error={fieldError(errors.employeeId?.message)}>
+            <Input {...register("employeeId")} invalid={!!errors.employeeId} placeholder="EMP-0042" />
           </Field>
-            <Field label="Job title" error={fieldError(errors.jobTitle?.message)}>
-              <Input {...register("jobTitle")} invalid={!!errors.jobTitle} placeholder="Head Chef" />
+          <Field label="Job title" error={fieldError(errors.jobTitle?.message)}>
+            <Input {...register("jobTitle")} invalid={!!errors.jobTitle} placeholder="Head Chef" />
           </Field>
-            <Field label="Hourly rate (AUD)" error={fieldError(errors.hourlyRate?.message)}>
+          <Field label="Hourly rate (AUD)" error={fieldError(errors.hourlyRate?.message)}>
             <Input
               type="number"
               step="0.01"
               min={0}
-                {...register("hourlyRate", { valueAsNumber: true })}
+              {...register("hourlyRate", { valueAsNumber: true })}
               invalid={!!errors.hourlyRate}
               placeholder="29.75"
             />
           </Field>
-            <Field label="Department" hint={loadingDept ? "Loading departments…" : undefined} error={fieldError(errors.departmentId?.message)}>
-              <Select {...register("departmentId")} invalid={!!errors.departmentId}>
+          <Field label="Department" hint={loadingDept ? "Loading departments…" : undefined} error={fieldError(errors.departmentId?.message)}>
+            <Select {...register("departmentId")} invalid={!!errors.departmentId}>
               <option value="">— No department —</option>
               {departments.map((d) => (
                 <option key={d.id} value={d.id}>{d.name} ({d.short_label})</option>
               ))}
             </Select>
           </Field>
-            <Field label="Email" error={fieldError(errors.email?.message)}>
-              <Input type="email" {...register("email")} invalid={!!errors.email} placeholder="jamie@venue.com" />
+          <Field label="Email" error={fieldError(errors.email?.message)}>
+            <Input type="email" {...register("email")} invalid={!!errors.email} placeholder="jamie@venue.com" />
           </Field>
-            <Field label="Employment date" error={fieldError(errors.employmentDate?.message)}>
-              <Input type="date" {...register("employmentDate")} invalid={!!errors.employmentDate} />
+          <Field label="Employment date" error={fieldError(errors.employmentDate?.message)}>
+            <Input type="date" {...register("employmentDate")} invalid={!!errors.employmentDate} />
           </Field>
-            <Field label="Avatar color" error={fieldError(errors.color?.message)}>
+          <Field label="Avatar color" error={fieldError(errors.color?.message)}>
             <div className="flex items-center gap-3">
-                <Input type="color" className={clsx("h-11 w-14 p-1")} {...register("color")} invalid={!!errors.color} />
+              <Input type="color" className={clsx("h-11 w-14 p-1")} {...register("color")} invalid={!!errors.color} />
               <span className="text-xs text-slate-500">Used as avatar fallback</span>
             </div>
           </Field>
         </section>
 
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label="Residential address" error={fieldError(errors.address?.message)}>
-              <TextArea {...register("address")} invalid={!!errors.address} rows={2} placeholder="123 Example Street…" />
+          <Field label="Residential address" error={fieldError(errors.address?.message)}>
+            <TextArea {...register("address")} invalid={!!errors.address} rows={2} placeholder="123 Example Street…" />
           </Field>
-            <Field label="Staff notes" error={fieldError(errors.notes?.message)}>
-              <TextArea {...register("notes")} invalid={!!errors.notes} rows={2} placeholder="Allergies, training notes, preferences…" />
+          <Field label="Staff notes" error={fieldError(errors.notes?.message)}>
+            <TextArea {...register("notes")} invalid={!!errors.notes} rows={2} placeholder="Allergies, training notes, preferences…" />
           </Field>
-            <Field label="Emergency contact name" error={fieldError(errors.emergencyContactName?.message)}>
-              <Input {...register("emergencyContactName")} invalid={!!errors.emergencyContactName} placeholder="Alex Okafor" />
+          <Field label="Emergency contact name" error={fieldError(errors.emergencyContactName?.message)}>
+            <Input {...register("emergencyContactName")} invalid={!!errors.emergencyContactName} placeholder="Alex Okafor" />
           </Field>
-            <Field label="Emergency contact phone" error={fieldError(errors.emergencyContactPhone?.message)}>
-              <Input {...register("emergencyContactPhone")} invalid={!!errors.emergencyContactPhone} placeholder="02 8000 1234" />
+          <Field label="Emergency contact phone" error={fieldError(errors.emergencyContactPhone?.message)}>
+            <Input {...register("emergencyContactPhone")} invalid={!!errors.emergencyContactPhone} placeholder="02 8000 1234" />
           </Field>
         </section>
 
@@ -415,7 +415,7 @@ export function AddStaffModal({ open, onClose, editingStaffId, onSaved, viewerRo
               <input
                 type="checkbox"
                 className="h-4 w-4 rounded border-slate-300 bg-white/5 text-blue-600 focus:ring-blue-500/30"
-                  {...register("isActive")}
+                {...register("isActive")}
               />
             </label>
           </div>

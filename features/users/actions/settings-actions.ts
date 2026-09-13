@@ -4,7 +4,6 @@ import { z } from "zod";
 import { getCurrentActor } from "@/lib/server-session";
 import { auditLogRepository } from "@/features/audit/repositories/supabase-audit-log-repository";
 import { updateStaff, getStaffForEdit } from "./staff-actions";
-import { normalizeAustralianMobile } from "@/features/auth/services/au-mobile";
 import type { User } from "@/types/user";
 import type { AppRole } from "@/types/app";
 
@@ -13,7 +12,7 @@ const PIN_FORMAT = /^\d{4}$/;
 const ProfileUpdateSchema = z.object({
   firstName: z.string().trim().min(2, "First name must be at least 2 characters").max(64),
   lastName: z.string().trim().min(2, "Last name must be at least 2 characters").max(64),
-  mobile: z.string().trim().refine((v) => !!normalizeAustralianMobile(v), "Enter a valid Australian mobile number"),
+  mobile: z.string().trim().min(1, "Mobile number is required"),
   email: z.union([z.string().trim().email("Enter a valid email"), z.null(), z.literal("")]),
   color: z.union([z.string().trim().regex(/^#(?:[0-9a-fA-F]{3}){1,2}$/, "Must be a hex color like #10B981"), z.null(), z.literal("")]),
   jobTitle: z.union([z.string().trim().max(128), z.null(), z.literal("")]),

@@ -19,8 +19,7 @@ export function AppProviders({ children }: AppProvidersProps) {
         position="top-right"
         toastOptions={{
           classNames: {
-            toast:
-              "border border-slate-200 bg-slate-50/90 text-slate-900 shadow-2xl shadow-black/40",
+            toast: "border border-slate-200 bg-slate-100 text-slate-900 shadow-2xl shadow-black/40",
             title: "text-sm font-semibold",
             description: "text-xs text-slate-700",
           },

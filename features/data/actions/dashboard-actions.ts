@@ -24,7 +24,7 @@ export async function getRosterSummaryCards() {
   return rosterService.summaryCards();
 }
 
-export async function getWeeklyRoster(weekStart?: string | null, numDays: 5 | 7 = 5) {
+export async function getWeeklyRoster(weekStart?: string | null, numDays: 5 | 7 = 7) {
   return rosterService.weeklyRosterForWeek(weekStart, numDays);
 }
 

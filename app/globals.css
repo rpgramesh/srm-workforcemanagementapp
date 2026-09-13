@@ -11,7 +11,7 @@
   --foreground-muted: #94a3b8;
   --foreground-subtle: #64748b;
 
-  --primary: #3b82f6;
+  --primary: #274575;
   --primary-hover: #2563eb;
   --primary-muted: rgba(38, 16, 240, 0.15);
 
@@ -24,7 +24,7 @@
   --border-strong: rgba(255, 255, 255, 0.14);
 
   --panel: #ffffff;
-  --panel-border: rgba(238, 202, 202, 0.08);
+  --panel-border: rgba(238, 202, 202, 0.898);
 
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
   --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.25);
@@ -279,6 +279,7 @@ button {
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 1rem);
 }
+
 .pt-safe {
   padding-top: env(safe-area-inset-top, 0rem);
 }

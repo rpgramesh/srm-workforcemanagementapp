@@ -93,18 +93,18 @@ export function Sidebar({ role, onNavigate }: SidebarProps) {
   };
 
   return (
-    <aside className="flex h-full w-full lg:w-72 flex-col gap-6 lg:gap-8 border-r border-white/[0.07] bg-[#070e1c]/95 px-5 py-6 lg:py-8 backdrop-blur-xl overflow-y-auto touch-scroll">
+    <aside className="flex h-full w-full lg:w-72 flex-col gap-6 lg:gap-8 border-r bg-primary border-white/[0.07] bg-[#070e1c]/95 px-5 py-6 lg:py-8 backdrop-blur-xl overflow-y-auto touch-scroll">
       {/* Logo and Mobile Close */}
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-[0_4px_12px_rgba(59,130,246,0.4)] text-white">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-white">
             <Timer className="size-5" />
           </div>
           <div>
-            <p className="text-[15px] font-bold tracking-[-0.03em] text-white">
+            <p className="text-[25px] font-bold tracking-[-0.03em] text-white">
               Noodle Box
             </p>
-            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-slate-500">
+            <p className="text-[20px] font-bold tracking-[0.3em] text-white">
               Management
             </p>
           </div>
@@ -126,10 +126,10 @@ export function Sidebar({ role, onNavigate }: SidebarProps) {
       <div className="h-px bg-white/[0.06] -mx-5" />
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1">
-        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">
+      <nav className="flex-1 space-y-1 font-bold">
+        {/* <p className="mb-3 px-3 text-[15px] font-semibold uppercase tracking-[0.2em] text-slate-300">
           Navigation
-        </p>
+        </p> */}
         {navigation.map((item) => {
           const active =
             pathname === item.href || (item.href !== "/admin/dashboard" && pathname?.startsWith(item.href));
@@ -140,23 +140,23 @@ export function Sidebar({ role, onNavigate }: SidebarProps) {
               href={item.href}
               onClick={onNavigate}
               className={clsx(
-                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-md font-large transition-all",
                 active
-                  ? "bg-blue-600/15 text-blue-300 shadow-[inset_0_0_0_1px_rgba(59,130,246,0.2)]"
-                  : "text-slate-400 hover:bg-white/[0.05] hover:text-slate-200",
+                  ? "bg-blue-600/15 text-white shadow-[inset_0_0_0_1px_rgba(59,130,246,0.2)]"
+                  : "text-slate-400 hover:bg-white/[0.05] hover:text-white",
               )}
             >
               <div className={clsx(
                 "flex size-7 items-center justify-center rounded-lg transition-all",
                 active
-                  ? "bg-blue-500/20 text-blue-300"
+                  ? "bg-blue-500/20 text-white"
                   : "bg-white/[0.04] text-slate-500 group-hover:bg-white/[0.07] group-hover:text-slate-300",
               )}>
                 <Icon className="size-3.5" />
               </div>
               <span className="flex-1">{item.label}</span>
               {item.badge && messagesUnread > 0 ? (
-                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-bold text-white shadow">
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[12px] font-bold text-white shadow">
                   {messagesUnread > 99 ? "99+" : messagesUnread}
                 </span>
               ) : null}
@@ -180,7 +180,7 @@ export function Sidebar({ role, onNavigate }: SidebarProps) {
               <Timer className="size-4" />
               Clock In / Out
             </span>
-            <span className="rounded-md bg-white/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em]">
+            <span className="rounded-md bg-white/15 px-2 py-0.5 text-[12px] font-bold uppercase tracking-[0.15em]">
               Terminal
             </span>
           </Link>

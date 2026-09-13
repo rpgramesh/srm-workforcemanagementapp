@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     
     const shiftsToCreate = [];
     
-    let currentDate = new Date(start);
+    const currentDate = new Date(start);
     while (currentDate <= end) {
       const pad = (n: number) => n.toString().padStart(2, "0");
       const dateStr = `${currentDate.getFullYear()}-${pad(currentDate.getMonth() + 1)}-${pad(currentDate.getDate())}`;

@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { adminLogin } from "@/features/auth/actions/login-action";
 import { loginSchema, type LoginFormValues } from "@/features/auth/schemas/login-schema";
-import { formatAustralianMobile } from "@/features/auth/services/au-mobile";
 import { cn } from "@/lib/utils";
 
 const keypadDigits = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
@@ -43,21 +42,12 @@ export function LoginForm() {
 
   const mobileValue = watch("mobile");
   const pinValue = watch("pin");
-  const mobileFieldState = getFieldState("mobile");
   const pinFieldState = getFieldState("pin");
 
   const debouncedVerifyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastAttemptAt = useRef<number>(0);
   const lastAttemptedKey = useRef<string>("");
   const verifyLockRef = useRef<boolean>(false);
-
-  const updateMobile = (value: string) => {
-    setValue("mobile", formatAustralianMobile(value), {
-      shouldDirty: true,
-      shouldValidate: true,
-      shouldTouch: true,
-    });
-  };
 
   const sanitizePin = (raw: string): string =>
     raw.replace(/\D/g, "").slice(0, PIN_LENGTH);
@@ -92,9 +82,9 @@ export function LoginForm() {
       const localMobile = mobileValue;
       const localPin = pinValue;
 
-      const fieldsValid = await trigger(["mobile", "pin"]);
+      const fieldsValid = await trigger("pin");
       if (!fieldsValid) return;
-      if (mobileFieldState.invalid || pinFieldState.invalid) return;
+      if (pinFieldState.invalid) return;
       if (!/^\d{4}$/.test(localPin)) return;
 
       const now = Date.now();
@@ -129,7 +119,6 @@ export function LoginForm() {
       isPending,
       mobileValue,
       pinValue,
-      mobileFieldState.invalid,
       pinFieldState.invalid,
       trigger,
       router,
@@ -142,9 +131,7 @@ export function LoginForm() {
       debouncedVerifyTimer.current = null;
     }
     if (!isDirty) return;
-    if (mobileFieldState.invalid) return;
     if (pinFieldState.invalid) return;
-    if (!isValid) return;
     if (pinValue.length !== PIN_LENGTH) return;
     if (isPending || isAutoVerifying || verifyLockRef.current) return;
 
@@ -162,7 +149,6 @@ export function LoginForm() {
     isValid,
     isPending,
     isAutoVerifying,
-    mobileFieldState.invalid,
     pinFieldState.invalid,
     doVerify,
   ]);
@@ -174,12 +160,9 @@ export function LoginForm() {
   };
 
   const mobileRegistration = register("mobile");
-  const pinRegistration = register("pin");
 
   const isAnyLoading = isPending || isAutoVerifying;
-  const mobileOk = isDirty && !mobileFieldState.invalid && mobileValue.length > 6;
   const pinOk = isDirty && !pinFieldState.invalid && pinValue.length === PIN_LENGTH;
-  const formLikelyValid = !!(mobileOk && pinOk);
 
   return (
     <form
@@ -187,14 +170,14 @@ export function LoginForm() {
       className="w-full max-w-sm sm:max-w-md rounded-3xl border border-slate-800 bg-[white] shadow-2xl backdrop-blur-md text-slate-100"
       aria-busy={isAnyLoading}
     >
-      <div className="border-b border-slate-200/80 px-4 py-4 sm:px-6 sm:py-5 text-center">
+      {/* <div className="border-b border-slate-200/80 px-4 py-4 sm:px-6 sm:py-5 text-center">
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#3C3F45]">
           Sign In
         </h1>
         <p className="mt-1 text-sm sm:text-base text-[#3C3F45]">
-          Restaurant &amp; Operations Team &middot; AU Mobile + PIN
+          Restaurant &amp; Operations Team
         </p>
-      </div>
+      </div> */}
 
       <div className="space-y-4 sm:space-y-5 px-4 py-5 sm:px-6 sm:py-6">
         {/* Mobile Number Input */}
@@ -203,33 +186,20 @@ export function LoginForm() {
             htmlFor="login-mobile"
             className="flex items-center justify-between text-[15px] font-semibold uppercase tracking-wider text-slate-400"
           >
-            <span>Mobile Number</span>
-            {mobileOk ? (
-              <span className="flex items-center gap-1 text-[10px] text-blue-400">
-                <CheckCircle2 className="size-3" /> Valid format
-              </span>
-            ) : null}
+            <span>Staff Number</span>
           </label>
           <div className="relative">
             <Smartphone className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-500" />
             <Input
               id="login-mobile"
-              name={mobileRegistration.name}
-              ref={mobileRegistration.ref}
-              onBlur={mobileRegistration.onBlur}
+              {...mobileRegistration}
               inputMode="tel"
               autoComplete="tel"
               autoCorrect="off"
               autoCapitalize="off"
               spellCheck={false}
-              placeholder="+61 412 345 678"
-              className={cn(
-                "w-full rounded-xl border border-slate-800 bg-slate-900/90 py-2.5 pl-10 pr-4 text-sm font-medium text-white placeholder-slate-600 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500",
-                mobileFieldState.invalid && "border-rose-500/50 focus:border-rose-500 focus:ring-rose-500",
-                mobileOk && "border-blue-500/50",
-              )}
-              value={mobileValue}
-              onChange={(event) => updateMobile(event.target.value)}
+              placeholder="Enter staff number"
+              className="w-full rounded-xl border border-slate-800 bg-slate-900/90 py-2.5 pl-10 pr-4 text-sm font-medium text-white placeholder-slate-600 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
@@ -243,12 +213,6 @@ export function LoginForm() {
               disabled={isAnyLoading}
             />
           </div>
-          <p className="text-[12px] text-[#646464]">
-            Accepts <code className="text-[#646464] font-mono">04xx xxx xxx</code> or <code className="text-[#646464] font-mono">+61 4xx xxx xxx</code>
-          </p>
-          {errors.mobile ? (
-            <p className="text-xs text-rose-400">{errors.mobile.message}</p>
-          ) : null}
         </div>
 
         {/* Security PIN Input */}
@@ -272,9 +236,7 @@ export function LoginForm() {
             <ShieldEllipsis className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-500" />
             <Input
               id="login-pin"
-              name={pinRegistration.name}
-              ref={pinRegistration.ref}
-              onBlur={pinRegistration.onBlur}
+              {...register("pin")}
               value={pinValue}
               onChange={(event) => updatePin(event.target.value)}
               type={pinRevealed ? "text" : "password"}
@@ -290,7 +252,7 @@ export function LoginForm() {
                 "w-full rounded-xl border border-slate-800 bg-slate-900/90 py-2.5 pl-10 pr-4 font-mono text-white placeholder-slate-600 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500",
                 pinRevealed ? "tracking-[0.4em]" : "tracking-[0.5em]",
                 pinFieldState.invalid && "border-rose-500/50 focus:border-rose-500 focus:ring-rose-500",
-                pinOk && "border-blue-500/50sa",
+                pinOk && "border-blue-500/50",
               )}
               onKeyDown={(event) => {
                 if (event.ctrlKey || event.metaKey) return;
@@ -331,7 +293,7 @@ export function LoginForm() {
                   "size-3 rounded-full border border-slate-700 transition-colors",
                   index < pinValue.length ? "bg-blue-500" : "bg-slate-800",
                   pinOk && "border-blue-400",
-                  formLikelyValid &&
+                  pinOk &&
                     !isPending &&
                     index === pinValue.length &&
                     isAutoVerifying
@@ -400,10 +362,10 @@ export function LoginForm() {
 
           <button
             type="submit"
-            disabled={isAnyLoading || !formLikelyValid}
+            disabled={isAnyLoading || !pinOk}
             className={cn(
               "flex h-12 items-center justify-center rounded-xl transition-all active:scale-95",
-              formLikelyValid
+              pinOk
                 ? "bg-blue-600 text-white hover:bg-blue-500 shadow-md shadow-blue-600/20"
                 : "border border-blue-500/20 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20",
             )}
@@ -421,7 +383,7 @@ export function LoginForm() {
         <Button
           type="submit"
           className="w-full justify-center gap-2 rounded-full bg-blue-600 py-6 text-smd font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 disabled:opacity-100"
-          disabled={isAnyLoading || !isDirty || !isValid}
+          disabled={isAnyLoading || !pinOk}
         >
           {isAnyLoading ? (
             <>
@@ -431,15 +393,15 @@ export function LoginForm() {
           ) : (
             <>
               <LogIn className="size-4" />
-              {formLikelyValid ? "Sign In & Continue" : "Sign In"}
+              {pinOk ? "Sign In & Continue" : "Sign In"}
             </>
           )}
         </Button>
 
-        <p className="pt-1 text-center text-[12px] leading-relaxed text-slate-400">
+        {/* <p className="pt-1 text-center text-[12px] leading-relaxed text-slate-400">
           After a valid 4-digit PIN is entered, authentication runs automatically.
           Transmission is over HTTPS only, and repeated invalid attempts are rate-limited.
-        </p>
+        </p> */}
       </div>
     </form>
   );

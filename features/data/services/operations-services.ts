@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { operationsRepository } from "@/features/data/repositories/operations-repository";
 import { userRepository } from "@/features/users/repositories/supabase-user-repository";
+import type { AppRole } from "@/types/app";
 import type {
   DashboardMetric,
   LiveFloorMember,
@@ -180,7 +181,7 @@ export class DashboardService {
 export class RosterService {
   constructor(private readonly ops = operationsRepository) {}
 
-  async weeklyRosterForWeek(weekStart?: string | null, numDays: 5 | 7 = 5): Promise<WeeklyRosterData> {
+  async weeklyRosterForWeek(weekStart?: string | null, numDays: 5 | 7 = 7): Promise<WeeklyRosterData> {
     const period = weekStart ? null : await this.ops.getCurrentRosterPeriod();
     const start = weekStart ?? period?.weekStart ?? new Date(Date.now() - ((new Date().getDay() + 6) % 7) * 86400000).toISOString().slice(0, 10);
     const base = new Date(`${start}T00:00:00Z`);
@@ -205,17 +206,86 @@ export class RosterService {
       byUser.set(s.userId, arr);
     }
 
-    const sortedUserIds = Array.from(byUser.keys()).sort((a, b) => {
-      const aFirst = byUser.get(a)![0]!;
-      const bFirst = byUser.get(b)![0]!;
-      return (aFirst.userFullName ?? "").localeCompare(bFirst.userFullName ?? "");
+    if (shifts.length === 0) {
+      const p = await this.ops.getCurrentRosterPeriod();
+      return {
+        weekStart: start,
+        weekEnd: endISO,
+        numDays,
+        employees: [],
+        dayHeaders: headers,
+        totalHours: 0,
+        laborCost: 0,
+        staffClockedIn: liveUserIds.size,
+        staffTotal: 0,
+        openShifts: 0,
+        budgetAmount: p?.budgetAmount ?? null,
+      };
+    }
+
+    // Build complete user directory from active staff and scheduled shifts
+    const userMetaMap = new Map<string, {
+      fullName: string;
+      role: AppRole | null;
+      jobTitle: string | null;
+      department: string;
+      badgeLabel: string;
+      avatarUrl: string | null;
+      color: string | null;
+    }>();
+
+    try {
+      const activeStaff = await this.ops.getUsers(["employee", "manager", "supervisor"], true);
+      for (const u of activeStaff ?? []) {
+        userMetaMap.set(u.id, {
+          fullName: [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || "Staff",
+          role: (u.role as AppRole) ?? null,
+          jobTitle: u.job_title ?? null,
+          department: "Staff",
+          badgeLabel: u.role ? String(u.role).slice(0, 4).toUpperCase() : "STAFF",
+          avatarUrl: u.avatar_url ?? null,
+          color: u.color ?? null,
+        });
+      }
+    } catch {
+      // fallback to shift metadata
+    }
+
+    for (const s of shifts) {
+      const existing = userMetaMap.get(s.userId);
+      if (existing) {
+        if (s.departmentName && existing.department === "Staff") {
+          existing.department = s.departmentName;
+          if (s.departmentShort) existing.badgeLabel = s.departmentShort;
+        }
+        if (s.userRole) existing.role = s.userRole;
+        if (s.userJobTitle) existing.jobTitle = s.userJobTitle;
+        if (s.userColor) existing.color = s.userColor;
+        if (s.userAvatarUrl) existing.avatarUrl = s.userAvatarUrl;
+      } else {
+        userMetaMap.set(s.userId, {
+          fullName: s.userFullName ?? "Unknown",
+          role: s.userRole ?? null,
+          jobTitle: s.userJobTitle ?? null,
+          department: s.departmentName ?? "Staff",
+          badgeLabel: s.departmentShort ?? String(s.departmentId).slice(0, 4).toUpperCase(),
+          avatarUrl: s.userAvatarUrl ?? null,
+          color: s.userColor ?? null,
+        });
+      }
+    }
+
+    const sortedUserIds = Array.from(userMetaMap.keys()).sort((a, b) => {
+      const aMeta = userMetaMap.get(a)!;
+      const bMeta = userMetaMap.get(b)!;
+      return aMeta.fullName.localeCompare(bMeta.fullName);
     });
 
     const employees: RosterEmployeeRow[] = sortedUserIds.map((uid) => {
-      const list = byUser.get(uid)!;
-      const sample = list[0]!;
+      const meta = userMetaMap.get(uid)!;
+      const userShifts = byUser.get(uid) ?? [];
       const perDay: ShiftSlot[] = headers.map((h) => {
-        const match = list.find((s: any) => s.shiftDate === h.isoDate);
+        const match = userShifts.find((s: any) => s.shiftDate === h.isoDate);
         if (!match) return { shiftId: null, startTime: null, endTime: null, isOff: true };
         return {
           shiftId: match.id,
@@ -226,13 +296,15 @@ export class RosterService {
       });
       return {
         userId: uid,
-        fullName: sample.userFullName ?? "Unknown",
-        department: sample.departmentName ?? "Staff",
-        badgeLabel: sample.departmentShort ?? String(sample.departmentId).slice(0, 4).toUpperCase(),
+        fullName: meta.fullName,
+        role: meta.role,
+        jobTitle: meta.jobTitle,
+        department: meta.department,
+        badgeLabel: meta.badgeLabel,
         shiftsPerDay: perDay,
         highlightDayIndex: highlightIndex >= 0 ? highlightIndex : undefined,
-        avatarUrl: sample.userAvatarUrl ?? null,
-        color: sample.userColor ?? null,
+        avatarUrl: meta.avatarUrl,
+        color: meta.color,
       };
     });
 
@@ -313,16 +385,16 @@ export class RosterService {
 
   async upcomingWeekPreview(userId: string): Promise<UpcomingShiftPreview[]> {
     const today = new Date();
-    const start = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    const weekStart = new Date(Date.now() - ((today.getDay() + 6) % 7) * 86400000).toISOString().slice(0, 10);
     const d = new Date(today);
     d.setDate(d.getDate() + 14);
     const end = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
-    const mine = await this.ops.listShifts({ userId, from: start, to: end });
+    const mine = await this.ops.listShifts({ userId, from: weekStart, to: end, withUserJoins: true });
     const live = await this.ops.listLiveAttendance();
     const activeShiftId = live.find((a) => a.userId === userId)?.shiftId ?? null;
 
-    return mine.slice(0, 4).map((s: any) => {
+    return mine.slice(0, 6).map((s: any) => {
       const date = new Date(`${s.shiftDate}T00:00:00Z`);
       const isActiveNow = activeShiftId === s.id;
       return {

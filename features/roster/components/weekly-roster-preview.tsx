@@ -21,8 +21,8 @@ export function WeeklyRosterPreview({ shifts, fullMonthHref }: WeeklyRosterPrevi
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2 px-1">
         <div>
-          <h2 className="text-lg sm:text-xl font-semibold tracking-[-0.03em] text-white">Weekly Roster</h2>
-          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-slate-400">Upcoming shifts for this week</p>
+          <h2 className="text-[30px] text-slate-800 font-bold tracking-[-0.03em]">Weekly Roster</h2>
+          <p className="text-[18px] text-slate-600 font-semibold">Upcoming shifts for this week</p>
         </div>
         {fullMonthHref ? (
           <button

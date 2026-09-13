@@ -43,6 +43,7 @@ interface ShiftRow extends Record<string, any> {
   location_name?: string | null;
   first_name?: string | null;
   last_name?: string | null;
+  role?: string | null;
   employee_id?: string | null;
   color?: string | null;
   job_title?: string | null;
@@ -128,6 +129,7 @@ const mapShift = (r: ShiftRow): Shift => ({
     r.first_name || r.last_name
       ? [r.first_name, r.last_name].filter(Boolean).join(" ").trim()
       : null,
+  userRole: (r.role as AppRole) ?? null,
   userEmployeeId: r.employee_id ?? null,
   userColor: r.color ?? null,
   userJobTitle: r.job_title ?? null,
@@ -261,6 +263,7 @@ export class OperationsRepository {
           location_name:locations(name),
           first_name:users(first_name),
           last_name:users(last_name),
+          role:users(role),
           employee_id:users(employee_id),
           color:users(color),
           job_title:users(job_title),
@@ -289,6 +292,7 @@ export class OperationsRepository {
         location_name: typeof r.location_name === "object" ? (r.location_name as any)?.name ?? null : r.location_name,
         first_name: typeof r.first_name === "object" ? (r.first_name as any)?.first_name ?? null : r.first_name,
         last_name: typeof r.last_name === "object" ? (r.last_name as any)?.last_name ?? null : r.last_name,
+        role: typeof r.role === "object" ? (r.role as any)?.role ?? null : r.role,
         employee_id: typeof r.employee_id === "object" ? (r.employee_id as any)?.employee_id ?? null : r.employee_id,
         color: typeof r.color === "object" ? (r.color as any)?.color ?? null : r.color,
         job_title: typeof r.job_title === "object" ? (r.job_title as any)?.job_title ?? null : r.job_title,

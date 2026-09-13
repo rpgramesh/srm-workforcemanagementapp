@@ -60,7 +60,7 @@ export function DashboardChrome({ title, subtitle, children, actor }: DashboardC
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar title={title} subtitle={subtitle} actor={actor} onSearchOpen={openSearch} onMenuOpen={() => setMobileNavOpen(true)} />
-          <main className="min-h-[calc(100vh-4rem)] flex-1 px-3 py-4 sm:px-6 sm:py-8 lg:px-10 pb-safe">
+          <main className="min-h-[calc(100vh-4rem)] bg-white/10 flex-1 px-3 py-4 sm:px-6 sm:py-8 lg:px-10 pb-safe">
             {children}
           </main>
         </div>

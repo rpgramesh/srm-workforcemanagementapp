@@ -1,31 +1,94 @@
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { WeeklyRosterData } from "@/types/domain";
 import { initialsFromName, formatUserLabel } from "@/lib/user-labels";
 
 interface WeeklyRosterGridProps {
   data: WeeklyRosterData;
+  viewAllHref?: string;
 }
 
-export function WeeklyRosterGrid({ data }: WeeklyRosterGridProps) {
-  const { employees, dayHeaders } = data;
+function addDays(isoDate: string, days: number): string {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function formatWeekRange(startIso: string, endIso: string): string {
+  const s = new Date(`${startIso}T00:00:00Z`);
+  const e = new Date(`${endIso}T00:00:00Z`);
+  const sStr = s.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+  const eStr = e.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+  return `${sStr} – ${eStr}`;
+}
+
+export function WeeklyRosterGrid({ data, viewAllHref = "/admin/schedule" }: WeeklyRosterGridProps) {
+  const { employees, dayHeaders, weekStart, weekEnd, numDays } = data;
+  const prevWeek = addDays(weekStart, -7);
+  const nextWeek = addDays(weekStart, 7);
+  const rangeLabel = formatWeekRange(weekStart, weekEnd);
+
   return (
     <section>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 px-1">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 px-1">
         <div>
-          <h2 className="text-lg sm:text-xl font-semibold tracking-[-0.03em] text-red">Weekly Roster</h2>
-          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-slate-400">Upcoming shifts for this week</p>
+          <h2 className="text-[30px] text-slate-800 font-bold tracking-[-0.03em]">Weekly Roster</h2>
+          <p className="text-[18px] text-slate-600 font-semibold">Upcoming shifts for this week</p>
         </div>
-        <a
-          href="/admin/schedule"
-          className="text-xs sm:text-sm font-semibold text-blue-400 sm:text-slate-400"
-        >
-          View Full Month &rarr;
-        </a>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Week Navigator */}
+          <div className="flex items-center gap-1 rounded-2xl border border-slate-700/60 bg-slate-900/80 p-1 backdrop-blur-md shadow-lg">
+            <Link
+              href={`?week=${prevWeek}&days=${numDays}`}
+              className="flex size-8 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+              title="Previous week"
+            >
+              <ChevronLeft className="size-4" />
+            </Link>
+            <Link
+              href="?"
+              className="px-2.5 py-1 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+              title="Jump to current week"
+            >
+              {rangeLabel}
+            </Link>
+            <Link
+              href={`?week=${nextWeek}&days=${numDays}`}
+              className="flex size-8 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+              title="Next week"
+            >
+              <ChevronRight className="size-4" />
+            </Link>
+          </div>
+
+          {/* 5D / 7D view toggle */}
+          <Link
+            href={`?week=${weekStart}&days=${numDays === 5 ? 7 : 5}`}
+            className="rounded-2xl border border-slate-700/60 bg-slate-900/80 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors shadow-lg"
+            title="Toggle between 5-day and 7-day view"
+          >
+            {numDays === 5 ? "Show 7 Days" : "Show 5 Days"}
+          </Link>
+
+          {viewAllHref ? (
+            <a
+              href={viewAllHref}
+              className="text-[20px] text-blue-800 font-semibold hover:underline"
+            >
+              View Full Month &rarr;
+            </a>
+          ) : null}
+        </div>
       </div>
 
       <div className="overflow-x-auto touch-scroll rounded-3xl border border-slate-800 bg-[#181920]/90 shadow-2xl backdrop-blur-md">
-        <div className="min-w-[860px]">
-          <div className="grid grid-cols-[1.4fr_repeat(5,1fr)] text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-400">
+        <div className={dayHeaders.length > 5 ? "min-w-[960px]" : "min-w-[860px]"}>
+          <div
+            className="grid text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-400"
+            style={{ gridTemplateColumns: `1.4fr repeat(${dayHeaders.length}, 1fr)` }}
+          >
             <div className="border-b border-slate-800/60 px-6 py-4">Employee</div>
             {dayHeaders.map((h) => (
               <div key={h.isoDate} className="border-b border-l border-slate-800/60 px-4 py-4 text-right">
@@ -45,7 +108,8 @@ export function WeeklyRosterGrid({ data }: WeeklyRosterGridProps) {
             employees.map((row) => (
               <div
                 key={row.userId}
-                className="grid grid-cols-[1.4fr_repeat(5,1fr)] items-stretch border-b border-slate-800/60 last:border-0 hover:bg-slate-900/40 transition-colors"
+                className="grid items-stretch border-b border-slate-800/60 last:border-0 hover:bg-slate-900/40 transition-colors"
+                style={{ gridTemplateColumns: `1.4fr repeat(${dayHeaders.length}, 1fr)` }}
               >
                 <div className="flex items-center gap-3 px-6 py-5">
                   <Avatar className="size-11 rounded-2xl border border-slate-700/50">
@@ -58,7 +122,7 @@ export function WeeklyRosterGrid({ data }: WeeklyRosterGridProps) {
                   </Avatar>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-white">
-                      {formatUserLabel({ fullName: row.fullName })}
+                      {formatUserLabel({ fullName: row.fullName, role: row.role })}
                     </p>
                     {/* <p className="mt-1 inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-800 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-300">
                       {row.badgeLabel}

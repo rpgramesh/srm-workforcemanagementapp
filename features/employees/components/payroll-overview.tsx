@@ -52,14 +52,14 @@ export function PayrollOverview({ data }: PayrollOverviewProps) {
               {totalHours.toFixed(1)}h
             </p>
           </div>
-          <div className="rounded-3xl border border-slate-200 bg-white/5 p-5">
+          {/* <div className="rounded-3xl border border-slate-200 bg-white/5 p-5">
             <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500">
               Overtime Cost
             </p>
             <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-rose-100">
               {currency(overtimeCost, currencyCode)}
             </p>
-          </div>
+          </div> */}
         </div>
       </CardContent>
     </Card>

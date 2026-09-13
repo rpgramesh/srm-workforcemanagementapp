@@ -15,14 +15,21 @@ import { isAdminDashboardRole } from "@/types/user";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage(props: {
+  searchParams?: Promise<{ week?: string; days?: string }>;
+}) {
   const actor = await currentActorInfo();
   if (!actor) redirect("/login");
   if (!isAdminDashboardRole(actor.role)) redirect(await dashboardRouteForActor(actor.role));
+
+  const searchParams = await props.searchParams;
+  const weekStart = searchParams?.week ?? null;
+  const numDays = (searchParams?.days === "5" ? 5 : 7) as 5 | 7;
+
   const [metrics, liveMembers, weeklyRoster, swaps] = await Promise.all([
     getDashboardMetricGrid(),
     getLiveFloorStrip(),
-    getWeeklyRoster(),
+    getWeeklyRoster(weekStart, numDays),
     getShiftSwaps(),
   ]);
 

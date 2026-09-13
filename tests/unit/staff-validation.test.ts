@@ -52,15 +52,16 @@ test("Staff Management Service — validateCreate", async (t) => {
     assert.ok(issues.lastName, "Should report lastName error");
   });
 
-  await t.test("should reject invalid Australian mobile numbers", () => {
-    const invalidNumbers = [
-      "123456",
-      "0512345678", // not starting with 04
-      "+61312345678", // not mobile
-      "abc",
+  await t.test("should accept various mobile formats", () => {
+    const validNumbers = [
+      "0412345678",
+      "+61412345678",
+      "0412 345 678",
+      "+12025550123",
+      "9876543210",
     ];
 
-    for (const mobile of invalidNumbers) {
+    for (const mobile of validNumbers) {
       const input: StaffCreateInput = {
         firstName: "James",
         lastName: "Smith",
@@ -69,7 +70,7 @@ test("Staff Management Service — validateCreate", async (t) => {
         pin: "9831",
       };
       const issues = StaffManagementService.validateCreate(input);
-      assert.ok(issues.mobile, `Should reject invalid mobile: ${mobile}`);
+      assert.strictEqual(issues.mobile, undefined, `Should accept mobile: ${mobile}`);
     }
   });
 

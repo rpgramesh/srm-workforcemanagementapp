@@ -1,7 +1,9 @@
 const STRIP_FORMATTING_PATTERN = /[\s\-()]/g;
 
 export function normalizeAustralianMobile(input: string): string | null {
+  if (!input) return null;
   const cleaned = input.replace(STRIP_FORMATTING_PATTERN, "").trim();
+  if (cleaned.length === 0) return null;
 
   if (/^\+614\d{8}$/.test(cleaned)) {
     return cleaned;
@@ -15,11 +17,12 @@ export function normalizeAustralianMobile(input: string): string | null {
     return `+61${cleaned.slice(1)}`;
   }
 
-  return null;
+  // Return cleaned string for non-Australian or non-standard formats
+  return cleaned;
 }
 
 export function isAustralianMobile(input: string): boolean {
-  return normalizeAustralianMobile(input) !== null;
+  return typeof input === "string" && input.trim().length > 0;
 }
 
 export function formatAustralianMobile(input: string): string {

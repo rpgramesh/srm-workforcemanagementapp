@@ -1,3 +1,5 @@
+import type { AppRole } from "@/types/app";
+
 export interface AdminSettings {
   id: number;
   siteName: string;
@@ -84,6 +86,8 @@ export interface Shift {
   userEmployeeId: string | null;
   userColor: string | null;
   userJobTitle: string | null;
+  userRole?: AppRole | null;
+
   userAvatarUrl: string | null;
 }
 
@@ -237,6 +241,8 @@ export interface ShiftSlot {
 export interface RosterEmployeeRow {
   userId: string;
   fullName: string;
+  role?: AppRole | string | null;
+  jobTitle?: string | null;
   department: string;
   badgeLabel: string;
   shiftsPerDay: ShiftSlot[];
