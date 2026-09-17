@@ -68,6 +68,8 @@ interface AttendanceRow extends Record<string, any> {
   approved_at?: string | null;
   note?: string | null;
   hourly_rate?: string | number | null;
+  mobile?: string | null;
+  first_name?: string | null;
 }
 interface SwapRow extends Record<string, any> {
   id: string; requester_user_id: string; shift_id: string; offered_to_user_id: string | null;
@@ -170,6 +172,8 @@ const mapAttendance = (r: AttendanceRow): AttendanceSession => ({
   approvedAt: r.approved_at ?? null,
   note: r.note ?? null,
   hourlyRate: float(r.hourly_rate ?? null),
+  mobile: r.mobile ?? null,
+  first_name: r.first_name ?? null,
 });
 
 const mapSwap = (r: SwapRow): ShiftSwapRequest => ({
