@@ -64,7 +64,7 @@ export class DashboardService {
   constructor(
     private readonly ops = operationsRepository,
     private readonly users = userRepository,
-  ) {}
+  ) { }
 
   async metricGrid(): Promise<DashboardMetric[]> {
     const [{ shifts: todayShifts }, live, period] = await Promise.all([
@@ -179,7 +179,7 @@ export class DashboardService {
 }
 
 export class RosterService {
-  constructor(private readonly ops = operationsRepository) {}
+  constructor(private readonly ops = operationsRepository) { }
 
   async weeklyRosterForWeek(weekStart?: string | null, numDays: 5 | 7 = 7): Promise<WeeklyRosterData> {
     const period = weekStart ? null : await this.ops.getCurrentRosterPeriod();
@@ -220,6 +220,9 @@ export class RosterService {
         staffTotal: 0,
         openShifts: 0,
         budgetAmount: p?.budgetAmount ?? null,
+        mobile: 0,
+        first_name: "",
+
       };
     }
 
@@ -232,6 +235,8 @@ export class RosterService {
       badgeLabel: string;
       avatarUrl: string | null;
       color: string | null;
+      mobile: string | null;
+      first_name: string | null;
     }>();
 
     try {
@@ -245,6 +250,8 @@ export class RosterService {
           badgeLabel: u.role ? String(u.role).slice(0, 4).toUpperCase() : "STAFF",
           avatarUrl: u.avatar_url ?? null,
           color: u.color ?? null,
+          mobile: u.mobile ?? null,
+          first_name: u.first_name ?? null,
         });
       }
     } catch {
@@ -271,6 +278,8 @@ export class RosterService {
           badgeLabel: s.departmentShort ?? String(s.departmentId).slice(0, 4).toUpperCase(),
           avatarUrl: s.userAvatarUrl ?? null,
           color: s.userColor ?? null,
+          mobile: s.mobile ?? null,
+          first_name: s.first_name ?? null,
         });
       }
     }
@@ -305,6 +314,8 @@ export class RosterService {
         highlightDayIndex: highlightIndex >= 0 ? highlightIndex : undefined,
         avatarUrl: meta.avatarUrl,
         color: meta.color,
+        mobile: meta.mobile,
+        first_name: meta.first_name
       };
     });
 
@@ -328,6 +339,8 @@ export class RosterService {
       staffTotal: sortedUserIds.length,
       openShifts,
       budgetAmount: p?.budgetAmount ?? null,
+      mobile: 0,
+      first_name: "",
     };
   }
 
@@ -412,7 +425,7 @@ export class RosterService {
 }
 
 export class StaffService {
-  constructor(private readonly ops = operationsRepository, private readonly users = userRepository) {}
+  constructor(private readonly ops = operationsRepository, private readonly users = userRepository) { }
 
   async directory(): Promise<StaffDirectoryCard[]> {
     const users = (await this.users.list({ onlyActive: true }));
@@ -528,7 +541,7 @@ export class StaffService {
 }
 
 export class PayrollService {
-  constructor(private readonly ops = operationsRepository, private readonly users = userRepository) {}
+  constructor(private readonly ops = operationsRepository, private readonly users = userRepository) { }
 
   async overview(): Promise<PayrollOverviewData> {
     let p = await this.ops.getCurrentPayrollPeriod();
@@ -580,7 +593,7 @@ export class PayrollService {
 }
 
 export class AttendanceService {
-  constructor(private readonly ops = operationsRepository) {}
+  constructor(private readonly ops = operationsRepository) { }
 
   async clockStatusForUser(userId: string, _periodId?: string | null): Promise<ClockStatusCardsData> {
     const live = await this.ops.listLiveAttendance();

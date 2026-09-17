@@ -563,6 +563,7 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
             <CardContent className="space-y-3 pt-4">
               <p className="text-[16px] font-semibold  text-slate-400">
                 {`${fmtDate(periodStart)} → ${fmtDate(periodEnd)}`}
+
               </p>
               <div className="flex items-center gap-2 justify-between">
                 <div className="flex flex-row justify-center items-center gap-2"><Clock10 className="size-5 text-slate-400" />
@@ -570,9 +571,12 @@ export function ClockInTerminal({ initialUserId, view, refresh }: ClockInTermina
                 <div className="flex flex-row justify-center items-center gap-2">
                   <p className="text-sm uppercase tracking-wider text-slate-600 font-medium">Hours Worked</p>
                   <p className="text-lg font-semibold text-slate-600">{fmtHM(todayMin)}</p>
+
                 </div>
+
               </div>
               <Badge tone="emerald" size="lg" className="text-[16px] w-fit font-semibold">{currentSession ? fmtDateTime(currentSession.clockedInAt) : "—"}  <CheckCircle2 className="size-15 text-blue-400" /></Badge>
+
               {/* <p className="text-[18px] text-center text-slate-600 font-semibold">
                 {currentSession ? fmtDateTime(currentSession.clockedInAt) : "—"}
               </p> */}

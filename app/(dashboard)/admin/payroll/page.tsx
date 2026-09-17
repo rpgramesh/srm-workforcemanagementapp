@@ -24,6 +24,8 @@ export default async function AdminPayrollPage() {
     hourlyRate: u.hourlyRate,
     isActive: u.isActive,
     color: u.color,
+    first_name: u.firstName,
+    mobile: u.mobile,
   }));
 
   return (

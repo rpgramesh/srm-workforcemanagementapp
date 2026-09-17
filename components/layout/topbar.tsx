@@ -26,7 +26,7 @@ interface TopbarProps {
 }
 
 export function Topbar({ title, subtitle, actor, onSearchOpen, onMenuOpen }: TopbarProps) {
-  const fullLabel = actor ? formatUserLabel(actor) : "Admin User (Floor Manager)";
+  const fullLabel = actor ? formatUserLabel({ ...actor, mobile: actor.mobile?.trim() || "" }) : "Admin User (Floor Manager)";
 
   const initials = actor ? initialsFromName(actor) : "AU";
 

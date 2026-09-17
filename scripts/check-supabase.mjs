@@ -20,7 +20,7 @@ console.log("🔗 Testing connection to:", url);
 
 const { data, error, count } = await db
   .from("users")
-  .select("id,first_name,last_name,mobile,role,employee_id,is_active", { count: "exact" })
+  .select("id,first_name,last_name,mobile,role,employee_id,is_active,mobile,", { count: "exact" })
   .order("created_at", { ascending: true });
 
 if (error) {

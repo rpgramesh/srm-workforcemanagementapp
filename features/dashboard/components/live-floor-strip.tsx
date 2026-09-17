@@ -46,7 +46,7 @@ export function LiveFloorStrip({ members, floorMapHref }: LiveFloorStripProps) {
                 </Avatar>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-slate-900">
-                    {formatUserLabel({ fullName: member.fullName, role: member.role })}
+                    {formatUserLabel({ fullName: member.fullName, role: member.role, mobile: member.mobile })}
                   </p>
                   {member.department ? (
                     <p className="text-xs text-slate-500">{member.department}</p>

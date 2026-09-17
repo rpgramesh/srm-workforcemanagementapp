@@ -58,7 +58,7 @@ export function Avatar({
       className={cn(
         "relative shrink-0 overflow-hidden border border-slate-200 bg-white/5 font-semibold text-slate-100 flex items-center justify-center",
         sizeClass,
-          accent ? "" : `bg-linear-to-br ${gradientOrAccent}`,
+        accent ? "" : `bg-linear-to-br ${gradientOrAccent}`,
         className,
       )}
       style={accent ? { backgroundColor: accent, ...style } : style}
@@ -67,7 +67,7 @@ export function Avatar({
       {src ? (
         <img
           src={src}
-            alt={alt ?? (`${firstName} ${lastName}`.trim() || "avatar")}
+          alt={alt ?? (`${firstName} ${lastName}`.trim() || "avatar")}
           className="h-full w-full object-cover"
         />
       ) : (
@@ -85,7 +85,8 @@ export function AvatarFallback({
   return (
     <span
       className={cn(
-        "flex size-full items-center justify-center bg-linear-to-br from-blue-500/20 via-slate-950 to-sky-400/20",
+        // "flex size-full items-center justify-center  bg-linear-to-br from-blue-500/20 via-slate-950 to-sky-400/20",
+        "flex size-full items-center justify-center",
         className,
       )}
       {...props}

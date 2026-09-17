@@ -65,7 +65,7 @@ export function TodaysRosterTable({ rows, fullScheduleHref }: TodaysRosterTableP
                       </Avatar>
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-white">
-                          {formatUserLabel({ fullName: row.fullName, role: row.role })}
+                          {formatUserLabel({ fullName: row.fullName, role: row.role, mobile: row.mobile })}
                         </p>
                         <p className="truncate text-xs text-slate-400">Shift assigned</p>
                       </div>

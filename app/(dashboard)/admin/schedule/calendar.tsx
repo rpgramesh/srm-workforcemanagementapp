@@ -110,7 +110,8 @@ export function Calendar({ initialDate, openingHours, departments, users }: Cale
 
     return {
       id: s.id,
-      title: s.userFullName || s.userFirstName || "Unknown",
+      // title: s.userFullName || s.userFirstName || "Unknown",
+      title: `${s.userFirstName}`,
       start: startDate,
       end: endDate,
       backgroundColor: s.departmentAccent ? getHexColor(s.departmentAccent) : s.userColor || "#3B82F6",
@@ -159,11 +160,10 @@ export function Calendar({ initialDate, openingHours, departments, users }: Cale
                 api?.changeView("timeGridWeek");
                 setActiveView("timeGridWeek");
               }}
-              className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 text-xs font-semibold border transition-all ${
-                activeView === "timeGridWeek"
-                  ? "border-blue-500 bg-blue-500/20 text-white"
-                  : "border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
-              }`}
+              className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 text-xs font-semibold border transition-all ${activeView === "timeGridWeek"
+                ? "border-blue-500 bg-blue-500/20 text-white"
+                : "border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
+                }`}
             >
               <CalendarIcon className="size-3.5" />
               Weekly
@@ -175,11 +175,10 @@ export function Calendar({ initialDate, openingHours, departments, users }: Cale
                 api?.changeView("timeGridDay");
                 setActiveView("timeGridDay");
               }}
-              className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 text-xs font-semibold border transition-all ${
-                activeView === "timeGridDay"
-                  ? "border-blue-500 bg-blue-500/20 text-white"
-                  : "border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
-              }`}
+              className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 text-xs font-semibold border transition-all ${activeView === "timeGridDay"
+                ? "border-blue-500 bg-blue-500/20 text-white"
+                : "border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white"
+                }`}
             >
               Daily
             </button>

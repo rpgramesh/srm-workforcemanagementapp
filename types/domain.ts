@@ -127,6 +127,8 @@ export interface AttendanceSession {
   approvedAt: string | null;
   note: string | null;
   hourlyRate: number | null;
+  mobile: string | null;
+  first_name: string | null;
 }
 
 export interface ShiftSwapRequest {
@@ -188,6 +190,7 @@ export interface LiveFloorMember {
   durationMinutes: number;
   avatarUrl?: string | null;
   color?: string | null;
+  mobile?: string | null;
 }
 
 export interface TodaysRosterRow {
@@ -202,6 +205,7 @@ export interface TodaysRosterRow {
   statusVariant: BadgeVariant;
   avatarUrl?: string | null;
   color?: string | null;
+  mobile?: string | null;
 }
 
 export interface StaffDirectoryCard {
@@ -216,6 +220,7 @@ export interface StaffDirectoryCard {
   avatarUrl?: string | null;
   color?: string | null;
   department?: string | null;
+  mobile?: string | null;
 }
 
 export interface DepartmentShiftShare {
@@ -249,6 +254,8 @@ export interface RosterEmployeeRow {
   highlightDayIndex?: number;
   avatarUrl?: string | null;
   color?: string | null;
+  mobile?: string | null;
+  first_name?: string | null;
 }
 
 export interface WeeklyRosterData {
@@ -263,6 +270,8 @@ export interface WeeklyRosterData {
   staffTotal: number;
   openShifts: number;
   budgetAmount: number | null;
+  mobile: number | null;
+  first_name: string | null;
 }
 
 export interface UpcomingShiftPreview {
@@ -326,6 +335,9 @@ export interface StaffPayout {
   userFullName: string | null;
   userEmployeeId: string | null;
   userColor: string | null;
+  mobile: string | null;
+  first_name: string | null;
+  last_name: string | null;
 }
 
 export interface PayoutPreview {

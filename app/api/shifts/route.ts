@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     const data = shiftSchema.parse(body);
 
     const { start: openStart, end: openEnd } = await getOpeningHours();
-    
+
     // basic validation
     const shiftStartMins = timeToMinutes(data.startTime);
     let shiftEndMins = timeToMinutes(data.endTime);
@@ -69,14 +69,14 @@ export async function POST(request: Request) {
 
     const start = new Date(data.shiftDate);
     const end = new Date(data.endDate || data.shiftDate);
-    
+
     const shiftsToCreate = [];
-    
+
     const currentDate = new Date(start);
     while (currentDate <= end) {
       const pad = (n: number) => n.toString().padStart(2, "0");
       const dateStr = `${currentDate.getFullYear()}-${pad(currentDate.getMonth() + 1)}-${pad(currentDate.getDate())}`;
-      
+
       for (const userId of data.userIds) {
         shiftsToCreate.push({
           userId,
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
           endTime: data.endTime,
         });
       }
-      
+
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
@@ -107,7 +107,7 @@ export async function PATCH(request: Request) {
   try {
     const body = await request.json();
     const { id, ...data } = body;
-    
+
     if (!id) {
       return NextResponse.json({ error: "Missing shift id" }, { status: 400 });
     }
@@ -146,7 +146,7 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
-    
+
     if (!id) {
       return NextResponse.json({ error: "Missing shift id" }, { status: 400 });
     }

@@ -48,6 +48,8 @@ export interface StaffRow {
   hourlyRate: number | null;
   isActive: boolean;
   color: string | null;
+  first_name: string | null;
+  mobile: string | null,
 }
 
 function fmtHM(totalMinutes: number) {
@@ -386,7 +388,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
                   <option value="">All staff</option>
                   {staff.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.fullName}{s.employeeId ? ` · ${s.employeeId}` : ""}
+                      {s.first_name} {s.mobile ? ` · ${s.mobile}` : ""}
                     </option>
                   ))}
                 </Select>
@@ -430,8 +432,138 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
             </div>
           </div>
 
-          {/* Table Layout */}
-          <div className="overflow-x-auto touch-scroll rounded-2xl border border-slate-800">
+          {/* MOBILE VIEW: Card List (< md) */}
+          <div className="block md:hidden space-y-4">
+            {attendance.length === 0 ? (
+              <div className="py-8 text-center text-slate-400 font-medium bg-slate-900/40 rounded-xl border border-slate-800">
+                No attendance matches these filters.
+              </div>
+            ) : (
+              attendance.map((a) => {
+                const s = rateLookup.get(a.userId);
+                const displayRate = a.hourlyRate ?? s?.hourlyRate ?? null;
+                const gross =
+                  a.grossPay ?? (displayRate != null && a.workMinutes != null ? Math.round((a.workMinutes / 60) * displayRate * 100) / 100 : null);
+                const checked = selected.has(a.id);
+
+                return (
+                  <div
+                    key={a.id}
+                    className={cn(
+                      "rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-3 transition-colors",
+                      checked && "bg-blue-950/20 border-blue-800/60"
+                    )}
+                  >
+                    {/* Header: Select + Staff Info + Approval Badge */}
+                    <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleSelected(a.id)}
+                          className="h-4 w-4 rounded border-slate-600 bg-slate-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-900"
+                        />
+                        <div
+                          className="flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-slate-950 shadow-sm"
+                          style={{ backgroundColor: a.userColor ?? s?.color ?? "#94A3B8" }}
+                        >
+                          {a.mobile ? initialsFromName(a.userFullName) : "·"}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-white">{a.first_name ?? s?.first_name ?? "Unknown"} - {a.mobile ?? s?.mobile ?? "Unknown"}</p>
+                          {/* <p className="truncate text-sm font-semibold text-white">{s?.fullName ?? "Unknown"}</p> */}
+                          {/* <p className="truncate text-sm font-semibold text-white">{a.mobile ?? s?.mobile ?? "Unknown"}</p> */}
+                          {/* <p className="truncate text-xs text-slate-400">
+                            {a.userJobTitle ?? s?.jobTitle ?? s?.role ?? ""}
+                            {a.departmentName ? ` · ${a.departmentName}` : ""}
+                          </p> */}
+                        </div>
+                      </div>
+                      <div>
+                        {a.approvalStatus === "approved" ? (
+                          <span className="inline-flex items-center rounded-md bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-400 border border-emerald-500/30">Approved</span>
+                        ) : a.approvalStatus === "rejected" ? (
+                          <span className="inline-flex items-center rounded-md bg-rose-500/15 px-2 py-0.5 text-xs font-semibold text-rose-400 border border-rose-500/30">Rejected</span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-md bg-amber-500/15 px-2 py-0.5 text-xs font-semibold text-amber-400 border border-amber-500/30">Pending</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Clock Data Grid */}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <span className="text-slate-400 block">Clock-in</span>
+                        <span className="text-slate-200 font-medium">{fmtDateTime(a.clockedInAt)}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block">Clock-out</span>
+                        <span className="text-slate-200 font-medium">{a.clockedOutAt ? fmtDateTime(a.clockedOutAt) : "—"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block">Hours / Rate</span>
+                        <span className="text-slate-200 font-medium font-mono">
+                          {a.workMinutes != null ? fmtHM(a.workMinutes) : a.status} @ {displayRate != null ? formatCurrency(displayRate) : "—"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block">Gross Pay</span>
+                        <span className="text-white font-bold">{gross != null ? formatCurrency(gross) : "—"}</span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-slate-800/60">
+                      {a.approvalStatus !== "approved" ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          icon={<BadgeCheck className="size-3.5 shrink-0" />}
+                          onClick={() => setApproval(a.id, "approved")}
+                          className="h-8 py-1 px-2 text-xs font-semibold rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20"
+                        >
+                          Approve
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          icon={<Ban className="size-3.5 shrink-0" />}
+                          onClick={() => setApproval(a.id, "pending")}
+                          className="h-8 py-1 px-2 text-xs font-semibold rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/20"
+                        >
+                          Reopen
+                        </Button>
+                      )}
+                      {a.approvalStatus !== "rejected" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          icon={<XCircle className="size-3.5 shrink-0" />}
+                          onClick={() => setApproval(a.id, "rejected")}
+                          className="h-8 py-1 px-2 text-xs font-semibold rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20"
+                        >
+                          Reject
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        icon={<PenLine className="size-3.5 shrink-0" />}
+                        onClick={() => openEdit(a)}
+                        className="h-8 py-1 px-2 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700"
+                      >
+                        Edit
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* DESKTOP VIEW: Table Layout (>= md) */}
+          <div className="hidden md:block overflow-x-auto touch-scroll rounded-2xl border border-slate-800">
             <Table className="w-full min-w-[1060px] text-left">
               <THead className="bg-slate-900/90 border-b border-slate-800">
                 <TR>
@@ -557,6 +689,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
         </CardContent>
       </Card>
 
+      {/* PAYOUTS SECTION */}
       <Card className="rounded-3xl border border-slate-800 bg-[#181920]/95 shadow-2xl backdrop-blur-md text-slate-100 overflow-hidden">
         <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
           <div>
@@ -575,8 +708,88 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto touch-scroll">
+        <CardContent className="p-4 sm:p-6">
+          {/* MOBILE VIEW: Payout Cards */}
+          <div className="block md:hidden space-y-4">
+            {payouts.length === 0 ? (
+              <div className="py-8 text-center text-slate-400 font-medium">No payouts generated yet for this period.</div>
+            ) : (
+              payouts.map((p) => (
+                <div key={p.id} className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
+                  <div className="flex items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-slate-950 shadow-sm"
+                        style={{ backgroundColor: p.userColor ?? "#94A3B8" }}
+                      >
+                        {p.userFullName ? initialsFromName(p.userFullName) : "·"}
+
+
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-white">{p.first_name ?? "Unknown"}</p>
+
+                        <p className="truncate text-xs text-slate-400">{p.userEmployeeId ?? ""}</p>
+                      </div>
+                    </div>
+                    <div>
+                      {p.status === "paid" ? (
+                        <span className="inline-flex items-center rounded-md bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-400 border border-emerald-500/30">Paid</span>
+                      ) : p.status === "processing" ? (
+                        <span className="inline-flex items-center rounded-md bg-sky-500/15 px-2 py-0.5 text-xs font-semibold text-sky-400 border border-sky-500/30">Processing</span>
+                      ) : p.status === "void" ? (
+                        <span className="inline-flex items-center rounded-md bg-rose-500/15 px-2 py-0.5 text-xs font-semibold text-rose-400 border border-rose-500/30">Void</span>
+                      ) : (
+                        <span className="inline-flex items-center rounded-md bg-slate-800 px-2 py-0.5 text-xs font-semibold text-slate-300 border border-slate-700">Draft</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-slate-400 block">Period</span>
+                      <span className="text-slate-200">{fmtDate(p.periodStart)} → {fmtDate(p.periodEnd)}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block">Hours / Rate</span>
+                      <span className="text-slate-200 font-mono">{fmtHM(p.totalMinutes)} @ {formatCurrency(p.hourlyRate)}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block">Gross Amount</span>
+                      <span className="text-white font-bold">{formatCurrency(p.grossAmount)}</span>
+                    </div>
+                    {p.reference && (
+                      <div>
+                        <span className="text-slate-400 block">Reference</span>
+                        <span className="text-slate-200 font-semibold">#{p.reference}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-slate-800/60">
+                    {p.status === "draft" && (
+                      <Button variant="ghost" size="sm" onClick={() => markPayout(p.id, "processing")} className="text-sky-400 hover:bg-sky-500/10">
+                        Mark processing
+                      </Button>
+                    )}
+                    {p.status === "processing" && (
+                      <Button variant="primary" size="sm" onClick={() => markPayout(p.id, "paid")} className="bg-emerald-600 hover:bg-emerald-500 text-white">
+                        Mark paid
+                      </Button>
+                    )}
+                    {p.status !== "void" && (
+                      <Button variant="ghost" size="sm" onClick={() => markPayout(p.id, "void")} className="text-rose-400 hover:bg-rose-500/10">
+                        Void
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* DESKTOP VIEW: Payout Table */}
+          <div className="hidden md:block overflow-x-auto touch-scroll">
             <Table className="w-full min-w-[980px] text-left">
               <THead className="bg-slate-900/90 border-b border-slate-800">
                 <TR>
@@ -663,6 +876,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
         </CardContent>
       </Card>
 
+      {/* HOURLY PAY RATES SECTION */}
       <Card className="rounded-3xl border border-slate-800 bg-[#181920]/95 shadow-2xl backdrop-blur-md text-slate-100 overflow-hidden">
         <CardHeader className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
           <div>
@@ -670,8 +884,41 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
             <p className="text-xs sm:text-sm text-slate-400">Set the per-hour rate used in payout calculations</p>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto touch-scroll">
+        <CardContent className="p-4 sm:p-6">
+          {/* MOBILE VIEW: Rates Card List */}
+          <div className="block md:hidden space-y-3">
+            {staff.map((s) => (
+              <div key={s.id} className="flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div
+                    className="flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-slate-950 shadow-sm"
+                    style={{ backgroundColor: s.color ?? "#94A3B8" }}
+                  >
+                    {initialsFromName(s.fullName)}
+
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">{s.first_name} - {s.mobile}</p>
+                    <p className="truncate text-xs text-slate-400">
+                      {s.hourlyRate != null ? formatCurrency(s.hourlyRate) : "No rate set"}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={<Pencil className="size-4" />}
+                  onClick={() => openRate(s)}
+                  className="shrink-0 text-slate-300 hover:bg-slate-800 hover:text-white"
+                >
+                  Set
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          {/* DESKTOP VIEW: Rates Table */}
+          <div className="hidden md:block overflow-x-auto touch-scroll">
             <Table className="w-full text-left">
               <THead className="bg-slate-900/90 border-b border-slate-800">
                 <TR>
@@ -731,6 +978,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
         </CardContent>
       </Card>
 
+      {/* MODALS */}
       <Modal
         open={!!editAttendanceId && !!editValues}
         onClose={() => {
@@ -832,7 +1080,8 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
                 <option value="">Choose staff…</option>
                 {staff.map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.fullName}{s.employeeId ? ` · ${s.employeeId}` : ""}
+                    {s.fullName}
+                    {/* {s.employeeId ? ` · ${s.employeeId}` : ""} */}
                   </option>
                 ))}
               </Select>
@@ -844,7 +1093,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
                 <Input type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} />
               </div>
             </Field>
-            <Field label="Hourly rate (AUD)" hint="Defaults to this staff member&apos;s assigned pay rate">
+            {/* <Field label="Hourly rate (AUD)" hint="Defaults to this staff member&apos;s assigned pay rate">
               <Input
                 type="number"
                 step="0.01"
@@ -852,7 +1101,7 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
                 value={payHourlyRate}
                 onChange={(e) => setPayHourlyRate(e.target.value)}
               />
-            </Field>
+            </Field> */}
             <Field label="Reference (optional)">
               <Input value={payReference} onChange={(e) => setPayReference(e.target.value)} placeholder="e.g. PAYRUN-042" />
             </Field>
@@ -863,29 +1112,51 @@ export function PayrollAdminShell({ staff }: PayrollAdminShellProps) {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Calculation preview</p>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-[14px] font-bold uppercase tracking-[0.24em] text-slate-500">
+              Calculation preview
+            </p>
             {preview ? (
-              <div className="mt-3 grid gap-3 sm:grid-cols-4">
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-slate-500">Sessions</p>
-                  <p className="text-sm font-semibold text-slate-900">{preview.sessionCount} total · {preview.approvedCount} approved</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-slate-500">Hours</p>
-                  <p className="text-lg font-semibold text-slate-900">{preview.totalHours.toFixed(2)}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-slate-500">Rate</p>
-                  <p className="text-lg font-semibold text-slate-900">{preview.hourlyRate != null ? formatCurrency(preview.hourlyRate) : "—"}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-slate-500">Gross</p>
-                  <p className="text-lg font-bold text-blue-600">{formatCurrency(preview.grossAmount)}</p>
-                </div>
+              <div className="mt-3 overflow-x-auto">
+                <Table className="w-full text-left">
+                  <THead className="border-b border-slate-200 bg-slate-100/60">
+                    <TR>
+                      <TH className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Sessions
+                      </TH>
+                      <TH className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Hours
+                      </TH>
+                      <TH className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Rate
+                      </TH>
+                      <TH className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500 text-right">
+                        Gross
+                      </TH>
+                    </TR>
+                  </THead>
+                  <TBody>
+                    <TR>
+                      <TD className="px-3 py-2.5 text-sm font-semibold text-slate-900 whitespace-nowrap">
+                        {preview.sessionCount} total · {preview.approvedCount} approved
+                      </TD>
+                      <TD className="px-3 py-2.5 text-base font-semibold text-slate-900 whitespace-nowrap font-mono">
+                        {preview.totalHours.toFixed(2)}
+                      </TD>
+                      <TD className="px-3 py-2.5 text-base font-semibold text-slate-900 whitespace-nowrap">
+                        {preview.hourlyRate != null ? formatCurrency(preview.hourlyRate) : "—"}
+                      </TD>
+                      <TD className="px-3 py-2.5 text-base font-bold text-blue-600 whitespace-nowrap text-right">
+                        {formatCurrency(preview.grossAmount)}
+                      </TD>
+                    </TR>
+                  </TBody>
+                </Table>
               </div>
             ) : (
-              <p className="mt-2 text-sm text-slate-500">Choose a staff member to see the calculation preview.</p>
+              <p className="mt-2 text-sm text-slate-500">
+                Choose a staff member to see the calculation preview.
+              </p>
             )}
           </div>
         </div>

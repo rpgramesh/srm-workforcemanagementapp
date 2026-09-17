@@ -29,6 +29,7 @@ export interface UserIdentityLike {
   firstName?: string | null;
   lastName?: string | null;
   role?: AppRole | string | null;
+  mobile?: string | null;
 }
 
 function plainName(u: UserIdentityLike): string {
@@ -36,12 +37,14 @@ function plainName(u: UserIdentityLike): string {
   return name || "Unknown User";
 }
 
-export function formatUserLabel(u: UserIdentityLike, variant: "inline" | "twoLine" = "inline"): string {
+export function formatUserLabel(u: UserIdentityLike & { mobile?: string | null }, variant: "inline" | "twoLine" = "inline"): string {
   const name = plainName(u);
   const role = roleLabel((u.role as AppRole) ?? undefined);
-  if (variant === "twoLine") return `${name}\n${role.toUpperCase()}`;
+  const mobile = u.mobile?.trim() || "";
+  if (mobile === "") return `${name} (${role})`;
+  if (variant === "twoLine") return `${name}\n${role.toUpperCase()}\n${mobile}`;
 
-  return `${name} (${role})`;
+  return `${name} (${role}) - ${mobile}`;
 }
 
 export function initialsFromName(u: UserIdentityLike | string | null | undefined): string {

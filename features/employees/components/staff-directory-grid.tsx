@@ -84,7 +84,7 @@ export function StaffDirectoryGrid({ staff, onAddStaff, onFilter, onMessageStaff
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-slate-900">
-                      {formatUserLabel({ fullName: card.fullName, role: card.role })}
+                      {formatUserLabel({ fullName: card.fullName, role: card.role, mobile: card.mobile })}  
                     </p>
                     {card.department ? (
                       <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-slate-500">
